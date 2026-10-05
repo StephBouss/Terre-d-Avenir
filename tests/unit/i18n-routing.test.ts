@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { decideRoute } from '@/lib/i18n/routing'
+import { decideRoute, localeFromPath } from '@/lib/i18n/routing'
 
 describe('decideRoute', () => {
   it('redirige la racine vers la langue par défaut', () => {
@@ -21,5 +21,17 @@ describe('decideRoute', () => {
     for (const p of ['/admin', '/admin/collections/pages', '/api/pages', '/_next/static/a.js', '/favicon.ico', '/sitemap.xml', '/robots.txt', '/brand/logo-couleur.png']) {
       expect(decideRoute(p)).toEqual({ action: 'next' })
     }
+  })
+})
+
+describe('localeFromPath', () => {
+  it('retourne la langue active du premier segment', () => {
+    expect(localeFromPath('/en/zzz')).toBe('en')
+    expect(localeFromPath('/fr')).toBe('fr')
+  })
+  it('retombe sur la langue par défaut', () => {
+    expect(localeFromPath('/')).toBe('fr')
+    expect(localeFromPath('/es/contact')).toBe('fr')
+    expect(localeFromPath('/nimporte-quoi')).toBe('fr')
   })
 })
