@@ -67,6 +67,10 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    pages: Page;
+    actualites: Actualite;
+    projets: Projet;
+    medias: Media;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -75,6 +79,10 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    pages: PagesSelect<false> | PagesSelect<true>;
+    actualites: ActualitesSelect<false> | ActualitesSelect<true>;
+    projets: ProjetsSelect<false> | ProjetsSelect<true>;
+    medias: MediasSelect<false> | MediasSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -85,8 +93,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('fr' | 'en') | ('fr' | 'en')[];
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    reglages: Reglage;
+  };
+  globalsSelect: {
+    reglages: ReglagesSelect<false> | ReglagesSelect<true>;
+  };
   locale: 'fr' | 'en';
   widgets: {
     collections: CollectionsWidget;
@@ -114,6 +126,165 @@ export interface UserAuthOperations {
     email: string;
     password: string;
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  slug:
+    | 'accueil'
+    | 'ong'
+    | 'mot-de-la-presidente'
+    | 'organisation'
+    | 'projets'
+    | 'actualites'
+    | 'adhesion'
+    | 'mediatheque'
+    | 'partenariats'
+    | 'transparence'
+    | 'contact'
+    | 'confidentialite'
+    | 'mentions-legales';
+  seoTitle?: string | null;
+  metaDescription?: string | null;
+  /**
+   * Entourer un passage de *astérisques* pour le mettre en doré.
+   */
+  h1?: string | null;
+  /**
+   * Laisser vide tant que le texte n’est pas validé : un champ vide est masqué sur le site.
+   */
+  intro?: string | null;
+  sections?:
+    | {
+        /**
+         * Ne pas modifier : utilisée par la mise en page.
+         */
+        key: string;
+        eyebrow?: string | null;
+        heading?: string | null;
+        /**
+         * Paragraphes séparés par une ligne vide. Laisser vide tant que le texte n’est pas validé : un champ vide est masqué sur le site.
+         */
+        body?: string | null;
+        items?:
+          | {
+              title?: string | null;
+              text?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        ctas?:
+          | {
+              label: string;
+              /**
+               * Chemin interne sans langue (ex. /adhesion) ou URL complète.
+               */
+              href: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "actualites".
+ */
+export interface Actualite {
+  id: number;
+  title: string;
+  slug: string;
+  order: number;
+  publie?: boolean | null;
+  category?: string | null;
+  /**
+   * Ex. « 8 août 2026 » ou « Initiative publiée ».
+   */
+  dateLabel?: string | null;
+  date?: string | null;
+  excerpt?: string | null;
+  body?: string | null;
+  image?: (number | null) | Media;
+  source?: {
+    label?: string | null;
+    url?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "medias".
+ */
+export interface Media {
+  id: number;
+  /**
+   * Décrit l’image. Laisser vide si elle est décorative.
+   */
+  alt?: string | null;
+  caption?: string | null;
+  credit?: string | null;
+  galerie?: boolean | null;
+  /**
+   * Une image provisoire est toujours affichée comme décorative.
+   */
+  provisoire?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+  sizes?: {
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    hero?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projets".
+ */
+export interface Projet {
+  id: number;
+  theme: string;
+  title?: string | null;
+  slug: string;
+  order: number;
+  icon?: ('graduation-cap' | 'heart-pulse' | 'trophy' | 'handshake') | null;
+  summary?: string | null;
+  body?: string | null;
+  image?: (number | null) | Media;
+  source?: {
+    label?: string | null;
+    url?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -164,10 +335,27 @@ export interface PayloadKv {
  */
 export interface PayloadLockedDocument {
   id: number;
-  document?: {
-    relationTo: 'users';
-    value: number | User;
-  } | null;
+  document?:
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'actualites';
+        value: number | Actualite;
+      } | null)
+    | ({
+        relationTo: 'projets';
+        value: number | Projet;
+      } | null)
+    | ({
+        relationTo: 'medias';
+        value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: number | User;
+      } | null);
   globalSlug?: string | null;
   user: {
     relationTo: 'users';
@@ -209,6 +397,134 @@ export interface PayloadMigration {
   batch?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  slug?: T;
+  seoTitle?: T;
+  metaDescription?: T;
+  h1?: T;
+  intro?: T;
+  sections?:
+    | T
+    | {
+        key?: T;
+        eyebrow?: T;
+        heading?: T;
+        body?: T;
+        items?:
+          | T
+          | {
+              title?: T;
+              text?: T;
+              id?: T;
+            };
+        ctas?:
+          | T
+          | {
+              label?: T;
+              href?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "actualites_select".
+ */
+export interface ActualitesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  order?: T;
+  publie?: T;
+  category?: T;
+  dateLabel?: T;
+  date?: T;
+  excerpt?: T;
+  body?: T;
+  image?: T;
+  source?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "projets_select".
+ */
+export interface ProjetsSelect<T extends boolean = true> {
+  theme?: T;
+  title?: T;
+  slug?: T;
+  order?: T;
+  icon?: T;
+  summary?: T;
+  body?: T;
+  image?: T;
+  source?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "medias_select".
+ */
+export interface MediasSelect<T extends boolean = true> {
+  alt?: T;
+  caption?: T;
+  credit?: T;
+  galerie?: T;
+  provisoire?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+  sizes?:
+    | T
+    | {
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        hero?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -272,6 +588,32 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reglages".
+ */
+export interface Reglage {
+  id: number;
+  facebookUrl: string;
+  location?: string | null;
+  footerTagline?: string | null;
+  heroImages?: (number | Media)[] | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reglages_select".
+ */
+export interface ReglagesSelect<T extends boolean = true> {
+  facebookUrl?: T;
+  location?: T;
+  footerTagline?: T;
+  heroImages?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
