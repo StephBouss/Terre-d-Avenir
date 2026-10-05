@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.vite/
+.banani-mcp-request.json
+.banani-selected.json
+*.log

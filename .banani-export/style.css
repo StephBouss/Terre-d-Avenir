@@ -1,0 +1,49 @@
+﻿@theme {
+  /* used via utility-classes, bg-background, text-primary, and many more */
+  --color-background: #ffffff;
+  --color-foreground: #17372C;
+  --color-border: #D9E3DC;
+  --color-input: #F7F8F4;
+  --color-primary: #005C38;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #E6BF58;
+  --color-secondary-foreground: #17372C;
+  --color-muted: #D9E3DC;
+  --color-muted-foreground: #5D7166;
+  --color-accent: #003E2A;
+  --color-accent-foreground: #ffffff;
+  --color-light: #F7F8F4;
+  --color-error: #B42318;
+  --color-logo-green: #028116;
+  --color-logo-red: #D92318;
+  --color-gold: #E6BF58;
+  --color-forest: #005C38;
+  --color-deep: #003E2A;
+
+  /* DO NOT REMOVE: these radius variables are required by the theme editor. */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  /* DONT CHANGE OR REMOVE THIS VARIABLE */
+  --radius: var(--radius-sm);
+
+  /* DO NOT REMOVE: these font variables are required by the theme editor. */
+  /* available fonts: "Inter", "DM Sans", "Nunito", "PT Serif", "Space Grotesk", "IBM Plex Mono", "IBM Plex Sans", "Roboto Slab", "Geist", "Shantell Sans" */
+  --font-body: DM Sans;
+  --font-headings: DM Sans;
+
+  /* Add and change text sizes as you see fit */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --text-3xl: 30px;
+  --text-4xl: 36px;
+  --text-5xl: 48px;
+  --text-6xl: 56px;
+}
+
