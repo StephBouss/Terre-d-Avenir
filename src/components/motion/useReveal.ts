@@ -24,5 +24,5 @@ export function useReveal(ref: RefObject<HTMLElement | null>) {
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [])
+  }, [ref])
 }

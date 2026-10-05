@@ -42,34 +42,31 @@
 .card-lift:hover,
 .card-lift:focus-within {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0, 62, 42, 0.12);
+  box-shadow: 0 12px 28px rgba(0, 62, 42, 0.12) !important;
 }
-.card-media img {
-  transition: transform 250ms var(--ease-out-soft);
-}
-.card-lift:hover .card-media img {
-  transform: scale(1.04);
-}
+.card-media { overflow: hidden; }
+.card-media img { transition: transform 500ms var(--ease-out-soft); }
+.card-lift:hover .card-media img,
+.card-lift:focus-within .card-media img { transform: scale(1.04); }
 
-/* Boutons avec flèche */
-.btn-arrow {
-  transition: transform 250ms var(--ease-out-soft);
-}
-.btn-arrow:hover {
-  transform: translateX(4px);
-}
-.btn-arrow svg:last-child {
-  transition: transform 250ms var(--ease-out-soft);
-  transform-origin: center;
-}
-.btn-arrow:hover svg:last-child {
-  transform: translateX(4px);
-}
-
-/* Soulignement du titre */
+/* Filet doré sous le titre au survol */
 .title-underline {
+  background-image: linear-gradient(#e6bf58, #e6bf58);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 2px;
   transform-origin: left;
 }
+.card-lift .title-underline { background-size: 0 2px; transition: background-size 300ms var(--ease-out-soft); }
+.card-lift:hover .title-underline,
+.card-lift:focus-within .title-underline { background-size: 100% 2px; }
+
+/* Boutons et liens avec flèche */
+.btn-arrow { transition: filter 200ms ease, transform 200ms ease; }
+.btn-arrow:hover { filter: brightness(1.06); }
+.btn-arrow svg:last-child { transition: transform 200ms var(--ease-out-soft); }
+.btn-arrow:hover svg:last-child,
+.btn-arrow:focus-visible svg:last-child { transform: translateX(4px); }
 
 /* En-tête compact au défilement */
 .site-header {
