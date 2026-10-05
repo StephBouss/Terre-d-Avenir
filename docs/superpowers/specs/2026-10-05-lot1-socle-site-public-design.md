@@ -40,7 +40,7 @@ Le lot 1 ne collecte **aucune donnée personnelle**. Les formulaires d'adhésion
 |---|---|
 | Framework | Next.js (dernière version majeure prise en charge par Payload 3), App Router, TypeScript |
 | CMS | Payload 3, intégré à l'application Next.js |
-| Base de données | PostgreSQL 16 (adaptateur `@payloadcms/db-postgres`) |
+| Base de données | PostgreSQL 18 (adaptateur `@payloadcms/db-postgres`). En développement, il est lancé via le paquet npm `embedded-postgres`, car Docker n'est pas installé sur le poste ; en production, il tourne via Docker Compose (`postgres:18`). |
 | Styles | Tailwind CSS v4, avec les tokens de la charte déjà définis dans le `@theme` de Codex |
 | Police | DM Sans via `next/font` |
 | Médias | Upload Payload sur disque local (volume Docker) |
@@ -58,7 +58,7 @@ src/
   collections/              Actualites, Projets, Medias, Users
   globals/                  Pages (textes par page), Navigation, Reglages
   seed/                     script de seed (Textes v1.3 FR + traduction EN + médias)
-  middleware.ts             redirection / → /fr/, langues inactives
+  proxy.ts                  redirection / → /fr/, langues inactives (convention Next.js 16, ex-middleware)
 payload.config.ts
 ```
 
@@ -66,7 +66,7 @@ payload.config.ts
 
 - **Contenus :** la localisation native de Payload, avec les locales `fr` (par défaut) et `en`. Les champs textuels sont localisés.
 - **Libellés de l'interface** (boutons, navigation, messages communs) : un dictionnaire léger par langue dans `lib/i18n`. Il s'appuie sur le « socle de libellés multilingues » des Textes v1.3.
-- **Langues actives :** elles sont définies dans le global `Reglages` (`fr` et `en` au lot 1). Le sélecteur ne montre que celles-là, sous leur nom natif.
+- **Langues actives :** elles sont définies dans `src/lib/i18n/config.ts` (`fr` et `en` au lot 1), car activer une langue exige de toute façon une migration Payload. Le sélecteur ne montre que celles-là ; il affiche le code (FR / EN) comme la maquette, avec le nom natif en titre et pour les lecteurs d'écran.
 - **Routes :** `/{locale}/…`, avec les mêmes slugs dans toutes les langues. `/` redirige vers `/fr/`.
 - **Langue inactive** (ex. `/es/…`) : message « Cette version linguistique n'est pas encore publiée » et liens vers les versions disponibles.
 - **HTML :** `lang` et `dir` sont posés sur `<html>`, ce qui prépare l'arabe en lecture de droite à gauche, et les balises `hreflang` sont générées pour les langues actives.
@@ -76,15 +76,16 @@ payload.config.ts
 
 | Type | Nom | Contenu principal |
 |---|---|---|
-| Collection | `actualites` | titre, slug, date, extrait, corps (rich text), image, source (libellé + URL), statut brouillon/publié |
-| Collection | `projets` | titre, slug, thème, résumé, corps, image, source |
-| Collection | `medias` | fichier, texte alternatif (localisé), légende (localisée), crédit, mention « provisoire » |
+| Collection | `pages` | une page par slug (13 pages) : titre SEO, méta-description, H1, introduction, et une liste localisée de **sections génériques** (clé, surtitre, titre, texte, éléments, boutons) |
+| Collection | `actualites` | titre, slug, ordre, catégorie, date affichée, date de tri, résumé, texte, image, source (libellé + URL), case « publiée » |
+| Collection | `projets` | thème, titre, slug, ordre, icône, résumé (accueil), texte, image, source |
+| Collection | `medias` | fichier, texte alternatif (localisé), légende (localisée), crédit, « afficher dans la médiathèque », « provisoire » |
 | Collection | `users` | comptes d'administration (auth Payload) |
-| Global | `pages` | un groupe de champs localisés par page (accueil, ong, mot-presidente, organisation, adhesion, partenariats, transparence, contact, confidentialite, mentions-legales, 404) |
-| Global | `navigation` | entrées de l'en-tête et liens du pied de page, textes du pied de page |
-| Global | `reglages` | langues actives, lien Facebook, nom de l'organisation, copyright |
+| Global | `reglages` | lien Facebook, localisation affichée, texte du pied de page, images du diaporama d'accueil |
 
-Un champ vide est masqué côté site. Dans l'admin, une description « à compléter » le signale.
+- Les textes longs sont des champs texte multiligne (paragraphes séparés par une ligne vide) : le rich text n'est pas nécessaire au lot 1.
+- Les libellés d'interface (menu, boutons, formulaires, 404) sont dans les dictionnaires du code, et non dans Payload.
+- Un champ vide, ou contenant un marqueur de brouillon `[…]`, est masqué côté site. Dans l'admin, une description le rappelle.
 
 ### 4.6 Rendu et cache
 
@@ -94,7 +95,7 @@ Un champ vide est masqué côté site. Dans l'admin, une description « à compl
 ### 4.7 Seed
 
 `npm run seed` (npm, comme le prototype) remplit une base vide avec :
-- les Textes v1.3 en français, dans les globals et les collections ;
+- les Textes v1.3 en français, dans les collections et le global ;
 - la traduction anglaise ;
 - les 3 actualités de PAGE-05 et les 4 thèmes de PAGE-04 ;
 - les images : `banner.jpg` et les logos de `../Source/`, plus les photos Unsplash du prototype importées comme médias marqués « provisoire » et remplaçables depuis l'admin ;
@@ -109,13 +110,13 @@ Toutes les routes sont préfixées par la langue (`fr`, `en`).
 | Route | Source visuelle | Contenu |
 |---|---|---|
 | `/{l}/` | Accueil Codex | Hero diaporama, mission, aperçu du mot de la présidente, thèmes, 3 dernières actualités, appel à adhérer |
-| `/{l}/ong` | Écran ONG Codex (présentation + valeurs) | Présentation, valeurs, ancrage |
-| `/{l}/mot-de-la-presidente` | Composée (bloc présidente + hero de page) | PAGE-02 en entier, avec signature et portrait si autorisé |
+| `/{l}/ong` | Écran ONG Codex (présentation) | Présentation, repères, ancrage, engagements, liens vers la démarche. Les valeurs, la frise « 2022 » et les cartes d'équipe de la maquette sont retirées (absentes des Textes v1.3) |
+| `/{l}/mot-de-la-presidente` | Composée (hero de page + composition typographique) | PAGE-02 en entier. La signature et le portrait ne s'affichent qu'une fois validés |
 | `/{l}/organisation` | Composée (section équipe de l'écran ONG) | PAGE-11. Si l'organigramme n'est pas validé : message « en cours de validation » |
 | `/{l}/projets`, `/{l}/projets/[slug]` | Composée (ActionThemeCard + gabarit Article) | Thèmes et fiches PAGE-04 |
 | `/{l}/actualites`, `/{l}/actualites/[slug]` | Actualités + Article Codex | PAGE-05 avec leurs sources |
-| `/{l}/adhesion` | Section adhésion de l'écran ONG Codex | Démarche, étapes, critères, avantages, FAQ. Formulaire visible mais désactivé, avec le bandeau « L'adhésion n'est pas encore ouverte » |
-| `/{l}/mediatheque` | Médiathèque Codex | Galerie de la collection `medias` et lien Facebook |
+| `/{l}/adhesion` | Section adhésion de l'écran ONG Codex | Démarche, étapes, FAQ (PAGE-03). Formulaire visible mais désactivé, avec les champs des Textes v1.3 (et non ceux de la maquette) et le bandeau « pas encore ouvertes ». Critères et avantages de la maquette retirés |
+| `/{l}/mediatheque` | Médiathèque Codex | Médias marqués « médiathèque » (au départ, la bannière seule), état vide et lien Facebook. Textes nouveaux, à valider |
 | `/{l}/partenariats` | Composée | PAGE-06 |
 | `/{l}/transparence` | Composée | PAGE-07. Documents publics, ou mention « à venir » |
 | `/{l}/contact` | Contact Codex | Orientations adhésion / partenariat / échange. Formulaire visible mais envoi désactivé, avec renvoi vers Facebook |
@@ -131,22 +132,22 @@ Toutes les routes sont préfixées par la langue (`fr`, `en`).
 
 ## 6. Animations — niveau « vivant mais sobre »
 
-Les animations sont faites sans bibliothèque. Elles utilisent du CSS, IntersectionObserver et la View Transitions API.
+Les animations sont faites sans bibliothèque. Elles utilisent du CSS, IntersectionObserver et un `template.tsx` Next.js pour les transitions de page.
 
 | Brique | Comportement | Usage |
 |---|---|---|
 | `<Reveal>` (client) | Fondu + translation de 16 px vers le haut, 600 ms, `cubic-bezier(0.22, 1, 0.36, 1)`, joué une fois à l'entrée dans l'écran | Titres de section, paragraphes, images |
 | `<RevealGroup>` (client) | Apparition décalée des enfants, 80 ms d'écart | Grilles : thèmes, actualités, valeurs, galerie |
-| `<CountUp>` (client) | Défile de 0 à la valeur cible en 1,2 s quand il devient visible | Uniquement les chiffres réels des Textes v1.3 |
-| En-tête au défilement | Au-delà de 40 px : hauteur de 80 à 64 px, ombre légère, fond plus opaque | Toutes les pages |
+| En-tête au défilement | Au-delà de 40 px : logo réduit à 86 % (transform) et ombre portée ; l'en-tête reste collé en haut, sans changer de hauteur | Toutes les pages |
 | Survol des cartes | Élévation de 4 px, ombre plus marquée, zoom de l'image ×1,04, filet doré sous le titre | Cartes thèmes, actualités, projets, médias |
 | Boutons | Changement de teinte, la flèche glisse de 4 px | Tous les CTA |
-| Transitions de page | Fondu croisé de 200 ms via la View Transitions API ; l'en-tête reste fixe | Navigation interne |
+| Transitions de page | Fondu d'entrée de 200 ms du contenu (`template.tsx`) ; l'en-tête et le pied de page restent en place | Navigation interne |
 | Hero | Diaporama et apparition du texte du prototype conservés | Accueil |
 | Visionneuse médiathèque | Ouverture en fondu + zoom, Échap pour fermer, flèches du clavier, focus piégé dans la visionneuse | Médiathèque |
 
 **Contraintes :**
-- On anime uniquement `opacity` et `transform`, jamais les propriétés qui déclenchent un recalcul de mise en page.
+- On anime uniquement des propriétés qui ne déclenchent pas de recalcul de mise en page : `opacity`, `transform`, couleurs et ombres.
+- Pas de compteur animé (`CountUp`) au lot 1 : les Textes v1.3 ne contiennent aucun chiffre validé à mettre en avant. La brique viendra avec les KPI.
 - `prefers-reduced-motion: reduce` désactive toutes les animations, et le contenu s'affiche immédiatement.
 - L'état masqué initial n'est appliqué que si JavaScript est actif : une classe est posée sur `<html>` par un script inline. Sans JS, tout le contenu est visible et indexable.
 - Le budget est d'environ 3 Ko de JavaScript ajouté pour l'ensemble des briques d'animation.
@@ -167,11 +168,12 @@ Les animations sont faites sans bibliothèque. Elles utilisent du CSS, Intersect
 ### 8.1 Tests automatisés
 
 - **Unitaires (Vitest) :**
-  - résolution de la langue et décision du middleware ;
+  - résolution de la langue et décision du proxy ;
   - construction des URL et des balises `hreflang` ;
   - sélecteur de langue (même page, autre locale) ;
-  - `CountUp` ;
-  - `Reveal` avec et sans `prefers-reduced-motion`.
+  - `Reveal` avec et sans `prefers-reduced-motion` ;
+  - cohérence des contenus FR/EN du seed et absence de marqueurs de brouillon ;
+  - formulaires désactivés, visionneuse, FAQ, boutons de partage.
 - **Bout en bout (Playwright) :**
   - chaque route répond en 200 en FR et en EN ;
   - aucun lien de l'en-tête ou du pied de page ne mène à une 404 ;
