@@ -4,8 +4,8 @@ import { revalidateCollection, revalidateCollectionDelete } from '../hooks/reval
 export const Medias: CollectionConfig = {
   slug: 'medias',
   typescript: { interface: 'Media' },
-  labels: { singular: 'Média', plural: 'Médias' },
-  admin: { useAsTitle: 'filename', defaultColumns: ['filename', 'galerie', 'provisoire'] },
+  labels: { singular: 'Photo', plural: 'Médiathèque' },
+  admin: { useAsTitle: 'filename', group: 'Images', defaultColumns: ['filename', 'galerie', 'provisoire'] },
   access: { read: () => true },
   hooks: { afterChange: [revalidateCollection], afterDelete: [revalidateCollectionDelete] },
   upload: {

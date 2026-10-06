@@ -24,7 +24,7 @@ export const Pages: CollectionConfig = {
   slug: 'pages',
   typescript: { interface: 'Page' },
   labels: { singular: 'Page', plural: 'Pages' },
-  admin: { useAsTitle: 'slug', defaultColumns: ['slug', 'h1', 'updatedAt'] },
+  admin: { useAsTitle: 'slug', group: 'Contenus', defaultColumns: ['slug', 'h1', 'updatedAt'] },
   access: { read: ({ req }) => Boolean(req.user) },
   hooks: { afterChange: [revalidateCollection], afterDelete: [revalidateCollectionDelete] },
   fields: [

@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { fr } from '@payloadcms/translations/languages/fr'
 import sharp from 'sharp'
 import { Actualites } from './collections/Actualites'
 import { Medias } from './collections/Medias'
@@ -19,6 +20,7 @@ export default buildConfig({
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
   },
+  i18n: { supportedLanguages: { fr }, fallbackLanguage: 'fr' },
   collections: [Pages, Actualites, Projets, Medias, Users],
   globals: [Reglages],
   localization: {

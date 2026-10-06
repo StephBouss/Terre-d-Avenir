@@ -2,6 +2,7 @@ import { spawn, spawnSync, type ChildProcess } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { startDatabase } from './lib/embedded-db'
+import { ADMIN_EMAIL, ADMIN_PASSWORD } from '../tests/e2e/admin-credentials'
 
 const SERVER_URL = 'http://localhost:3100/fr'
 // Base dédiée aux tests : ne touche jamais à la base de développement (5433, .data/postgres).
@@ -10,6 +11,8 @@ const E2E_DATA_DIR = '.data/postgres-e2e'
 const E2E_ENV = {
   ...process.env,
   DATABASE_URI: `postgres://postgres:postgres@127.0.0.1:${E2E_DB_PORT}/terredavenir`,
+  SEED_ADMIN_EMAIL: ADMIN_EMAIL,
+  SEED_ADMIN_PASSWORD: ADMIN_PASSWORD,
 }
 
 const run = (command: string) =>

@@ -5,6 +5,7 @@ export const Reglages: GlobalConfig = {
   slug: 'reglages',
   typescript: { interface: 'Reglage' },
   label: 'Réglages du site',
+  admin: { group: 'Site' },
   access: { read: ({ req }) => Boolean(req.user) },
   hooks: { afterChange: [revalidateGlobal] },
   fields: [

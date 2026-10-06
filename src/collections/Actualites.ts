@@ -5,7 +5,7 @@ export const Actualites: CollectionConfig = {
   slug: 'actualites',
   typescript: { interface: 'Actualite' },
   labels: { singular: 'Actualité', plural: 'Actualités' },
-  admin: { useAsTitle: 'title', defaultColumns: ['title', 'dateLabel', 'publie', 'order'] },
+  admin: { useAsTitle: 'title', group: 'Contenus', defaultColumns: ['title', 'dateLabel', 'publie', 'order'] },
   access: { read: ({ req }) => (req.user ? true : { publie: { equals: true } }) },
   hooks: { afterChange: [revalidateCollection], afterDelete: [revalidateCollectionDelete] },
   defaultSort: 'order',
