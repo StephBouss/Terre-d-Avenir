@@ -1,0 +1,12 @@
+node_modules
+.next
+.data
+media
+.git
+.env
+test-results
+playwright-report
+.banani-export
+docs
+.claude
+.superpowers
