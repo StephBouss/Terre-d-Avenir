@@ -63,7 +63,7 @@ Déploiement avec Docker Compose (PostgreSQL 18 et application sur le port 3000)
 
 - `POSTGRES_PASSWORD` (obligatoire)
 - `PAYLOAD_SECRET` (obligatoire)
-- `NEXT_PUBLIC_SITE_URL` (URL publique du site ; `http://localhost:3000` par défaut)
+- `NEXT_PUBLIC_SITE_URL` (URL publique du site ; `http://localhost:3000` par défaut). Elle est intégrée au site lors de la construction : la modifier exige `docker compose up -d --build`
 - `SEED_ADMIN_EMAIL` et `SEED_ADMIN_PASSWORD` (compte administrateur créé par le seed)
 
 Premier déploiement :
