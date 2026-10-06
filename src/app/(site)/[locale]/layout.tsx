@@ -29,7 +29,8 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   const reglages = await getReglages(locale).catch(() => null)
 
   return (
-    <html lang={locale} dir={localeDir(locale)} className={dmSans.variable}>
+    // suppressHydrationWarning : NO_JS_GUARD ajoute la classe .js sur <html> avant l'hydratation.
+    <html lang={locale} dir={localeDir(locale)} className={dmSans.variable} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: NO_JS_GUARD }} />
       </head>
