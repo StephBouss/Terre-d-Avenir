@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
 import type { Locale } from '@/lib/i18n/config'
-import { isExternal, localizedHref } from '@/lib/i18n/paths'
+import { isExternal, isFacebookUrl, localizedHref, opensInNewTab } from '@/lib/i18n/paths'
+import { isPlaceholder } from '@/lib/text'
 import FacebookIcon from './FacebookIcon'
 import Icon from './Icon'
 
@@ -22,26 +23,28 @@ type Props = {
   label: string
   variant?: CtaVariant
   icon?: string
-  newTabLabel?: string
+  newTabLabel: string
   className?: string
 }
 
 export function Cta({ locale, href, label, variant = 'primary', icon, newTabLabel, className = '' }: Props) {
+  if (isPlaceholder(label) || isPlaceholder(href)) return null
   const v = VARIANTS[variant]
   const external = isExternal(href)
+  const newTab = opensInNewTab(href)
   const size = variant === 'link' ? 13 : 17
   const content = (
     <>
-      {icon ? <Icon i={icon} size={size} /> : /facebook\.com/.test(href) ? <FacebookIcon size={16} color={v.light ? '#fff' : '#1877F2'} /> : null}
+      {icon ? <Icon i={icon} size={size} /> : isFacebookUrl(href) ? <FacebookIcon size={16} color={v.light ? '#fff' : '#1877F2'} /> : null}
       <span>{label}</span>
-      {external && newTabLabel && <span className="sr-only">{newTabLabel}</span>}
+      {newTab && <span className="sr-only">{` ${newTabLabel}`}</span>}
       <Icon i={external ? 'arrow-up-right' : 'arrow-right'} size={size} />
     </>
   )
   const cls = `btn-arrow ${v.className} ${className}`
   if (external) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className={cls} style={v.style}>
+      <a href={href} {...(newTab ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className={cls} style={v.style}>
         {content}
       </a>
     )
@@ -53,14 +56,15 @@ export function Cta({ locale, href, label, variant = 'primary', icon, newTabLabe
   )
 }
 
-type ListProps = { locale: Locale; ctas?: { label: string; href: string; id?: string | null }[] | null; newTabLabel?: string; dark?: boolean }
+type ListProps = { locale: Locale; ctas?: { label: string; href: string; id?: string | null }[] | null; newTabLabel: string; dark?: boolean }
 
 /** Le premier bouton est principal, les suivants secondaires. */
 export function CtaList({ locale, ctas, newTabLabel, dark = false }: ListProps) {
-  if (!ctas || ctas.length === 0) return null
+  const visible = (ctas ?? []).filter((c) => !isPlaceholder(c.label) && !isPlaceholder(c.href))
+  if (visible.length === 0) return null
   return (
     <div className="flex gap-4 flex-wrap">
-      {ctas.map((cta, i) => (
+      {visible.map((cta, i) => (
         <Cta
           key={cta.id ?? `${cta.href}-${i}`}
           locale={locale}

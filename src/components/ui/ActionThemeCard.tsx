@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { Projet } from '@/payload-types'
 import type { Locale } from '@/lib/i18n/config'
 import { localizedHref } from '@/lib/i18n/paths'
+import { isPlaceholder } from '@/lib/text'
 import Icon from './Icon'
 
 export default function ActionThemeCard({ locale, projet, linkLabel }: { locale: Locale; projet: Projet; linkLabel: string }) {
@@ -14,7 +15,7 @@ export default function ActionThemeCard({ locale, projet, linkLabel }: { locale:
         <h3 className="text-base font-bold text-foreground font-headings mb-2">
           <span className="title-underline">{projet.theme}</span>
         </h3>
-        {projet.summary && <p className="text-sm text-muted-foreground leading-relaxed font-body">{projet.summary}</p>}
+        {!isPlaceholder(projet.summary) && <p className="text-sm text-muted-foreground leading-relaxed font-body">{projet.summary}</p>}
       </div>
       <Link href={localizedHref(locale, `/projets/${projet.slug}`)} className="btn-arrow text-sm font-bold text-primary flex items-center gap-1 mt-auto">
         {linkLabel} <Icon i="arrow-right" size={13} />

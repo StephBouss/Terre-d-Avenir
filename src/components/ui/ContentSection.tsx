@@ -8,7 +8,7 @@ import { CtaList } from './Cta'
 import { Paragraphs } from './Paragraphs'
 import SectionHeader from './SectionHeader'
 
-type Props = { locale: Locale; section?: Section; tone?: 'white' | 'light'; id?: string; newTabLabel?: string; children?: ReactNode }
+type Props = { locale: Locale; section?: Section; tone?: 'white' | 'light'; id?: string; newTabLabel: string; children?: ReactNode }
 
 /** Section générique des pages composées : titre, texte, éléments, boutons. */
 export default function ContentSection({ locale, section, tone = 'white', id, newTabLabel, children }: Props) {
@@ -17,9 +17,9 @@ export default function ContentSection({ locale, section, tone = 'white', id, ne
   return (
     <section id={id} className={`py-20 ${tone === 'white' ? 'bg-background' : ''}`} style={tone === 'light' ? { background: '#F7F8F4' } : undefined}>
       <div className="max-w-[1280px] mx-auto px-6 flex flex-col gap-8">
-        {section.heading && (
+        {!isPlaceholder(section.heading) && (
           <Reveal>
-            <SectionHeader overline={section.eyebrow} title={section.heading} />
+            <SectionHeader overline={isPlaceholder(section.eyebrow) ? undefined : section.eyebrow} title={section.heading!} />
           </Reveal>
         )}
         {section.body && (

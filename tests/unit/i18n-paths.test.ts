@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { alternates, isActivePath, isExternal, localizedHref, stripLocale, switchLocale } from '@/lib/i18n/paths'
+import { alternates, isActivePath, isExternal, isFacebookUrl, localizedHref, opensInNewTab, stripLocale, switchLocale } from '@/lib/i18n/paths'
 
 describe('chemins localisés', () => {
   it('préfixe les chemins internes', () => {
@@ -33,5 +33,22 @@ describe('chemins localisés', () => {
     expect(isActivePath('/actualites', '/actualites')).toBe(true)
     expect(isActivePath('/ong', '/organisation')).toBe(false)
     expect(isActivePath('/', '/ong')).toBe(false)
+  })
+  it('opensInNewTab ne concerne que http(s)', () => {
+    expect(opensInNewTab('https://a.org')).toBe(true)
+    expect(opensInNewTab('http://a.org')).toBe(true)
+    expect(opensInNewTab('mailto:a@b.org')).toBe(false)
+    expect(opensInNewTab('tel:+237600000000')).toBe(false)
+    expect(opensInNewTab('/contact')).toBe(false)
+    expect(opensInNewTab('#haut')).toBe(false)
+  })
+  it('isFacebookUrl vérifie le nom d’hôte', () => {
+    expect(isFacebookUrl('https://facebook.com/x')).toBe(true)
+    expect(isFacebookUrl('https://www.facebook.com/x')).toBe(true)
+    expect(isFacebookUrl('https://m.facebook.com/x')).toBe(true)
+    expect(isFacebookUrl('https://evil.com/facebook.com')).toBe(false)
+    expect(isFacebookUrl('https://notfacebook.com/')).toBe(false)
+    expect(isFacebookUrl('/facebook.com')).toBe(false)
+    expect(isFacebookUrl('not a url')).toBe(false)
   })
 })

@@ -4,6 +4,21 @@ export function isExternal(href: string): boolean {
   return /^(https?:|mailto:|tel:)/.test(href)
 }
 
+/** Seuls les liens http(s) s'ouvrent dans un nouvel onglet (pas mailto:/tel:). */
+export function opensInNewTab(href: string): boolean {
+  return /^https?:/i.test(href)
+}
+
+/** Vrai si l'hôte est facebook.com ou l'un de ses sous-domaines. */
+export function isFacebookUrl(href: string): boolean {
+  try {
+    const host = new URL(href).hostname.toLowerCase()
+    return host === 'facebook.com' || host.endsWith('.facebook.com')
+  } catch {
+    return false
+  }
+}
+
 export function localizedHref(locale: Locale, href: string): string {
   if (isExternal(href) || href.startsWith('#')) return href
   if (href === '/' || href === '') return `/${locale}`

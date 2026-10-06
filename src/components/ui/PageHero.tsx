@@ -14,7 +14,7 @@ export default function PageHero({ eyebrow, title, intro, image }: Props) {
       </div>
       <div className="absolute inset-0 z-[1]" style={{ background: 'linear-gradient(105deg, #003E2Ae8 30%, #003E2Acc 55%, #003E2A99 100%)' }} />
       <Reveal className="relative z-10 max-w-[1280px] mx-auto px-6">
-        {eyebrow && (
+        {!isPlaceholder(eyebrow) && (
           <span
             className="text-xs font-bold font-body uppercase"
             style={{ letterSpacing: '0.14em', color: '#E6BF58', background: 'rgba(230,191,88,0.14)', border: '1px solid rgba(230,191,88,0.4)', borderRadius: 4, padding: '4px 12px', display: 'inline-block', marginBottom: 16 }}
