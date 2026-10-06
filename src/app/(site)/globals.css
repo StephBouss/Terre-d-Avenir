@@ -521,7 +521,7 @@ img {
     padding: 0.75rem 0.5rem;
   }
 
-  .mission-strip > div:nth-child(odd) {
+  .mission-strip > div:nth-child(odd):not(:last-child) {
     border-right: 1px solid #d9e3dc;
   }
 
@@ -529,7 +529,7 @@ img {
     border-bottom: 1px solid #d9e3dc;
   }
 
-  .mission-strip > div > div:last-child {
+  .mission-strip > div > .mission-sep {
     display: none;
   }
 

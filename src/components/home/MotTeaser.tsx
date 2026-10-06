@@ -23,12 +23,12 @@ export default function MotTeaser({ locale, section, newTabLabel }: Props) {
         <div className="flex flex-col gap-5">
           <Reveal>
             {!isPlaceholder(section.heading) && (
-              <span
+              <h2
                 className="text-xs font-bold font-body uppercase"
                 style={{ letterSpacing: '0.14em', color: '#005C38', background: '#E6BF5820', border: '1px solid #E6BF5850', borderRadius: 4, padding: '3px 10px', display: 'inline-block' }}
               >
                 {section.heading}
-              </span>
+              </h2>
             )}
           </Reveal>
           <Reveal delay={80}>

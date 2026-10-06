@@ -10,10 +10,5 @@ export default defineConfig({
     { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
     { name: 'mobile', use: { ...devices['Pixel 7'], viewport: { width: 390, height: 844 } } },
   ],
-  webServer: {
-    command: 'npx tsx scripts/e2e-server.ts',
-    url: 'http://localhost:3100/fr',
-    timeout: 240_000,
-    reuseExistingServer: !process.env.CI,
-  },
+  globalSetup: './scripts/e2e-server.ts',
 })

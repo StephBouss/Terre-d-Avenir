@@ -19,10 +19,15 @@ export async function startDatabase(): Promise<EmbeddedPostgres> {
     await pg.initialise()
   }
   await pg.start()
+  // createDatabase() laisse son client ouvert quand la base existe déjà : on gère la connexion nous-mêmes.
+  const client = pg.getPgClient()
+  await client.connect()
   try {
-    await pg.createDatabase(DB_NAME)
+    await client.query(`CREATE DATABASE "${DB_NAME}"`)
   } catch {
     // La base existe déjà : rien à faire.
+  } finally {
+    await client.end()
   }
   return pg
 }

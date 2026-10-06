@@ -18,7 +18,7 @@ export default function MissionStrip({ items }: { items: Item[] }) {
               <span className="text-sm font-bold text-foreground font-body">{item.title}</span>
               {!isPlaceholder(item.text) && <span className="text-sm font-medium text-muted-foreground font-body">{item.text}</span>}
             </div>
-            {i < visible.length - 1 && <div className="ml-auto w-px h-5 bg-border" style={{ marginLeft: 'auto' }} />}
+            {i < visible.length - 1 && <div className="mission-sep ml-auto w-px h-5 bg-border" style={{ marginLeft: 'auto' }} />}
           </div>
         ))}
       </div>

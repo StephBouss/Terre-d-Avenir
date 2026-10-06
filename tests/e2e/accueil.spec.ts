@@ -23,3 +23,11 @@ test('accueil EN', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toContainText('let’s grow')
   await expect(page.getByRole('link', { name: /Join us/ }).first()).toHaveAttribute('href', '/en/adhesion')
 })
+
+test('accueil FR : les 3 repères de la bande de mission sont visibles', async ({ page }) => {
+  await page.goto('/fr')
+  const strip = page.locator('.mission-strip')
+  for (const title of ['Komo-Kango, Gabon', 'Depuis février 2025', 'Solidarité et développement local']) {
+    await expect(strip.getByText(title)).toBeVisible()
+  }
+})
