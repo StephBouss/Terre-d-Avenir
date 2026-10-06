@@ -222,6 +222,30 @@ Le tableau de bord n'est rendu que dans l'admin, pour un utilisateur connecté. 
   - l'admin est en français.
 - Les tests existants du lot 1 restent verts : accessibilité, sans JS, formulaires, SEO.
 
+## 10 bis. Ajout validé le 2026-10-06 : albums de la médiathèque
+
+- **Nouvelle collection `albums`** (« Albums », groupe Images). Brouillons et publication natifs, comme les actualités. Champs :
+
+  | Champ | Contenu |
+  |---|---|
+  | `title` | Localisé, obligatoire |
+  | `slug` | Unique |
+  | `order` | Ordre d'affichage |
+  | `date` | Date |
+  | `dateLabel` | Localisé |
+  | `description` | Localisée |
+  | `cover` | Photo de couverture |
+  | `photos` | Photos de l'album, ordonnées, au moins une |
+
+- **Visibilité :** un album est public s'il est publié. Les visiteurs ne lisent par l'API que les albums publiés. Ses photos n'ont pas besoin d'être cochées « Afficher dans la médiathèque ».
+- **Site :**
+  - la page Médiathèque affiche d'abord les albums publiés (couverture, titre, date, nombre de photos), puis les photos isolées ;
+  - chaque album a sa page `/{l}/mediatheque/albums/[slug]`, avec un en-tête, la description et la grille avec visionneuse du lot 1 ;
+  - un album inconnu ou non publié renvoie une 404 ;
+  - les pages d'album figurent dans le plan du site.
+- **Lien depuis une actualité :** nouveau champ facultatif `album` (relation vers `albums`) dans `actualites`. Si l'album lié est publié, l'article affiche un bouton « Voir les photos de l'événement », qui mène à la page de l'album.
+- **Premier contenu :** l'album et l'actualité « Kafélé et Nianame », dont les textes sont validés dans `docs/superpowers/plans/2026-10-06-contenu-kafele-nianame.md`. Ils sont ajoutés au seed, avec leurs 6 photos (droits confirmés par l'ONG).
+
 ## 11. Critères d'acceptation
 
 1. L'admin est en français et son menu est regroupé selon le §3.
@@ -233,3 +257,5 @@ Le tableau de bord n'est rendu que dans l'admin, pour un utilisateur connecté. 
 7. Les photos de la médiathèque ont leurs champs de droits, de source et d'ordre, et le site respecte l'ordre.
 8. Le tableau de bord n'affiche que des valeurs réelles ou « Aucune source configurée ». Chaque carte calculée mène à la liste filtrée correspondante.
 9. Tous les tests (unitaires et e2e) passent.
+10. Un album se crée dans l'admin et s'affiche sur sa propre page. Une actualité liée à un album affiche le bouton « Voir les photos de l'événement ».
+11. L'album et l'actualité « Kafélé et Nianame » sont en ligne en FR et en EN, avec les textes validés.

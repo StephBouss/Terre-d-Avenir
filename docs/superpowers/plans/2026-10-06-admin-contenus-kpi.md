@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** enrichir l'admin Payload (`/admin`) avec un tableau de bord KPI évolutif, un circuit brouillon/publication/archives pour les actualités avec aperçu, un écran « Diaporama d'accueil », une image d'en-tête par page et une gestion complète des photos de la médiathèque.
+**Goal:** enrichir l'admin Payload (`/admin`) avec un tableau de bord KPI évolutif, un circuit brouillon/publication/archives pour les actualités avec aperçu, un écran « Diaporama d'accueil », une image d'en-tête par page et une gestion complète des photos de la médiathèque.  Ajout du 2026-10-06 : albums de la médiathèque (tâche 8) et premier contenu « Kafélé et Nianame » (tâche 9).
 
 **Architecture:** tout reste dans l'admin Payload 3. Le travail se fait par configuration des collections et globals, plus un Server Component `beforeDashboard` pour les KPI. Les calculs des KPI sont des fonctions pures dans `src/lib/kpi/`, séparées de la lecture en base. Le site public lit toujours par l'API locale de Payload, via `src/lib/content.ts`, et filtre explicitement le contenu publié. Chaque tâche qui change le schéma crée sa propre migration Payload, avec la reprise de données écrite dans la migration.
 
@@ -1610,6 +1610,441 @@ EOF
 
 ---
 
+### Task 8 : Albums de la médiathèque et lien depuis une actualité
+
+**Files:**
+- Create: `src/collections/Albums.ts`, `src/components/media/AlbumCard.tsx`, `src/app/(site)/[locale]/mediatheque/albums/[slug]/page.tsx`
+- Modify: `src/payload.config.ts`, `src/collections/Actualites.ts` (champ `album`), `src/lib/content.ts`, `src/app/(site)/[locale]/mediatheque/page.tsx`, `src/app/(site)/[locale]/actualites/[slug]/page.tsx`, `src/app/sitemap.ts`, `src/lib/i18n/dictionaries/fr.ts` et `en.ts` (et leur type)
+- Create (généré) : migration `<horodatage>_albums` ; Modify: `src/migrations/index.ts`, `src/payload-types.ts`, `src/app/(payload)/admin/importMap.js`
+- Create: `tests/unit/albums.test.ts`, `tests/e2e/albums.spec.ts`
+
+**Interfaces:**
+- Consumes :
+  - le schéma des tâches 2 (brouillons des actualités) et 6 (champs des médias) ;
+  - `adminToken` de la tâche 1 ;
+  - `Gallery` et `GalleryItem` du lot 1 (`src/components/media/Gallery.tsx`) ;
+  - `MediathequeHero` et `Cta`.
+- Produces :
+  - `PUBLISHED_ALBUM: Where`, `getAlbums(locale): Promise<Album[]>` et `getAlbum(slug, locale): Promise<Album | null>`, tous dans `content.ts` ;
+  - `toGalleryItems(medias: (number | Media | null | undefined)[]): GalleryItem[]`, dans un nouveau `src/lib/gallery.ts`. C'est la conversion `Media` → `GalleryItem` qui existe déjà dans `mediatheque/page.tsx`, déplacée et réutilisée ;
+  - `Actualite.album?: number | Album | null`.
+
+- [ ] **Step 1 : Tests, à écrire avant le code**
+
+`tests/unit/albums.test.ts` : il teste `toGalleryItems`.
+
+```ts
+import { describe, expect, it } from 'vitest'
+import { toGalleryItems } from '@/lib/gallery'
+
+const media = (over: Record<string, unknown>) => ({ id: 1, url: '/media/a.jpg', alt: 'Texte', caption: null, width: 800, height: 600, provisoire: false, ...over }) as never
+
+describe('photos d’une galerie', () => {
+  it('ignore les identifiants non peuplés et les médias sans URL', () => {
+    expect(toGalleryItems([3, null, undefined, media({ url: null })])).toEqual([])
+  })
+  it('texte alternatif réel, décoratif si provisoire, légende brouillon masquée', () => {
+    expect(toGalleryItems([media({ alt: 'Élèves', caption: '[à compléter]' }), media({ id: 2, provisoire: true, alt: 'X' })])).toEqual([
+      { id: 1, url: '/media/a.jpg', alt: 'Élèves', caption: null, width: 800, height: 600 },
+      { id: 2, url: '/media/a.jpg', alt: '', caption: null, width: 800, height: 600 },
+    ])
+  })
+})
+```
+
+`tests/e2e/albums.spec.ts` : il crée un album publié avec deux photos du seed et une actualité liée, vérifie le site, puis nettoie.
+
+```ts
+import { expect, test } from '@playwright/test'
+import { adminToken } from './admin-helpers'
+
+test.describe.configure({ mode: 'serial' })
+
+test.describe('albums', () => {
+  test.skip(({ isMobile }) => isMobile, 'données partagées : desktop uniquement')
+  let token = ''
+  const created: { collection: string; id: number | string }[] = []
+
+  test.beforeAll(async ({ request }) => {
+    token = await adminToken(request)
+    const headers = { Authorization: `JWT ${token}` }
+    const medias = (await (await request.get('/api/medias?limit=100', { headers })).json()).docs as { id: number; filename: string }[]
+    const pick = (f: string) => medias.find((m) => m.filename === f)!.id
+    const album = await request.post('/api/albums?locale=fr', {
+      headers,
+      data: { slug: 'e2e-album', order: 99, title: 'E2E album', dateLabel: '1er janvier 2026', description: 'Album de test', cover: pick('forest.jpg'), photos: [pick('forest.jpg'), pick('youth.jpg')], _status: 'published' },
+    })
+    expect(album.ok()).toBe(true)
+    const albumId = (await album.json()).doc.id
+    created.push({ collection: 'albums', id: albumId })
+    const actu = await request.post('/api/actualites?locale=fr', {
+      headers,
+      data: { slug: 'e2e-actu-album', order: 96, title: 'E2E actualité avec album', album: albumId, _status: 'published' },
+    })
+    expect(actu.ok()).toBe(true)
+    created.push({ collection: 'actualites', id: (await actu.json()).doc.id })
+  })
+
+  test.afterAll(async ({ request }) => {
+    for (const { collection, id } of created.reverse()) await request.delete(`/api/${collection}/${id}`, { headers: { Authorization: `JWT ${token}` } })
+  })
+
+  test('la médiathèque liste l’album et sa page affiche ses photos', async ({ page }) => {
+    await page.goto('/fr/mediatheque')
+    await page.getByRole('link', { name: /E2E album/ }).click()
+    await expect(page).toHaveURL(/\/fr\/mediatheque\/albums\/e2e-album$/)
+    await expect(page.getByRole('heading', { level: 1, name: 'E2E album' })).toBeVisible()
+    await expect(page.locator('main a[href*="/media/"]')).toHaveCount(2)
+  })
+
+  test('l’actualité liée mène à l’album', async ({ page }) => {
+    await page.goto('/fr/actualites/e2e-actu-album')
+    await page.getByRole('link', { name: 'Voir les photos de l’événement' }).click()
+    await expect(page).toHaveURL(/\/fr\/mediatheque\/albums\/e2e-album$/)
+  })
+
+  test('album inconnu : 404 ; plan du site : album présent', async ({ request }) => {
+    expect((await request.get('/fr/mediatheque/albums/inexistant')).status()).toBe(404)
+    expect(await (await request.get('/sitemap.xml')).text()).toContain('/mediatheque/albums/e2e-album')
+  })
+})
+```
+
+Adapter les sélecteurs (`main a[href*="/media/"]`) au DOM réel de `Gallery`, comme l'a fait la tâche 6.
+
+Run: `npx vitest run tests/unit/albums.test.ts` puis `npm run test:e2e -- tests/e2e/albums.spec.ts --project=desktop`
+
+Expected: FAIL (module `@/lib/gallery` introuvable ; collection `albums` inexistante).
+
+- [ ] **Step 2 : Collection `albums` et champ `album`**
+
+`src/collections/Albums.ts` :
+
+```ts
+import type { CollectionConfig } from 'payload'
+import { revalidateCollection, revalidateCollectionDelete } from '../hooks/revalidate'
+
+export const Albums: CollectionConfig = {
+  slug: 'albums',
+  typescript: { interface: 'Album' },
+  labels: { singular: 'Album', plural: 'Albums' },
+  admin: { useAsTitle: 'title', group: 'Images', defaultColumns: ['title', '_status', 'dateLabel', 'order'] },
+  versions: { drafts: true, maxPerDoc: 20 },
+  access: { read: ({ req }) => (req.user ? true : { _status: { equals: 'published' } }) },
+  hooks: { afterChange: [revalidateCollection], afterDelete: [revalidateCollectionDelete] },
+  defaultSort: 'order',
+  fields: [
+    { name: 'title', label: 'Titre', type: 'text', required: true, localized: true },
+    { name: 'slug', type: 'text', required: true, unique: true, index: true, admin: { description: 'Adresse de l’album : /mediatheque/albums/<slug>' } },
+    { name: 'order', label: 'Ordre', type: 'number', required: true, defaultValue: 0 },
+    { name: 'date', label: 'Date (tri, facultatif)', type: 'date' },
+    { name: 'dateLabel', label: 'Date affichée', type: 'text', localized: true },
+    { name: 'description', label: 'Description', type: 'textarea', localized: true },
+    { name: 'cover', label: 'Photo de couverture', type: 'upload', relationTo: 'medias' },
+    { name: 'photos', label: 'Photos', type: 'upload', relationTo: 'medias', hasMany: true, required: true, minRows: 1, admin: { description: 'Glisser pour réordonner.' } },
+  ],
+}
+```
+
+Dans `src/payload.config.ts`, ajouter `Albums` à `collections`, juste après `Medias`.
+
+Dans `src/collections/Actualites.ts`, ajouter avant `archivee` :
+
+```ts
+{ name: 'album', label: 'Album lié', type: 'relationship', relationTo: 'albums', admin: { description: 'Affiche un bouton « Voir les photos de l’événement » vers cet album.' } },
+```
+
+Run: `npm run migrate:create albums; npm run migrate; npm run generate:types; npm run generate:importmap`
+
+La base de dev (5433) doit tourner.
+
+- [ ] **Step 3 : Lectures et conversion**
+
+`src/lib/gallery.ts` : déplacer ici la conversion actuellement écrite dans `mediatheque/page.tsx`.
+
+```ts
+import type { GalleryItem } from '@/components/media/Gallery'
+import type { Media } from '@/payload-types'
+import { isPlaceholder } from './text'
+
+export function toGalleryItems(medias: (number | Media | null | undefined)[]): GalleryItem[] {
+  return medias
+    .filter((m): m is Media => typeof m === 'object' && m !== null && Boolean(m.url))
+    .map((m) => ({
+      id: m.id,
+      url: m.url!,
+      alt: m.provisoire ? '' : (m.alt ?? ''),
+      caption: isPlaceholder(m.caption) ? null : m.caption,
+      width: m.width ?? 1600,
+      height: m.height ?? 900,
+    }))
+}
+```
+
+`src/lib/content.ts` :
+
+```ts
+export const PUBLISHED_ALBUM: Where = { _status: { equals: 'published' } }
+
+export const getAlbums = cache(async (locale: Locale): Promise<Album[]> => {
+  const payload = await client()
+  const res = await payload.find({ collection: 'albums', where: PUBLISHED_ALBUM, sort: ['order', '-date'], locale, depth: 1, limit: 100 })
+  return res.docs
+})
+
+export const getAlbum = cache(async (slug: string, locale: Locale): Promise<Album | null> => {
+  const payload = await client()
+  const res = await payload.find({ collection: 'albums', where: { and: [{ slug: { equals: slug } }, PUBLISHED_ALBUM] }, locale, depth: 1, limit: 1 })
+  return res.docs[0] ?? null
+})
+```
+
+Importer `Album` depuis `@/payload-types` et `Where` depuis `payload`.
+
+- [ ] **Step 4 : Libellés**
+
+Dictionnaires, dans `common` ou dans une clé `albums` à créer dans les deux langues et dans le type :
+
+| Clé | FR | EN |
+|---|---|---|
+| `albums.heading` | Albums | Albums |
+| `albums.photos` | `(n: number) => n > 1 ? `${n} photos` : `${n} photo`` | `(n: number) => n > 1 ? `${n} photos` : `${n} photo`` |
+| `albums.loosePhotos` | Photos | Photos |
+| `albums.back` | Retour à la médiathèque | Back to the media library |
+| `albums.viewAlbum` | Voir les photos de l’événement | See the event photos |
+
+Si les dictionnaires n'acceptent que des chaînes, utiliser `photos: 'photos'`, `photo: 'photo'` et composer dans le composant. Le test de parité FR/EN existant doit rester vert.
+
+- [ ] **Step 5 : Carte d'album et page Médiathèque**
+
+`src/components/media/AlbumCard.tsx` :
+
+```tsx
+import Link from 'next/link'
+import MediaImage from '@/components/ui/MediaImage'
+import { localizedHref } from '@/lib/i18n/paths'
+import type { Locale } from '@/lib/i18n/config'
+import type { Album } from '@/payload-types'
+import { isPlaceholder } from '@/lib/text'
+
+type Props = { locale: Locale; album: Album; photosLabel: string }
+
+export default function AlbumCard({ locale, album, photosLabel }: Props) {
+  return (
+    <Link href={localizedHref(locale, `/mediatheque/albums/${album.slug}`)} className="card-lift group block rounded-xl overflow-hidden bg-white border border-black/5">
+      <div className="card-media relative aspect-[4/3]">
+        <MediaImage media={album.cover ?? album.photos?.[0]} fill decorative sizes="(min-width: 1024px) 33vw, 100vw" className="w-full h-full object-cover" />
+      </div>
+      <div className="p-5 flex flex-col gap-1">
+        <h3 className="title-underline text-lg font-bold text-foreground font-headings">{album.title}</h3>
+        <p className="text-sm text-foreground/70">
+          {!isPlaceholder(album.dateLabel) && <>{album.dateLabel} · </>}
+          {photosLabel}
+        </p>
+      </div>
+    </Link>
+  )
+}
+```
+
+Reprendre les classes réelles des cartes existantes (`NewsCard`, `ProjetCard`) pour rester fidèle à la charte : couleurs, rayons et ombres. La carte ci-dessus n'est qu'un squelette.
+
+Dans `src/app/(site)/[locale]/mediatheque/page.tsx` :
+- lire `getAlbums(locale)` en parallèle des autres lectures ;
+- construire `items` avec `toGalleryItems(medias)` ;
+- avant la grille de photos, si `albums.length > 0`, afficher une section avec `SectionHeader` (titre `dict.albums.heading`) et une `RevealGroup` de `AlbumCard` (grille 1, 2 puis 3 colonnes) ;
+- si des albums **et** des photos isolées existent, mettre `SectionHeader` (titre `dict.albums.loosePhotos`) au-dessus de la grille ;
+- l'état vide (section `vide`) ne s'affiche que s'il n'y a **ni** album **ni** photo.
+
+- [ ] **Step 6 : Page d'un album**
+
+`src/app/(site)/[locale]/mediatheque/albums/[slug]/page.tsx` :
+
+```tsx
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import Gallery from '@/components/media/Gallery'
+import MediathequeHero from '@/components/media/MediathequeHero'
+import Cta from '@/components/ui/Cta'
+import { Paragraphs } from '@/components/ui/Paragraphs'
+import { getAlbum } from '@/lib/content'
+import { toGalleryItems } from '@/lib/gallery'
+import { isLocale } from '@/lib/i18n/config'
+import { getDictionary } from '@/lib/i18n/dictionaries'
+import { SITE_NAME, pageMetadata } from '@/lib/seo'
+
+type Props = { params: Promise<{ locale: string; slug: string }> }
+
+export function generateStaticParams() {
+  return []
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale, slug } = await params
+  if (!isLocale(locale)) return {}
+  const album = await getAlbum(slug, locale)
+  if (!album) return {}
+  const image = typeof album.cover === 'object' ? album.cover?.url : undefined
+  return pageMetadata({ locale, path: `/mediatheque/albums/${slug}`, title: `${album.title} — ${SITE_NAME}`, description: album.description ?? undefined, image: image ?? undefined })
+}
+
+export default async function AlbumPage({ params }: Props) {
+  const { locale, slug } = await params
+  if (!isLocale(locale)) notFound()
+  const album = await getAlbum(slug, locale)
+  if (!album) notFound()
+  const dict = getDictionary(locale)
+  return (
+    <>
+      <MediathequeHero eyebrow={dict.nav.mediatheque} title={album.title} intro={album.dateLabel} image={album.cover} />
+      <section className="bg-background py-16">
+        <div className="max-w-[1280px] mx-auto px-6 flex flex-col gap-10">
+          <Paragraphs text={album.description} />
+          <Gallery items={toGalleryItems(album.photos ?? [])} labels={dict.gallery} />
+          <div>
+            <Cta locale={locale} href="/mediatheque" label={dict.albums.back} variant="outline" newTabLabel={dict.common.newTab} />
+          </div>
+        </div>
+      </section>
+    </>
+  )
+}
+```
+
+Vérifier les props réelles de `MediathequeHero`, `Cta` (noms des variantes, présence d'une icône de flèche de retour), `Paragraphs` et `pageMetadata` (`description` et `image`), puis aligner le code dessus.
+
+- [ ] **Step 7 : Bouton dans l'actualité, et plan du site**
+
+Dans `src/app/(site)/[locale]/actualites/[slug]/page.tsx`, après `<ArticleBody … />` :
+
+```tsx
+{typeof actualite.album === 'object' && actualite.album?._status === 'published' && (
+  <div className="bg-background pb-12">
+    <div className="max-w-[800px] mx-auto px-6">
+      <Cta locale={locale} href={`/mediatheque/albums/${actualite.album.slug}`} label={dict.albums.viewAlbum} newTabLabel={dict.common.newTab} />
+    </div>
+  </div>
+)}
+```
+
+`getActualite` utilise `depth: 1`, donc `actualite.album` est peuplé. Aligner la largeur du conteneur sur celle d'`ArticleBody`.
+
+`src/app/sitemap.ts` : lire aussi `getAlbums('fr')` et ajouter `...albums.map((a) => `/mediatheque/albums/${a.slug}`)`.
+
+- [ ] **Step 8 : Vérifier**
+
+Run: `npx tsc --noEmit; npm test; npm run lint; npm run test:e2e`
+
+Expected: tout passe. `seo.spec.ts` compte toujours 40 URL : le seed n'a pas encore d'album, et l'album e2e est créé puis supprimé dans une autre spec. Si les deux specs tournent en parallèle et que le compte devient instable, rendre l'assertion du nombre d'URL robuste aux données de test (par exemple ignorer les slugs `e2e-`) et l'expliquer en commentaire.
+
+- [ ] **Step 9 : Commit**
+
+```bash
+git add src/collections/Albums.ts src/collections/Actualites.ts src/payload.config.ts src/lib/content.ts src/lib/gallery.ts src/components/media/AlbumCard.tsx "src/app/(site)/[locale]/mediatheque" "src/app/(site)/[locale]/actualites/[slug]/page.tsx" src/app/sitemap.ts src/lib/i18n/dictionaries src/migrations src/payload-types.ts "src/app/(payload)/admin/importMap.js" tests/unit/albums.test.ts tests/e2e/albums.spec.ts
+git commit -F - <<'EOF'
+feat: albums de la médiathèque et lien depuis une actualité
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+EOF
+```
+
+---
+
+### Task 9 : Contenu « Kafélé et Nianame » (album et actualité)
+
+**Files:**
+- Create: `src/seed/images/albums/kafele-nianame/photo-1.jpg` … `photo-6.jpg`, copiés depuis `.superpowers/contenus/kafele-nianame-2026-09/`
+- Modify: `src/seed/index.ts`, `src/seed/data/fr.ts`, `src/seed/data/en.ts`, `src/seed/data/types.ts`
+- Modify: `tests/unit/seed-data.test.ts` (parité de la nouvelle entrée), `tests/e2e/seo.spec.ts` (nombre d'URL), `tests/e2e/actualites.spec.ts` si un compte d'actualités y figure
+- Create: `tests/e2e/kafele-nianame.spec.ts`
+
+**Interfaces:**
+- Consumes :
+  - la collection `albums` et le champ `actualites.album` (tâche 8) ;
+  - les champs `source`, `lieu`, `datePrise`, `droitsConfirmes`, `droitsNote` des médias (tâche 6) ;
+  - `upsertLocalized` avec `draft: false` (tâche 2).
+- **Textes : à reprendre mot pour mot** depuis `docs/superpowers/plans/2026-10-06-contenu-kafele-nianame.md`. N'inventer aucun texte.
+
+- [ ] **Step 1 : Test e2e, à écrire avant le code**
+
+`tests/e2e/kafele-nianame.spec.ts` :
+
+```ts
+import { expect, test } from '@playwright/test'
+
+const TITLE_FR = 'Kafélé et Nianame : un dispensaire et une école réhabilités'
+const TITLE_EN = 'Kafélé and Nianame: a health centre and a school rehabilitated'
+
+test('actualité FR en tête de liste, avec bouton vers l’album', async ({ page }) => {
+  await page.goto('/fr/actualites')
+  await expect(page.locator('main h2, main h3').filter({ hasText: TITLE_FR }).first()).toBeVisible()
+  await page.goto('/fr/actualites/kafele-nianame-rehabilitation')
+  await expect(page.getByRole('heading', { level: 1, name: TITLE_FR })).toBeVisible()
+  await expect(page.getByText('Construction du Komo SARL')).toBeVisible()
+  await page.getByRole('link', { name: 'Voir les photos de l’événement' }).click()
+  await expect(page).toHaveURL(/\/fr\/mediatheque\/albums\/kafele-nianame-2026-09$/)
+  await expect(page.locator('main a[href*="/media/"]')).toHaveCount(6)
+  await expect(page.getByRole('img', { name: 'Photo de groupe des participants devant le bâtiment réhabilité' })).toHaveCount(0) // les vignettes sont décoratives : le nom est porté par le lien
+})
+
+test('version anglaise', async ({ page }) => {
+  await page.goto('/en/actualites/kafele-nianame-rehabilitation')
+  await expect(page.getByRole('heading', { level: 1, name: TITLE_EN })).toBeVisible()
+  await page.goto('/en/mediatheque')
+  await expect(page.getByRole('link', { name: new RegExp(TITLE_EN) })).toBeVisible()
+})
+```
+
+La dernière assertion du premier test dépend de la façon dont `Gallery` expose le texte alternatif : nom porté par le lien de vignette (lot 1). L'adapter au comportement réel, sans l'affaiblir. L'objectif est de vérifier que le texte alternatif validé est bien exposé aux lecteurs d'écran.
+
+Run: `npm run test:e2e -- tests/e2e/kafele-nianame.spec.ts --project=desktop`
+
+Expected: FAIL (actualité inexistante).
+
+- [ ] **Step 2 : Photos et données**
+
+Copier les 6 photos dans `src/seed/images/albums/kafele-nianame/` (mêmes noms).
+
+Dans `src/seed/data/types.ts` et `fr.ts` / `en.ts`, ajouter :
+- l'actualité `kafele-nianame-rehabilitation` dans `actualites`, avec les champs de l'annexe ;
+- une nouvelle liste `albums` (FR et EN) contenant l'album `kafele-nianame-2026-09`.
+
+La forme suit celle des actualités existantes. Les références d'images utilisent de nouvelles clés, par exemple `'kafele-1'` à `'kafele-6'`. Étendre le type des clés d'image en conséquence.
+
+- [ ] **Step 3 : Seed**
+
+Dans `src/seed/index.ts` :
+1. **Photos.** Déclarer les 6 photos (clé, fichier, `alt` FR/EN, champs communs de l'annexe), avec le chemin `images/albums/kafele-nianame/photo-N.jpg`. Les créer ou les retrouver avec la même logique idempotente que `seedMedia` : correspondance exacte du nom de fichier via `isSeedMediaFilename`, en passant la clé `photo-N` et l'extension `.jpg`. Le plus simple est de généraliser `seedMedia` pour qu'elle accepte un sous-dossier.
+2. **Album.** Le créer ou le mettre à jour par `slug` avec `upsertLocalized` (`draft: false`), avec `_status: 'published'`, `cover` = photo-6 et `photos` = photo-1 à photo-6. Les champs localisés passent en FR puis en EN.
+3. **Actualité.** Elle est seedée dans la boucle existante, avec `album` = id de l'album et `image` = photo-6. **L'album doit être seedé avant les actualités.**
+
+- [ ] **Step 4 : Tests existants**
+
+- `tests/unit/seed-data.test.ts` : la parité FR/EN doit couvrir la nouvelle actualité et l'album. Ajouter l'album au test de parité s'il ne couvre que des listes connues.
+- `tests/e2e/seo.spec.ts` : le nombre d'URL passe de 40 à 44 (une actualité et un album, chacun en FR et en EN). Mettre à jour la constante et son commentaire.
+- `tests/e2e/actualites.spec.ts` et `tests/e2e/tableau-de-bord.spec.ts` : ajuster tout compte d'actualités publiées. Le seed compte désormais 4 actualités.
+
+- [ ] **Step 5 : Vérifier**
+
+Run: `npx tsc --noEmit; npm test; npm run lint; npm run test:e2e`
+
+Expected: tout passe.
+
+Puis lancer `npm run seed` sur la base de dev (5433, déjà lancée). L'utilisateur voit ainsi le nouveau contenu sur http://localhost:3000. Signaler dans le rapport que ce seed réinitialise les modifications faites dans l'admin sur les contenus seedés.
+
+- [ ] **Step 6 : Commit**
+
+```bash
+git add src/seed tests/unit/seed-data.test.ts tests/e2e/seo.spec.ts tests/e2e/actualites.spec.ts tests/e2e/tableau-de-bord.spec.ts tests/e2e/kafele-nianame.spec.ts
+git commit -F - <<'EOF'
+feat: album et actualité « Kafélé et Nianame : un dispensaire et une école réhabilités »
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+EOF
+```
+
+---
+
 ## Couverture de la spec
 
 | Spec | Tâche |
@@ -1625,4 +2060,5 @@ EOF
 | §8 Migrations et seed | 2, 4, 5, 6 (une migration par tâche, écart assumé) |
 | §9 Erreurs (diaporama vide, `heroImage` vide, aperçu 401, carte indisponible, archivée en 404) | 4, 5, 3, 7, 2 |
 | §10 Tests | chaque tâche |
+| §10 bis Albums, lien actualité, contenu Kafélé–Nianame | 8, 9 |
 | §11 Critères d'acceptation 1–9 | 1 → 1 ; 2 → 2 ; 3 → 2 ; 4 → 3 ; 5 → 4 ; 6 → 5 ; 7 → 6 ; 8 → 7 ; 9 → toutes |
