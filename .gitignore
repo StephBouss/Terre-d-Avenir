@@ -6,7 +6,7 @@ dist/
 *.log
 .next/
 .data/
-media/
+/media/
 .env
 next-env.d.ts
 *.tsbuildinfo

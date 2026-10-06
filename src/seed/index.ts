@@ -32,7 +32,14 @@ async function seedMedia(payload: Payload): Promise<Record<SeedImageKey, number 
   const ids = {} as Record<SeedImageKey, number | string>
   for (const [key, meta] of Object.entries(IMAGES) as [SeedImageKey, (typeof IMAGES)[SeedImageKey]][]) {
     const filename = `${key}.jpg`
-    const found = await payload.find({ collection: 'medias', where: { filename: { equals: filename } }, limit: 1, depth: 0 })
+    // Payload renomme en « banner-1.jpg » si le fichier existe déjà dans media/ : on retrouve aussi ces variantes.
+    const found = await payload.find({
+      collection: 'medias',
+      where: { or: [{ filename: { equals: filename } }, { filename: { like: `${key}-` } }] },
+      sort: 'id',
+      limit: 1,
+      depth: 0,
+    })
     const base = { credit: meta.credit, provisoire: meta.provisoire, galerie: meta.galerie }
     const doc =
       found.docs[0] ??
