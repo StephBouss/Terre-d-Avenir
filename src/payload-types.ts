@@ -215,7 +215,7 @@ export interface Actualite {
     url?: string | null;
   };
   /**
-   * Retire l’actualité du site sans la supprimer.
+   * Retire l’actualité du site sans la supprimer. Prend effet après « Publier les modifications ».
    */
   archivee?: boolean | null;
   updatedAt: string;
