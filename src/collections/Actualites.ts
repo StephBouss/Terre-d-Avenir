@@ -39,7 +39,7 @@ export const Actualites: CollectionConfig = {
       label: 'Archivée',
       type: 'checkbox',
       defaultValue: false,
-      admin: { position: 'sidebar', description: 'Retire l’actualité du site sans la supprimer.' },
+      admin: { position: 'sidebar', description: 'Retire l’actualité du site sans la supprimer. Prend effet après « Publier les modifications ».' },
     },
   ],
 }
