@@ -1,5 +1,5 @@
-import type { Metadata } from 'next'
-import type { Locale } from './i18n/config'
+import type { Metadata, MetadataRoute } from 'next'
+import { LOCALES, type Locale } from './i18n/config'
 import { alternates, localizedHref } from './i18n/paths'
 import { stripEmphasis } from './text'
 
@@ -29,4 +29,11 @@ export function pageMetadata({ locale, path, title, description, image }: Args):
       images: [image ?? '/brand/og.jpg'],
     },
   }
+}
+
+export function buildSitemapEntries(baseUrl: string, paths: string[]): MetadataRoute.Sitemap {
+  return paths.flatMap((path) => {
+    const languages = Object.fromEntries(Object.entries(alternates(path)).map(([lang, href]) => [lang, baseUrl + href]))
+    return LOCALES.map((locale) => ({ url: baseUrl + localizedHref(locale, path), alternates: { languages } }))
+  })
 }
