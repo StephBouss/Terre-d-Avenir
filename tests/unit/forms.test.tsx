@@ -2,6 +2,8 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import AdhesionForm from '@/components/forms/AdhesionForm'
 import ContactForm from '@/components/forms/ContactForm'
+import ClosedNotice from '@/components/forms/ClosedNotice'
+import StepsSection from '@/components/forms/StepsSection'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 
 const dict = getDictionary('fr')
@@ -23,5 +25,17 @@ describe('formulaires du lot 1', () => {
     render(<ContactForm labels={dict.contactForm} />)
     expect(screen.getByLabelText('Votre message')).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Envoyer le message' })).toBeDisabled()
+  })
+})
+
+describe('masquage des brouillons', () => {
+  it('l’avis de fermeture et les étapes ignorent les textes « [...] »', () => {
+    const { container } = render(
+      <>
+        <ClosedNotice locale="fr" text="[À CONFIRMER]" newTabLabel="nouvel onglet" />
+        <StepsSection section={{ key: 'etapes', heading: '[Titre]', items: [{ text: '[Étape]' }] } as never} />
+      </>,
+    )
+    expect(container).toBeEmptyDOMElement()
   })
 })
