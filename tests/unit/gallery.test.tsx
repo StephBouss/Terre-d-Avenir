@@ -29,7 +29,7 @@ const items = [
 describe('Gallery', () => {
   it('ouvre, navigue au clavier et ferme', async () => {
     const { container } = render(<Gallery items={items} labels={labels} />)
-    await userEvent.click(screen.getByRole('button', { name: /Agrandir l’image : Image A/ }))
+    await userEvent.click(screen.getByRole('link', { name: /Agrandir l’image : Image A/ }))
     const dialog = container.querySelector('dialog')!
     expect(dialog).toHaveAttribute('open')
     expect(dialog).toHaveAttribute('aria-label', 'Visionneuse d’images')
@@ -44,7 +44,7 @@ describe('Gallery', () => {
 
   it('boucle aux extrémités et ferme avec l’événement natif close (Échap)', async () => {
     const { container } = render(<Gallery items={items} labels={labels} />)
-    await userEvent.click(screen.getAllByRole('button', { name: /Agrandir l’image/ })[0])
+    await userEvent.click(screen.getAllByRole('link', { name: /Agrandir l’image/ })[0])
     const dialog = container.querySelector('dialog')!
     fireEvent.keyDown(dialog, { key: 'ArrowLeft' })
     expect(dialog.querySelector('figure img')).toHaveAttribute('alt', 'Image B')
@@ -54,14 +54,19 @@ describe('Gallery', () => {
     await vi.waitFor(() => expect(dialog.querySelector('figure')).toBeNull())
   })
 
+  it('sans JavaScript, la vignette est un lien vers l’image', () => {
+    render(<Gallery items={items} labels={labels} />)
+    expect(screen.getByRole('link', { name: /Image A/ })).toHaveAttribute('href', '/a.jpg')
+  })
+
   it('une image sans alt (provisoire) reste décorative', () => {
     render(<Gallery items={[{ ...items[0], alt: '' }]} labels={labels} />)
-    expect(screen.getByRole('button', { name: 'Agrandir l’image' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Agrandir l’image' })).toBeInTheDocument()
   })
 
   it('masque les flèches avec une seule image', async () => {
     render(<Gallery items={[items[0]]} labels={labels} />)
-    await userEvent.click(screen.getByRole('button', { name: /Agrandir/ }))
+    await userEvent.click(screen.getByRole('link', { name: /Agrandir/ }))
     expect(screen.queryByRole('button', { name: 'Image suivante' })).toBeNull()
   })
 })

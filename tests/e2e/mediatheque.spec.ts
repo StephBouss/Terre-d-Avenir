@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test('médiathèque : médias réels uniquement, visionneuse', async ({ page }) => {
   await page.goto('/fr/mediatheque')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Médiathèque')
-  const thumbs = page.getByRole('button', { name: /Agrandir l’image/ })
+  const thumbs = page.getByRole('link', { name: /Agrandir l’image/ })
   await expect(thumbs).toHaveCount(1) // seule la bannière est marquée « galerie »
   await thumbs.first().click()
   await expect(page.getByRole('dialog')).toBeVisible()

@@ -5,6 +5,7 @@ import config from '../payload.config'
 import { en } from './data/en'
 import { FACEBOOK_URL, fr } from './data/fr'
 import type { SeedImageKey } from './data/types'
+import { isSeedMediaFilename } from './media-match'
 import { SEED_CONTEXT, upsertLocalized } from './upsert'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -32,17 +33,18 @@ async function seedMedia(payload: Payload): Promise<Record<SeedImageKey, number 
   const ids = {} as Record<SeedImageKey, number | string>
   for (const [key, meta] of Object.entries(IMAGES) as [SeedImageKey, (typeof IMAGES)[SeedImageKey]][]) {
     const filename = `${key}.jpg`
-    // Payload renomme en « banner-1.jpg » si le fichier existe déjà dans media/ : on retrouve aussi ces variantes.
-    const found = await payload.find({
+    // Payload renomme en « banner-1.jpg » si le fichier existe déjà dans media/ : on retrouve ces variantes, et elles seules.
+    const candidates = await payload.find({
       collection: 'medias',
-      where: { or: [{ filename: { equals: filename } }, { filename: { like: `${key}-` } }] },
+      where: { filename: { like: key } },
       sort: 'id',
-      limit: 1,
+      limit: 50,
       depth: 0,
     })
+    const found = candidates.docs.filter((d) => isSeedMediaFilename(d.filename, key, path.extname(filename)))
     const base = { credit: meta.credit, provisoire: meta.provisoire, galerie: meta.galerie }
     const doc =
-      found.docs[0] ??
+      found[0] ??
       (await payload.create({
         collection: 'medias',
         data: { ...base, alt: meta.altFr },

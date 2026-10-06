@@ -31,14 +31,17 @@ export default function Gallery({ items, labels }: { items: GalleryItem[]; label
       <RevealGroup as="ul" className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {items.map((item, i) => (
           <li key={item.id}>
-            <button
-              type="button"
-              onClick={() => setIndex(i)}
+            <a
+              href={item.url}
+              onClick={(event) => {
+                event.preventDefault()
+                setIndex(i)
+              }}
               aria-label={item.alt ? `${labels.open} : ${item.alt}` : labels.open}
               className="card-lift card-media block w-full rounded-lg overflow-hidden border border-border bg-light"
             >
               <Image src={item.url} alt="" width={item.width} height={item.height} sizes="(min-width: 1024px) 300px, 50vw" className="w-full aspect-square object-cover" />
-            </button>
+            </a>
           </li>
         ))}
       </RevealGroup>
