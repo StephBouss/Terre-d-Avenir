@@ -1,0 +1,44 @@
+import { Reveal } from '@/components/motion/Reveal'
+import { EmphasisText } from '@/components/ui/EmphasisText'
+import Icon from '@/components/ui/Icon'
+import { MediaImage } from '@/components/ui/MediaImage'
+import { isPlaceholder } from '@/lib/text'
+import type { Media } from '@/payload-types'
+
+type Props = { eyebrow: string; title: string; intro?: string | null; images: Media[] }
+
+export default function ActualitesHero({ eyebrow, title, intro, images }: Props) {
+  return (
+    <section className="relative flex items-center overflow-hidden py-16 md:py-20" style={{ background: '#003E2A', minHeight: 520 }}>
+      <div className="absolute inset-0 z-0" style={{ opacity: 0.55 }}>
+        <MediaImage media={images[0]} fill decorative eager sizes="100vw" className="w-full h-full object-cover" />
+      </div>
+      <div className="absolute inset-0 z-[1]" style={{ background: 'linear-gradient(105deg, #003E2Aea 28%, #003E2Acc 52%, #003E2A99 100%)' }} />
+      <div className="relative z-10 max-w-[1280px] mx-auto px-6 h-full w-full">
+        <div className="flex min-h-[360px] items-center justify-between gap-8 md:min-h-[420px] md:gap-16">
+          <Reveal className="max-w-[620px] flex-auto">
+            {!isPlaceholder(eyebrow) && (
+              <span
+                className="text-xs font-bold font-body uppercase"
+                style={{ letterSpacing: '0.14em', color: '#E6BF58', background: 'rgba(230,191,88,0.14)', border: '1px solid rgba(230,191,88,0.4)', borderRadius: 4, padding: '4px 12px', display: 'inline-block', marginBottom: 16 }}
+              >
+                {eyebrow}
+              </span>
+            )}
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-foreground font-headings" style={{ lineHeight: 1.1, marginBottom: 20 }}>
+              <EmphasisText text={title} />
+            </h1>
+            {!isPlaceholder(intro) && (
+              <p className="text-lg text-primary-foreground font-body" style={{ opacity: 0.9, lineHeight: 1.65, maxWidth: 500 }}>
+                {intro}
+              </p>
+            )}
+          </Reveal>
+          <div className="hidden flex-shrink-0 md:block" aria-hidden="true">
+            <Icon i="bookmark" size={64} style={{ color: '#E6BF58', opacity: 0.15 }} />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
