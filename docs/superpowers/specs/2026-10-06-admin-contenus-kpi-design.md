@@ -1,7 +1,7 @@
 # Espace admin : tableau de bord KPI, actualités, images du Hero et médiathèque
 
 - **Date :** 2026-10-06
-- **Statut :** validé en brainstorming, en attente de relecture de la spec
+- **Statut :** validé par l’utilisateur le 2026-10-06
 - **Sources :** PRD v1.3 (BO-02, BO-08 à BO-11, dictionnaire des KPI), spec du lot 1 (`2026-10-05-lot1-socle-site-public-design.md`), code du lot 1 fusionné dans `main` (8d1b172, b94760b)
 
 ## 1. Objectif
