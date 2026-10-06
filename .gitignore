@@ -4,3 +4,11 @@ dist/
 .banani-mcp-request.json
 .banani-selected.json
 *.log
+.next/
+.data/
+/media/
+.env
+next-env.d.ts
+*.tsbuildinfo
+playwright-report/
+test-results/

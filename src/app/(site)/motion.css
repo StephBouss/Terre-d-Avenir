@@ -1,0 +1,111 @@
+:root {
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Apparition au défilement — uniquement quand JS est actif (classe .js sur <html>). */
+.js [data-reveal],
+.js [data-reveal-group] > * {
+  transition:
+    opacity 600ms var(--ease-out-soft),
+    transform 600ms var(--ease-out-soft);
+}
+.js [data-reveal] {
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.js [data-reveal]:not(.is-visible),
+.js [data-reveal-group]:not(.is-visible) > * {
+  opacity: 0;
+  transform: translateY(16px);
+}
+[data-reveal-group] > *:nth-child(2) { transition-delay: 80ms; }
+[data-reveal-group] > *:nth-child(3) { transition-delay: 160ms; }
+[data-reveal-group] > *:nth-child(4) { transition-delay: 240ms; }
+[data-reveal-group] > *:nth-child(5) { transition-delay: 320ms; }
+[data-reveal-group] > *:nth-child(6) { transition-delay: 400ms; }
+[data-reveal-group] > *:nth-child(n + 7) { transition-delay: 480ms; }
+
+/* Transition de page (template.tsx) */
+.page-enter {
+  animation: page-enter 200ms ease-out both;
+}
+@keyframes page-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Cartes */
+.card-lift {
+  transition:
+    transform 250ms var(--ease-out-soft),
+    box-shadow 250ms var(--ease-out-soft);
+}
+.card-lift:hover,
+.card-lift:focus-within {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 62, 42, 0.12) !important;
+}
+.card-media { overflow: hidden; }
+.card-media img { transition: transform 500ms var(--ease-out-soft); }
+.card-lift:hover .card-media img,
+.card-lift:focus-within .card-media img { transform: scale(1.04); }
+
+/* Filet doré sous le titre au survol */
+.title-underline {
+  background-image: linear-gradient(#e6bf58, #e6bf58);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 2px;
+  transform-origin: left;
+}
+.card-lift .title-underline { background-size: 0 2px; transition: background-size 300ms var(--ease-out-soft); }
+.card-lift:hover .title-underline,
+.card-lift:focus-within .title-underline { background-size: 100% 2px; }
+
+/* Boutons et liens avec flèche */
+.btn-arrow { transition: filter 200ms ease, transform 200ms ease; }
+.btn-arrow:hover { filter: brightness(1.06); }
+.btn-arrow svg:last-child { transition: transform 200ms var(--ease-out-soft); }
+.btn-arrow:hover svg:last-child,
+.btn-arrow:focus-visible svg:last-child { transform: translateX(4px); }
+
+/* En-tête compact au défilement */
+.site-header {
+  position: sticky;
+  top: 0;
+  transition:
+    box-shadow 200ms ease,
+    background-color 200ms ease;
+}
+.site-header .site-logo { transition: transform 200ms var(--ease-out-soft); transform-origin: left center; }
+.site-header.is-compact { box-shadow: 0 6px 20px rgba(0, 62, 42, 0.1); }
+.site-header.is-compact .site-logo { transform: scale(0.86); }
+
+/* Visionneuse de la médiathèque */
+.lightbox[open] { animation: lightbox-in 220ms var(--ease-out-soft) both; }
+.lightbox::backdrop { background: rgba(0, 62, 42, 0.85); animation: page-enter 220ms ease-out both; }
+@keyframes lightbox-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal],
+  .js [data-reveal-group] > * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .page-enter,
+  .lightbox[open],
+  .lightbox::backdrop { animation: none; }
+  .card-lift,
+  .card-media img,
+  .btn-arrow,
+  .btn-arrow svg:last-child,
+  .site-header,
+  .site-header .site-logo { transition: none; }
+  .card-lift:hover,
+  .card-lift:focus-within,
+  .card-lift:hover .card-media img,
+  .btn-arrow:hover svg:last-child { transform: none; }
+}
