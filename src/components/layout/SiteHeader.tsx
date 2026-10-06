@@ -39,7 +39,7 @@ export default function SiteHeader({ locale, labels }: Props) {
     <header className={`site-header bg-background border-b border-border w-full ${compact ? 'is-compact' : ''}`}>
       <div className="site-header-inner max-w-[1280px] mx-auto px-6 flex items-center justify-between h-20">
         <Link href={localizedHref(locale, '/')} className="flex items-center gap-3 flex-shrink-0" aria-label={labels.header.home}>
-          <Image src="/brand/logo-couleur.png" alt="" width={1779} height={884} priority className="site-logo h-14 w-auto object-contain" />
+          <Image src="/brand/logo-couleur.png" alt="" width={1779} height={884} priority sizes="120px" className="site-logo h-14 w-auto object-contain" />
         </Link>
 
         <nav className="desktop-navigation items-center" aria-label={labels.header.mainNav}>

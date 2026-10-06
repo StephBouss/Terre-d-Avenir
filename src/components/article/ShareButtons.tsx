@@ -27,7 +27,7 @@ export default function ShareButtons({ url, labels }: Props) {
         target="_blank"
         rel="noopener noreferrer"
         className="btn-arrow inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-bold"
-        style={{ background: '#1877F2', color: '#fff' }}
+        style={{ background: '#1670E0', color: '#fff' }}
       >
         <FacebookIcon size={15} color="#fff" /> Facebook<span className="sr-only">{` ${labels.newTab}`}</span>
       </a>

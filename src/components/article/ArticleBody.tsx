@@ -38,7 +38,7 @@ export default function ArticleBody({ lead, body, meta, source, newTabLabel, sha
                     href={source!.url!}
                     {...(opensInNewTab(source!.url!) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                     className="btn-arrow inline-flex items-center gap-2 text-lg font-bold"
-                    style={{ color: '#1877F2' }}
+                    style={{ color: '#1670E0' }}
                   >
                     {isFacebookUrl(source!.url!) && <FacebookIcon size={18} />}
                     {source!.label}

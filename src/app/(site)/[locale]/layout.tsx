@@ -16,7 +16,7 @@ export const revalidate = 3600
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
-  icons: { icon: '/brand/logo-couleur.png' },
+  icons: { icon: '/brand/favicon.png' },
 }
 
 export function generateStaticParams() {

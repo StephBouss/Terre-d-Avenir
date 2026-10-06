@@ -27,7 +27,7 @@ export default function NewsCard({ locale, actualite, labels }: Props) {
             {labels.readArticle} <Icon i="arrow-right" size={13} />
           </Link>
           {source && !isPlaceholder(source.url) && !isPlaceholder(source.label) && (
-            <a href={source.url!} {...(opensInNewTab(source.url!) ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className="flex items-center gap-1.5 text-xs font-body font-medium" style={{ color: '#1877F2' }}>
+            <a href={source.url!} {...(opensInNewTab(source.url!) ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className="flex items-center gap-1.5 text-xs font-body font-medium" style={{ color: '#1670E0' }}>
               {isFacebookUrl(source.url!) && <FacebookIcon size={18} />}
               {source.label}
               {opensInNewTab(source.url!) && <span className="sr-only">{` ${labels.newTab}`}</span>}

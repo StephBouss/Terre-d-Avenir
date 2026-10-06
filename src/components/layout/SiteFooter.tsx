@@ -22,7 +22,7 @@ export default function SiteFooter({ locale, dict, reglages }: Props) {
         <div className="grid grid-cols-4 gap-12 footer-grid">
           <div>
             <Link href={localizedHref(locale, '/')} className="inline-block mb-4" aria-label={dict.header.home}>
-              <Image src="/brand/logo-clair.png" alt="" width={1774} height={887} className="h-16 w-auto object-contain" />
+              <Image src="/brand/logo-clair.png" alt="" width={1774} height={887} sizes="140px" className="h-16 w-auto object-contain" />
             </Link>
             {!isPlaceholder(reglages?.footerTagline) && (
               <p className="text-sm text-accent-foreground opacity-80 leading-relaxed max-w-[280px]">{reglages?.footerTagline}</p>
@@ -53,13 +53,13 @@ export default function SiteFooter({ locale, dict, reglages }: Props) {
             )}
             {reglages?.facebookUrl && (
               <div className="mt-5">
-                <p className="text-xs opacity-50 mb-3">{dict.footer.follow}</p>
+                <p className="text-xs opacity-60 mb-3">{dict.footer.follow}</p>
                 <a
                   href={reglages.facebookUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-arrow inline-flex items-center gap-2 px-4 py-2 rounded-md font-body text-sm font-bold"
-                  style={{ background: '#1877F2', color: '#fff' }}
+                  style={{ background: '#1670E0', color: '#fff' }}
                 >
                   <FacebookIcon size={16} color="#fff" />
                   {dict.footer.facebook}
