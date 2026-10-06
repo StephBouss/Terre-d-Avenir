@@ -1,5 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { VISIBLE_ACTUALITE } from '../lib/actualites'
+import { previewUrl } from '../lib/preview'
+import { siteUrl } from '../lib/seo'
 import { revalidateCollection, revalidateCollectionDelete } from '../hooks/revalidate'
 
 export const Actualites: CollectionConfig = {
@@ -11,6 +13,10 @@ export const Actualites: CollectionConfig = {
     group: 'Contenus',
     defaultColumns: ['title', '_status', 'archivee', 'dateLabel', 'updatedAt'],
     listSearchableFields: ['title', 'excerpt'],
+    preview: (doc, { locale }) =>
+      typeof doc.slug === 'string' && process.env.PREVIEW_SECRET
+        ? previewUrl(siteUrl(), `/${locale === 'en' ? 'en' : 'fr'}/actualites/${doc.slug}`, process.env.PREVIEW_SECRET)
+        : null,
   },
   versions: { drafts: true, maxPerDoc: 50 },
   access: { read: ({ req }) => (req.user ? true : VISIBLE_ACTUALITE) },

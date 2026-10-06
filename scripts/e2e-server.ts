@@ -13,6 +13,7 @@ const E2E_ENV = {
   DATABASE_URI: `postgres://postgres:postgres@127.0.0.1:${E2E_DB_PORT}/terredavenir`,
   SEED_ADMIN_EMAIL: ADMIN_EMAIL,
   SEED_ADMIN_PASSWORD: ADMIN_PASSWORD,
+  PREVIEW_SECRET: 'e2e-apercu',
 }
 
 const run = (command: string) =>

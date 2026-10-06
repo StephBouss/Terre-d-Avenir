@@ -64,6 +64,7 @@ Déploiement avec Docker Compose (PostgreSQL 18 et application sur le port 3000)
 - `POSTGRES_PASSWORD` (obligatoire). Il est inséré tel quel dans `DATABASE_URI` : n'utiliser que des caractères sans risque dans une URL (lettres et chiffres), ou l'encoder (`@` → `%40`, `:` → `%3A`, `/` → `%2F`, etc.)
 - `PAYLOAD_SECRET` (obligatoire)
 - `NEXT_PUBLIC_SITE_URL` (**obligatoire en production**, par exemple `https://exemple.org` : sans elle, les liens canoniques, le sitemap et les liens de partage pointent vers `http://localhost:3000`). Elle est intégrée au site lors de la construction : la modifier exige `docker compose up -d --build`
+- `PREVIEW_SECRET` sécurise l'aperçu des brouillons. Il est obligatoire en production. Sans lui, le bouton Aperçu de l'admin est désactivé
 - `SEED_ADMIN_EMAIL` et `SEED_ADMIN_PASSWORD` (compte administrateur créé par le seed)
 
 Premier déploiement :

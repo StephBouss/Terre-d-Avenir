@@ -16,3 +16,15 @@ export async function adminToken(request: APIRequestContext): Promise<string> {
   expect(res.ok()).toBe(true)
   return (await res.json()).token as string
 }
+
+/** Supprime d'éventuelles actualités de test restées d'une exécution interrompue (la base e2e est persistante). */
+export async function purgeActualites(request: APIRequestContext, token: string, slugs: string[]): Promise<void> {
+  const headers = { Authorization: `JWT ${token}` }
+  for (const slug of slugs) {
+    const res = await request.get(`/api/actualites?draft=true&limit=10&where[slug][equals]=${encodeURIComponent(slug)}`, { headers })
+    if (!res.ok()) continue
+    for (const doc of (await res.json()).docs as { id: string | number }[]) {
+      await request.delete(`/api/actualites/${doc.id}`, { headers })
+    }
+  }
+}

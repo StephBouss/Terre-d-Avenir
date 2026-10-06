@@ -27,6 +27,7 @@ services:
       DATABASE_URI: postgres://postgres:${POSTGRES_PASSWORD}@postgres:5432/terredavenir
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:?définir PAYLOAD_SECRET}
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      PREVIEW_SECRET: ${PREVIEW_SECRET:?}
       SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-}
       SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:-}
     ports:

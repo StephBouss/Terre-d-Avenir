@@ -36,6 +36,7 @@ export const fr = {
     pause: 'Mettre le diaporama en pause',
     play: 'Reprendre le diaporama',
   },
+  preview: { banner: 'Aperçu — non publié', exit: 'Quitter l’aperçu' },
   common: {
     readArticle: 'Lire l’article',
     learnMore: 'En savoir plus',

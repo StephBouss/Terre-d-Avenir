@@ -20,11 +20,13 @@ export const getActualites = cache(async (locale: Locale): Promise<Actualite[]> 
   return res.docs
 })
 
-export const getActualite = cache(async (slug: string, locale: Locale): Promise<Actualite | null> => {
+/** `draft` est un booléen (et non un objet) : `cache` de React compare les arguments par valeur. */
+export const getActualite = cache(async (slug: string, locale: Locale, draft = false): Promise<Actualite | null> => {
   const payload = await client()
   const res = await payload.find({
     collection: 'actualites',
-    where: { and: [{ slug: { equals: slug } }, VISIBLE_ACTUALITE] },
+    where: draft ? { slug: { equals: slug } } : { and: [{ slug: { equals: slug } }, VISIBLE_ACTUALITE] },
+    draft,
     locale,
     depth: 1,
     limit: 1,

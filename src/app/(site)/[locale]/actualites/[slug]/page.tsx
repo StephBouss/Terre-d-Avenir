@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
+import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 import ArticleBody from '@/components/article/ArticleBody'
 import ArticleHero from '@/components/article/ArticleHero'
 import { RevealGroup } from '@/components/motion/RevealGroup'
+import PreviewBanner from '@/components/layout/PreviewBanner'
 import CtaBand from '@/components/ui/CtaBand'
 import NewsCard from '@/components/ui/NewsCard'
 import SectionHeader from '@/components/ui/SectionHeader'
@@ -23,7 +25,8 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params
   if (!isLocale(locale)) return {}
-  const actualite = await getActualite(slug, locale)
+  const { isEnabled: preview } = await draftMode()
+  const actualite = await getActualite(slug, locale, preview)
   if (!actualite) return {}
   const image = typeof actualite.image === 'object' ? actualite.image?.url : undefined
   return pageMetadata({ locale, path: `/actualites/${slug}`, title: `${actualite.title} — ${SITE_NAME}`, description: actualite.excerpt, image })
@@ -33,7 +36,8 @@ export default async function ArticlePage({ params }: Props) {
   const { locale, slug } = await params
   if (!isLocale(locale)) notFound()
   const dict = getDictionary(locale)
-  const [actualite, all, listPage] = await Promise.all([getActualite(slug, locale), getActualites(locale), getPage('actualites', locale)])
+  const { isEnabled: preview } = await draftMode()
+  const [actualite, all, listPage] = await Promise.all([getActualite(slug, locale, preview), getActualites(locale), getPage('actualites', locale)])
   if (!actualite) notFound()
   const others = all.filter((a) => a.slug !== slug).slice(0, 3)
   const meta = [
@@ -43,6 +47,7 @@ export default async function ArticlePage({ params }: Props) {
 
   return (
     <>
+      {preview && <PreviewBanner label={dict.preview.banner} exitLabel={dict.preview.exit} exitHref={`/api/apercu/fin?path=${encodeURIComponent(`/${locale}/actualites/${slug}`)}`} />}
       <ArticleHero
         locale={locale}
         image={actualite.image}

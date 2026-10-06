@@ -1,34 +1,38 @@
 import { expect, test } from '@playwright/test'
-import { adminToken } from './admin-helpers'
+import { adminToken, purgeActualites } from './admin-helpers'
 
 const DRAFT = { slug: 'e2e-brouillon', title: 'E2E brouillon invisible' }
 const ARCHIVED = { slug: 'e2e-archivee', title: 'E2E archivée invisible' }
 
-test.describe.configure({ mode: 'serial' })
+// Retries : deux connexions admin simultanées (workers parallèles) peuvent invalider un jeton (course sur les sessions Payload).
+test.describe.configure({ mode: 'serial', retries: 2 })
 
 test.describe('états des actualités', () => {
   test.skip(({ isMobile }) => isMobile, 'données partagées : desktop uniquement')
   let token = ''
   const ids: (string | number)[] = []
 
-  test.beforeAll(async ({ request }) => {
+  test.beforeAll(async ({ request, isMobile }) => {
+    if (isMobile) return // les hooks tournent aussi sur le projet mobile : éviter les doublons de slug
     token = await adminToken(request)
+    await purgeActualites(request, token, [DRAFT.slug, ARCHIVED.slug])
     const headers = { Authorization: `JWT ${token}` }
     const draft = await request.post('/api/actualites?draft=true&locale=fr', {
       headers,
       data: { ...DRAFT, order: 99, _status: 'draft' },
     })
-    expect(draft.ok()).toBe(true)
+    expect(draft.ok(), await draft.text()).toBe(true)
     ids.push((await draft.json()).doc.id)
     const archived = await request.post('/api/actualites?locale=fr', {
       headers,
       data: { ...ARCHIVED, order: 98, _status: 'published', archivee: true },
     })
-    expect(archived.ok()).toBe(true)
+    expect(archived.ok(), await archived.text()).toBe(true)
     ids.push((await archived.json()).doc.id)
   })
 
-  test.afterAll(async ({ request }) => {
+  test.afterAll(async ({ request, isMobile }) => {
+    if (isMobile) return
     for (const id of ids) await request.delete(`/api/actualites/${id}`, { headers: { Authorization: `JWT ${token}` } })
   })
 

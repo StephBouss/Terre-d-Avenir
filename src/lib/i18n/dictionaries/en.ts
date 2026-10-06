@@ -38,6 +38,7 @@ export const en: Dictionary = {
     pause: 'Pause slideshow',
     play: 'Play slideshow',
   },
+  preview: { banner: 'Preview — not published', exit: 'Exit preview' },
   common: {
     readArticle: 'Read the article',
     learnMore: 'Learn more',
