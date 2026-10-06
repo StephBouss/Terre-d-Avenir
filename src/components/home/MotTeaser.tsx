@@ -1,7 +1,7 @@
 import { Reveal } from '@/components/motion/Reveal'
 import { Cta } from '@/components/ui/Cta'
 import GoldDivider from '@/components/ui/GoldDivider'
-import Icon from '@/components/ui/Icon'
+import QuoteMark from '@/components/ui/QuoteMark'
 import type { Locale } from '@/lib/i18n/config'
 import type { Section } from '@/lib/sections'
 import { isPlaceholder } from '@/lib/text'
@@ -15,9 +15,7 @@ export default function MotTeaser({ locale, section, newTabLabel }: Props) {
     <section className="py-24" id="mot-presidente" style={{ background: '#F7F8F4' }}>
       <div className="max-w-[1280px] mx-auto px-6 grid grid-cols-2 gap-20 items-center">
         <Reveal className="flex justify-center order-last">
-          <div className="rounded-lg flex items-center justify-center" aria-hidden="true" style={{ width: 360, height: 360, background: '#003E2A', border: '3px solid #E6BF58' }}>
-            <Icon i="quote" size={64} style={{ color: '#E6BF58' }} />
-          </div>
+          <QuoteMark />
         </Reveal>
 
         <div className="flex flex-col gap-5">
