@@ -11,7 +11,8 @@ import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizedHref } from '@/lib/i18n/paths'
 import { getSection } from '@/lib/sections'
-import { SITE_NAME, pageMetadata } from '@/lib/seo'
+import { SITE_NAME, pageMetadata, siteUrl } from '@/lib/seo'
+import { isPlaceholder } from '@/lib/text'
 
 type Props = { params: Promise<{ locale: string; slug: string }> }
 
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const projet = await getProjet(slug, locale)
   if (!projet) return {}
   const image = typeof projet.image === 'object' ? projet.image?.url : undefined
-  return pageMetadata({ locale, path: `/projets/${slug}`, title: `${projet.theme} — ${SITE_NAME}`, description: projet.summary, image })
+  return pageMetadata({ locale, path: `/projets/${slug}`, title: `${projet.theme} — ${SITE_NAME}`, description: isPlaceholder(projet.summary) ? undefined : projet.summary, image })
 }
 
 export default async function ProjetPage({ params }: Props) {
@@ -35,17 +36,17 @@ export default async function ProjetPage({ params }: Props) {
   const [projet, all, listPage] = await Promise.all([getProjet(slug, locale), getProjets(locale), getPage('projets', locale)])
   if (!projet) notFound()
   const others = all.filter((p) => p.slug !== slug)
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+  const title = isPlaceholder(projet.title) ? projet.theme : projet.title!
 
   return (
     <>
-      <ArticleHero locale={locale} image={projet.image} category={projet.theme} title={projet.title ?? projet.theme} source={projet.source} newTabLabel={dict.common.newTab} />
+      <ArticleHero locale={locale} image={projet.image} category={projet.theme} title={title} source={projet.source} newTabLabel={dict.common.newTab} />
       <ArticleBody
         body={projet.body}
         meta={[{ label: dict.common.category, value: projet.theme }]}
         source={projet.source}
         newTabLabel={dict.common.newTab}
-        share={{ url: siteUrl + localizedHref(locale, `/projets/${slug}`), labels: { newTab: dict.common.newTab, share: dict.common.share, copyLink: dict.common.copyLink, linkCopied: dict.common.linkCopied } }}
+        share={{ url: siteUrl() + localizedHref(locale, `/projets/${slug}`), labels: { newTab: dict.common.newTab, share: dict.common.share, copyLink: dict.common.copyLink, linkCopied: dict.common.linkCopied } }}
       />
       {others.length > 0 && (
         <section className="py-20" style={{ background: '#F7F8F4' }}>
