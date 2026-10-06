@@ -6,6 +6,10 @@ import { stripEmphasis } from './text'
 const OG_LOCALES: Record<Locale, string> = { fr: 'fr_FR', en: 'en_GB' }
 export const SITE_NAME = 'Terre d’Avenir KOMO-KANGO'
 
+export function siteUrl(): string {
+  return process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+}
+
 type Args = { locale: Locale; path: string; title?: string | null; description?: string | null; image?: string | null }
 
 export function pageMetadata({ locale, path, title, description, image }: Args): Metadata {

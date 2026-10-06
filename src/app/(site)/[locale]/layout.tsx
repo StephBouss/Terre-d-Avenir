@@ -7,6 +7,7 @@ import { NO_JS_GUARD } from '@/components/motion/no-js-guard'
 import { getReglages } from '@/lib/content'
 import { isLocale, localeDir } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/dictionaries'
+import { siteUrl } from '@/lib/seo'
 import '../globals.css'
 
 const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-dm-sans', display: 'swap' })
@@ -14,7 +15,7 @@ const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
+  metadataBase: new URL(siteUrl()),
   icons: { icon: '/brand/logo-couleur.png' },
 }
 

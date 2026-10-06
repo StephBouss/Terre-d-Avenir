@@ -11,7 +11,7 @@ import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizedHref } from '@/lib/i18n/paths'
 import { getSection } from '@/lib/sections'
-import { SITE_NAME, pageMetadata } from '@/lib/seo'
+import { SITE_NAME, pageMetadata, siteUrl } from '@/lib/seo'
 import { isPlaceholder } from '@/lib/text'
 
 type Props = { params: Promise<{ locale: string; slug: string }> }
@@ -36,7 +36,6 @@ export default async function ArticlePage({ params }: Props) {
   const [actualite, all, listPage] = await Promise.all([getActualite(slug, locale), getActualites(locale), getPage('actualites', locale)])
   if (!actualite) notFound()
   const others = all.filter((a) => a.slug !== slug).slice(0, 3)
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
   const meta = [
     !isPlaceholder(actualite.category) ? { label: dict.common.category, value: actualite.category! } : null,
     !isPlaceholder(actualite.dateLabel) ? { label: dict.common.date, value: actualite.dateLabel! } : null,
@@ -59,7 +58,7 @@ export default async function ArticlePage({ params }: Props) {
         meta={meta}
         source={actualite.source}
         newTabLabel={dict.common.newTab}
-        share={{ url: siteUrl + localizedHref(locale, `/actualites/${slug}`), labels: { share: dict.common.share, copyLink: dict.common.copyLink, linkCopied: dict.common.linkCopied } }}
+        share={{ url: siteUrl() + localizedHref(locale, `/actualites/${slug}`), labels: { newTab: dict.common.newTab, share: dict.common.share, copyLink: dict.common.copyLink, linkCopied: dict.common.linkCopied } }}
       />
       {others.length > 0 && (
         <section className="bg-background py-20">

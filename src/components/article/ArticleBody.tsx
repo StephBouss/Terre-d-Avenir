@@ -11,7 +11,7 @@ type Props = {
   meta: { label: string; value: string }[]
   source?: { label?: string | null; url?: string | null } | null
   newTabLabel: string
-  share: { url: string; labels: { share: string; copyLink: string; linkCopied: string } }
+  share: { url: string; labels: { newTab: string; share: string; copyLink: string; linkCopied: string } }
 }
 
 export default function ArticleBody({ lead, body, meta, source, newTabLabel, share }: Props) {
@@ -34,16 +34,16 @@ export default function ArticleBody({ lead, body, meta, source, newTabLabel, sha
               ))}
               {showSource && (
                 <div>
-                    <a
-                      href={source!.url!}
-                      {...(opensInNewTab(source!.url!) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                      className="btn-arrow inline-flex items-center gap-2 text-lg font-bold"
-                      style={{ color: '#1877F2' }}
-                    >
-                      {isFacebookUrl(source!.url!) && <FacebookIcon size={18} />}
-                      {source!.label}
-                      {opensInNewTab(source!.url!) && <span className="sr-only">{` ${newTabLabel}`}</span>}
-                    </a>
+                  <a
+                    href={source!.url!}
+                    {...(opensInNewTab(source!.url!) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    className="btn-arrow inline-flex items-center gap-2 text-lg font-bold"
+                    style={{ color: '#1877F2' }}
+                  >
+                    {isFacebookUrl(source!.url!) && <FacebookIcon size={18} />}
+                    {source!.label}
+                    {opensInNewTab(source!.url!) && <span className="sr-only">{` ${newTabLabel}`}</span>}
+                  </a>
                 </div>
               )}
             </div>
