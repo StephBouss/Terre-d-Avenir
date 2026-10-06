@@ -48,7 +48,3 @@ export const FOOTER_UTILITY: { key: NavKey; href: string }[] = [
   { key: 'confidentialite', href: '/confidentialite' },
   { key: 'mentions', href: '/mentions-legales' },
 ]
-
-export function pageSlugForPath(path: string): string {
-  return path === '/' ? 'accueil' : path.replace(/^\//, '')
-}

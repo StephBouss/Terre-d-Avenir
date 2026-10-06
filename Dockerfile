@@ -15,7 +15,7 @@ RUN npm run build
 FROM node:22-bookworm-slim AS run
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
-COPY --from=build /app ./
+COPY --from=build --chown=node:node /app ./
 RUN mkdir -p media && chown -R node:node media
 USER node
 EXPOSE 3000

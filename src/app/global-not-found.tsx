@@ -19,7 +19,7 @@ async function activeLocale(): Promise<Locale> {
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await activeLocale()
-  return { title: getDictionary(locale).notFound.title, robots: { index: false } }
+  return { title: getDictionary(locale).notFound.title, robots: { index: false }, icons: { icon: '/brand/favicon.png' } }
 }
 
 export default async function GlobalNotFound() {
