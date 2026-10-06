@@ -1,21 +1,31 @@
-import type { CollectionAfterChangeHook, GlobalAfterChangeHook } from 'payload'
+import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, GlobalAfterChangeHook, PayloadRequest } from 'payload'
 import { revalidatePath } from 'next/cache'
 
-function revalidateSite(context: Record<string, unknown> | undefined) {
-  if (context?.disableRevalidate) return
+/** Erreur levée par Next.js quand revalidatePath est appelé hors d’une requête (seed, CLI). */
+const OUTSIDE_NEXT = /static generation store|workStore|outside of a request|Invariant/i
+
+function revalidateSite(req: PayloadRequest) {
+  if (req.context?.disableRevalidate) return
   try {
     revalidatePath('/', 'layout')
-  } catch {
-    // Hors du contexte Next.js (seed, CLI) : rien à revalider.
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    if (OUTSIDE_NEXT.test(message)) return // Hors du contexte Next.js : rien à revalider.
+    req.payload.logger.error({ err: error }, 'Échec de la revalidation du site')
   }
 }
 
 export const revalidateCollection: CollectionAfterChangeHook = ({ doc, req }) => {
-  revalidateSite(req.context)
+  revalidateSite(req)
+  return doc
+}
+
+export const revalidateCollectionDelete: CollectionAfterDeleteHook = ({ doc, req }) => {
+  revalidateSite(req)
   return doc
 }
 
 export const revalidateGlobal: GlobalAfterChangeHook = ({ doc, req }) => {
-  revalidateSite(req.context)
+  revalidateSite(req)
   return doc
 }

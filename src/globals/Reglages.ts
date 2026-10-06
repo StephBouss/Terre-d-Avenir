@@ -5,7 +5,7 @@ export const Reglages: GlobalConfig = {
   slug: 'reglages',
   typescript: { interface: 'Reglage' },
   label: 'Réglages du site',
-  access: { read: () => true },
+  access: { read: ({ req }) => Boolean(req.user) },
   hooks: { afterChange: [revalidateGlobal] },
   fields: [
     { name: 'facebookUrl', label: 'Page Facebook', type: 'text', required: true },

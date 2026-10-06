@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { revalidateCollection } from '../hooks/revalidate'
+import { revalidateCollection, revalidateCollectionDelete } from '../hooks/revalidate'
 
 export const Medias: CollectionConfig = {
   slug: 'medias',
@@ -7,10 +7,10 @@ export const Medias: CollectionConfig = {
   labels: { singular: 'Média', plural: 'Médias' },
   admin: { useAsTitle: 'filename', defaultColumns: ['filename', 'galerie', 'provisoire'] },
   access: { read: () => true },
-  hooks: { afterChange: [revalidateCollection] },
+  hooks: { afterChange: [revalidateCollection], afterDelete: [revalidateCollectionDelete] },
   upload: {
     staticDir: 'media',
-    mimeTypes: ['image/*'],
+    mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
     imageSizes: [
       { name: 'card', width: 800 },
       { name: 'hero', width: 1920 },

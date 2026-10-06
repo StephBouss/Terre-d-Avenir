@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { revalidateCollection } from '../hooks/revalidate'
+import { revalidateCollection, revalidateCollectionDelete } from '../hooks/revalidate'
 
 export const PAGE_SLUGS = [
   'accueil',
@@ -25,8 +25,8 @@ export const Pages: CollectionConfig = {
   typescript: { interface: 'Page' },
   labels: { singular: 'Page', plural: 'Pages' },
   admin: { useAsTitle: 'slug', defaultColumns: ['slug', 'h1', 'updatedAt'] },
-  access: { read: () => true },
-  hooks: { afterChange: [revalidateCollection] },
+  access: { read: ({ req }) => Boolean(req.user) },
+  hooks: { afterChange: [revalidateCollection], afterDelete: [revalidateCollectionDelete] },
   fields: [
     {
       name: 'slug',
