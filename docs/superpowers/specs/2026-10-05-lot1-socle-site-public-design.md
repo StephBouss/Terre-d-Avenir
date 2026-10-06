@@ -55,8 +55,8 @@ src/
     (payload)/admin/...     admin Payload
   components/               composants portés + briques d'animation
   lib/i18n/                 langues, dictionnaire des libellés, helpers d'URL
-  collections/              Actualites, Projets, Medias, Users
-  globals/                  Pages (textes par page), Navigation, Reglages
+  collections/              Pages (textes par page), Actualites, Projets, Medias, Users
+  globals/                  Reglages (la navigation est dans le code : lib/routes.ts)
   seed/                     script de seed (Textes v1.3 FR + traduction EN + médias)
   proxy.ts                  redirection / → /fr/, langues inactives (convention Next.js 16, ex-middleware)
 payload.config.ts

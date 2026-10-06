@@ -42,8 +42,30 @@ Le MCP Banani était indisponible (délai de connexion dépassé) et `.banani-ex
 ## Points ouverts
 
 - Comparaison visuelle Banani à faire (voir ci-dessus).
-- Couleur bleu Facebook assombrie pour le contraste : à valider par l'ONG ou le designer si une fidélité stricte à la marque Facebook est exigée.
-- Mineurs consignés pendant le lot (voir le journal SDD) : diaporama du hero sans commande de pause, menu mobile et sélecteur de langue inutilisables sans JavaScript, duplication police/coquille dans `global-not-found`, etc.
+- Mineurs consignés pendant le lot (voir le journal SDD) : menu mobile et sélecteur de langue inutilisables sans JavaScript, duplication police/coquille dans `global-not-found`, etc.
+
+## Décisions validées
+
+- Le 2026-10-06, l'utilisateur a validé deux ajustements de contraste faits pendant la recette : le bleu Facebook `#1877F2` devient `#1670E0`, et l'opacité du libellé « Suivez-nous » du pied de page passe de 50 % à 60 %.
+- L'icône Facebook garde volontairement le bleu officiel `#1877F2` (`Cta.tsx`, `FacebookIcon`).
+- Diaporama du héros : un bouton de pause (WCAG 2.2.2), visible uniquement avec JavaScript et masqué sous `prefers-reduced-motion`, a été ajouté lors de la revue finale.
+- API REST de Payload : les actualités non publiées, les pages, les projets et les réglages ne sont lisibles que par un utilisateur connecté ; les médias restent publics.
+
+## Vérifications manuelles
+
+### Critère 7 — modification d'une actualité
+
+Statut : à faire par l'ONG / le responsable.
+
+1. Dans `/admin`, modifier le titre ou le résumé d'une actualité, puis enregistrer.
+2. Recharger `/fr` et `/en` (et la page de l'actualité) : la modification doit être visible après la revalidation, sans redéploiement.
+3. Supprimer ou dépublier une actualité de test : elle doit disparaître du site.
+
+### Critère 2 — fidélité à la maquette
+
+Statut : à faire.
+
+Comparer les captures de `test-results/captures/` (générées par `npm run test:e2e`) avec les écrans Banani, page par page, en desktop et en mobile. Consigner les écarts dans « Écarts visuels avec la maquette Banani ».
 
 ## Contenus en attente de l'ONG (section 9 de la spec)
 

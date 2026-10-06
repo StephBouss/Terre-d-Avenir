@@ -1,3 +1,4 @@
+// Bleu officiel de Facebook (#1877F2), conservé volontairement pour l'icône (validé le 2026-10-06).
 export default function FacebookIcon({ size = 18, color = '#1877F2' }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden="true" xmlns="http://www.w3.org/2000/svg">

@@ -7,7 +7,7 @@ Site public multilingue de Terre d'Avenir (lot 1 : socle du site public), constr
 
 ## Prérequis
 
-- Node.js 22 LTS ou plus récent
+- Node.js 22 LTS (20.9 minimum, version exigée par `engines`) ou plus récent
 - npm
 
 ## Démarrage en développement
@@ -61,9 +61,9 @@ Le français et l'anglais sont actifs. Pour ajouter une langue, l'ajouter à `LO
 
 Déploiement avec Docker Compose (PostgreSQL 18 et application sur le port 3000). Variables à définir, dans un fichier `.env` à côté de `docker-compose.yml` ou dans l'environnement :
 
-- `POSTGRES_PASSWORD` (obligatoire)
+- `POSTGRES_PASSWORD` (obligatoire). Il est inséré tel quel dans `DATABASE_URI` : n'utiliser que des caractères sans risque dans une URL (lettres et chiffres), ou l'encoder (`@` → `%40`, `:` → `%3A`, `/` → `%2F`, etc.)
 - `PAYLOAD_SECRET` (obligatoire)
-- `NEXT_PUBLIC_SITE_URL` (URL publique du site ; `http://localhost:3000` par défaut). Elle est intégrée au site lors de la construction : la modifier exige `docker compose up -d --build`
+- `NEXT_PUBLIC_SITE_URL` (**obligatoire en production**, par exemple `https://exemple.org` : sans elle, les liens canoniques, le sitemap et les liens de partage pointent vers `http://localhost:3000`). Elle est intégrée au site lors de la construction : la modifier exige `docker compose up -d --build`
 - `SEED_ADMIN_EMAIL` et `SEED_ADMIN_PASSWORD` (compte administrateur créé par le seed)
 
 Premier déploiement :
@@ -72,6 +72,8 @@ Premier déploiement :
 docker compose up -d --build
 docker compose exec app npm run seed
 ```
+
+> **Sécurité :** tant que le seed n'a pas créé le compte administrateur, la page `/admin/create-first-user` permet à n'importe qui de créer le premier administrateur. Lancer le seed (ou créer l'administrateur) immédiatement après le premier déploiement, avec `SEED_ADMIN_EMAIL` et `SEED_ADMIN_PASSWORD` définis.
 
 Les migrations sont appliquées automatiquement au démarrage de l'application. Les médias téléversés sont conservés dans le volume `media`.
 

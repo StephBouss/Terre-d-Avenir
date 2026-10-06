@@ -35,6 +35,7 @@ export function Cta({ locale, href, label, variant = 'primary', icon, newTabLabe
   const size = variant === 'link' ? 13 : 17
   const content = (
     <>
+      {/* Le bleu officiel #1877F2 de l'icône Facebook est volontaire (validé le 2026-10-06) ; seuls les textes sont assombris pour le contraste. */}
       {icon ? <Icon i={icon} size={size} /> : isFacebookUrl(href) ? <FacebookIcon size={16} color={v.light ? '#fff' : '#1877F2'} /> : null}
       <span>{label}</span>
       {newTab && <span className="sr-only">{` ${newTabLabel}`}</span>}
