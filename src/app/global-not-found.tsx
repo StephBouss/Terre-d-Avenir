@@ -4,7 +4,6 @@ import { headers } from 'next/headers'
 import NotFoundContent from '@/components/layout/NotFoundContent'
 import SiteFooter from '@/components/layout/SiteFooter'
 import SiteHeader from '@/components/layout/SiteHeader'
-import { NO_JS_GUARD } from '@/components/motion/no-js-guard'
 import { getReglages } from '@/lib/content'
 import { DEFAULT_LOCALE, isLocale, localeDir, type Locale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/dictionaries'
@@ -28,11 +27,7 @@ export default async function GlobalNotFound() {
   const reglages = await getReglages(locale).catch(() => null)
 
   return (
-    // suppressHydrationWarning : NO_JS_GUARD ajoute la classe .js sur <html> avant l'hydratation.
-    <html lang={locale} dir={localeDir(locale)} className={dmSans.variable} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: NO_JS_GUARD }} />
-      </head>
+    <html lang={locale} dir={localeDir(locale)} className={dmSans.variable}>
       <body className="bg-background text-foreground font-body">
         <a href="#contenu" className="skip-link">
           {dict.skipToContent}

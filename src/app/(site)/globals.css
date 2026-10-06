@@ -278,8 +278,10 @@ img {
   transition: background-color 200ms ease, border-color 200ms ease;
 }
 
-.js .hero-pause {
-  display: inline-flex;
+@media (scripting: enabled) {
+  .hero-pause {
+    display: inline-flex;
+  }
 }
 
 .hero-pause:hover {
@@ -456,7 +458,7 @@ img {
     opacity: 1;
   }
 
-  .js .hero-pause {
+  .hero-pause {
     display: none;
   }
 }

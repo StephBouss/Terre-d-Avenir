@@ -2,20 +2,22 @@
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Apparition au défilement — uniquement quand JS est actif (classe .js sur <html>). */
-.js [data-reveal],
-.js [data-reveal-group] > * {
-  transition:
-    opacity 600ms var(--ease-out-soft),
-    transform 600ms var(--ease-out-soft);
-}
-.js [data-reveal] {
-  transition-delay: var(--reveal-delay, 0ms);
-}
-.js [data-reveal]:not(.is-visible),
-.js [data-reveal-group]:not(.is-visible) > * {
-  opacity: 0;
-  transform: translateY(16px);
+/* Apparition au défilement — uniquement quand JS est actif (media query `scripting`, sans script de détection). */
+@media (scripting: enabled) {
+  [data-reveal],
+  [data-reveal-group] > * {
+    transition:
+      opacity 600ms var(--ease-out-soft),
+      transform 600ms var(--ease-out-soft);
+  }
+  [data-reveal] {
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  [data-reveal]:not(.is-visible),
+  [data-reveal-group]:not(.is-visible) > * {
+    opacity: 0;
+    transform: translateY(16px);
+  }
 }
 [data-reveal-group] > *:nth-child(2) { transition-delay: 80ms; }
 [data-reveal-group] > *:nth-child(3) { transition-delay: 160ms; }
@@ -89,8 +91,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .js [data-reveal],
-  .js [data-reveal-group] > * {
+  [data-reveal],
+  [data-reveal-group] > * {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;

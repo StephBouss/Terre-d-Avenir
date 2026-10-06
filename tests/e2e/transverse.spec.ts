@@ -68,7 +68,6 @@ test.describe('sans JavaScript', () => {
   test.use({ javaScriptEnabled: false })
   test('le contenu animé reste visible', async ({ page }) => {
     await page.goto('/fr')
-    await expect(page.locator('html')).not.toHaveClass(/\bjs\b/)
     const reveal = page.locator('[data-reveal]').first()
     await expect(reveal).toBeVisible()
     expect(await reveal.evaluate((el) => getComputedStyle(el).opacity)).toBe('1')
