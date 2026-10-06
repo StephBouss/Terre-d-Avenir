@@ -55,7 +55,7 @@ Le français et l'anglais sont actifs. Pour ajouter une langue, l'ajouter à `LO
 ## Tests
 
 - `npm test` : tests unitaires
-- `npm run test:e2e` : tests de bout en bout
+- `npm run test:e2e` : tests de bout en bout (base dédiée sur le port 5434, `.data/postgres-e2e`, distincte de la base de développement)
 
 ## Production
 

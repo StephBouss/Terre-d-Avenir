@@ -4,18 +4,28 @@ import path from 'node:path'
 
 export const DB_PORT = 5433
 export const DB_NAME = 'terredavenir'
-const DATA_DIR = path.resolve('.data/postgres')
+const DEFAULT_DATA_DIR = '.data/postgres'
 
-export async function startDatabase(): Promise<EmbeddedPostgres> {
+export interface DatabaseOptions {
+  port?: number
+  /** Dossier des données, relatif au dossier courant ou absolu. */
+  dataDir?: string
+}
+
+export async function startDatabase({
+  port = DB_PORT,
+  dataDir = DEFAULT_DATA_DIR,
+}: DatabaseOptions = {}): Promise<EmbeddedPostgres> {
+  const databaseDir = path.resolve(dataDir)
   const pg = new EmbeddedPostgres({
-    databaseDir: DATA_DIR,
+    databaseDir,
     user: 'postgres',
     password: 'postgres',
-    port: DB_PORT,
+    port,
     persistent: true,
     onLog: () => {},
   })
-  if (!existsSync(path.join(DATA_DIR, 'PG_VERSION'))) {
+  if (!existsSync(path.join(databaseDir, 'PG_VERSION'))) {
     await pg.initialise()
   }
   await pg.start()
