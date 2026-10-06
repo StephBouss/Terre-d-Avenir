@@ -2,7 +2,7 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, GlobalAfterC
 import { revalidatePath } from 'next/cache'
 
 /** Erreur levée par Next.js quand revalidatePath est appelé hors d’une requête (seed, CLI). */
-const OUTSIDE_NEXT = /static generation store|workStore|outside of a request|Invariant/i
+const OUTSIDE_NEXT = /static generation store missing/i
 
 function revalidateSite(req: PayloadRequest) {
   if (req.context?.disableRevalidate) return

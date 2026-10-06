@@ -292,9 +292,9 @@ img {
   outline-offset: 2px;
 }
 
-/* Pause demandée par le visiteur (WCAG 2.2.2) : fige toutes les animations du héros. */
-.hero-paused,
-.hero-paused * {
+/* Pause demandée par le visiteur (WCAG 2.2.2) : fige le diaporama, sa barre et le collage.
+   L'apparition du texte (hero-copy-in) n'est pas figée, pour qu'il ne reste jamais à demi transparent. */
+.hero-paused :is(.hero-slide, .hero-progress, .photo-inner) {
   animation-play-state: paused !important;
 }
 
