@@ -34,6 +34,10 @@ export const en: Dictionary = {
     facebook: 'Facebook',
     copyright: '© 2026 Terre d’Avenir KOMO-KANGO',
   },
+  hero: {
+    pause: 'Pause slideshow',
+    play: 'Play slideshow',
+  },
   common: {
     readArticle: 'Read the article',
     learnMore: 'Learn more',

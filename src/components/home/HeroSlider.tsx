@@ -5,13 +5,14 @@ import type { Media } from '@/payload-types'
 import { Cta } from '@/components/ui/Cta'
 import { EmphasisText } from '@/components/ui/EmphasisText'
 import { MediaImage } from '@/components/ui/MediaImage'
+import HeroPauseButton from './HeroPauseButton'
 
-type Props = { locale: Locale; title: string; intro?: string | null; section?: Section; images: Media[]; newTabLabel: string }
+type Props = { locale: Locale; title: string; intro?: string | null; section?: Section; images: Media[]; newTabLabel: string; pauseLabel: string; playLabel: string }
 
 const BLOBS = ['hero-photo-1', 'hero-photo-2', 'hero-photo-3']
 
-/** Diaporama entièrement en CSS (voir globals.css) : aucun JavaScript client. */
-export default function HeroSlider({ locale, title, intro, section, images, newTabLabel }: Props) {
+/** Diaporama en CSS (voir globals.css) ; seul le bouton de pause (WCAG 2.2.2) est un composant client. */
+export default function HeroSlider({ locale, title, intro, section, images, newTabLabel, pauseLabel, playLabel }: Props) {
   const ctas = (section?.ctas ?? []).filter((c) => !isPlaceholder(c.label) && !isPlaceholder(c.href))
   const photo = (index: number) => (images.length > 0 ? images[index % images.length] : undefined)
   return (
@@ -24,6 +25,7 @@ export default function HeroSlider({ locale, title, intro, section, images, newT
 
       <div className="hero-overlay" />
       <div className="hero-progress" />
+      <HeroPauseButton pauseLabel={pauseLabel} playLabel={playLabel} />
 
       <div className="hero-nav" aria-hidden="true">
         <div className="hero-nav-dot active" />

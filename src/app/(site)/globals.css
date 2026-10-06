@@ -260,6 +260,44 @@ img {
   animation: hero-progress 6s linear infinite;
 }
 
+.hero-pause {
+  position: absolute;
+  z-index: 6;
+  right: 24px;
+  bottom: 20px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  background: rgba(0, 40, 28, 0.55);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 200ms ease, border-color 200ms ease;
+}
+
+.js .hero-pause {
+  display: inline-flex;
+}
+
+.hero-pause:hover {
+  border-color: #e6bf58;
+  background: rgba(0, 40, 28, 0.85);
+}
+
+.hero-pause:focus-visible {
+  outline: 2px solid #e6bf58;
+  outline-offset: 2px;
+}
+
+/* Pause demandée par le visiteur (WCAG 2.2.2) : fige toutes les animations du héros. */
+.hero-paused,
+.hero-paused * {
+  animation-play-state: paused !important;
+}
+
 .hero-content {
   position: relative;
   z-index: 3;
@@ -416,6 +454,10 @@ img {
   .hero-slide:first-child,
   .photo-inner:first-child {
     opacity: 1;
+  }
+
+  .js .hero-pause {
+    display: none;
   }
 }
 

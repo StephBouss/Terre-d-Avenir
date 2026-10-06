@@ -32,7 +32,7 @@ export default async function HomePage({ params }: LocaleParams) {
 
   return (
     <>
-      <HeroSlider locale={locale} title={page.h1 ?? ''} intro={page.intro} section={section('hero')} images={images} newTabLabel={newTab} />
+      <HeroSlider locale={locale} title={page.h1 ?? ''} intro={page.intro} section={section('hero')} images={images} newTabLabel={newTab} pauseLabel={dict.hero.pause} playLabel={dict.hero.play} />
       <MissionStrip items={section('hero')?.items ?? []} />
       <AncrageSection locale={locale} section={section('ancrage')} image={images[2]} linkLabel={dict.nav.ong} newTabLabel={newTab} />
       <MotTeaser locale={locale} section={section('mot')} newTabLabel={newTab} />

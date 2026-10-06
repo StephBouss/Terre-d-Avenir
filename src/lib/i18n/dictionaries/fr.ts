@@ -32,6 +32,10 @@ export const fr = {
     facebook: 'Facebook',
     copyright: '© 2026 Terre d’Avenir KOMO-KANGO',
   },
+  hero: {
+    pause: 'Mettre le diaporama en pause',
+    play: 'Reprendre le diaporama',
+  },
   common: {
     readArticle: 'Lire l’article',
     learnMore: 'En savoir plus',

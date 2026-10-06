@@ -31,3 +31,14 @@ test('accueil FR : les 3 repères de la bande de mission sont visibles', async (
     await expect(strip.getByText(title)).toBeVisible()
   }
 })
+
+test('accueil FR : le bouton de pause fige le diaporama (WCAG 2.2.2)', async ({ page }) => {
+  await page.goto('/fr')
+  const slide = page.locator('.hero-slide').first()
+  await expect(slide).toHaveCSS('animation-play-state', 'running')
+  await page.getByRole('button', { name: 'Mettre le diaporama en pause' }).click()
+  await expect(slide).toHaveCSS('animation-play-state', 'paused')
+  await expect(page.locator('.hero-progress')).toHaveCSS('animation-play-state', 'paused')
+  await page.getByRole('button', { name: 'Reprendre le diaporama' }).click()
+  await expect(slide).toHaveCSS('animation-play-state', 'running')
+})
