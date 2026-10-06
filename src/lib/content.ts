@@ -4,6 +4,7 @@ import config from '@payload-config'
 import type { Actualite, Media, Page, Projet, Reglage } from '@/payload-types'
 import type { PageSlug } from '@/collections/Pages'
 import type { Locale } from './i18n/config'
+import { VISIBLE_ACTUALITE } from './actualites'
 
 const client = cache(() => getPayload({ config }))
 
@@ -15,7 +16,7 @@ export const getPage = cache(async (slug: PageSlug, locale: Locale): Promise<Pag
 
 export const getActualites = cache(async (locale: Locale): Promise<Actualite[]> => {
   const payload = await client()
-  const res = await payload.find({ collection: 'actualites', where: { publie: { equals: true } }, sort: 'order', locale, depth: 1, limit: 100 })
+  const res = await payload.find({ collection: 'actualites', where: VISIBLE_ACTUALITE, sort: 'order', locale, depth: 1, limit: 100 })
   return res.docs
 })
 
@@ -23,7 +24,7 @@ export const getActualite = cache(async (slug: string, locale: Locale): Promise<
   const payload = await client()
   const res = await payload.find({
     collection: 'actualites',
-    where: { and: [{ slug: { equals: slug } }, { publie: { equals: true } }] },
+    where: { and: [{ slug: { equals: slug } }, VISIBLE_ACTUALITE] },
     locale,
     depth: 1,
     limit: 1,

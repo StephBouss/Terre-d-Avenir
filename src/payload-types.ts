@@ -201,7 +201,6 @@ export interface Actualite {
   title: string;
   slug: string;
   order: number;
-  publie?: boolean | null;
   category?: string | null;
   /**
    * Ex. « 8 août 2026 » ou « Initiative publiée ».
@@ -215,8 +214,13 @@ export interface Actualite {
     label?: string | null;
     url?: string | null;
   };
+  /**
+   * Retire l’actualité du site sans la supprimer.
+   */
+  archivee?: boolean | null;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -442,7 +446,6 @@ export interface ActualitesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   order?: T;
-  publie?: T;
   category?: T;
   dateLabel?: T;
   date?: T;
@@ -455,8 +458,10 @@ export interface ActualitesSelect<T extends boolean = true> {
         label?: T;
         url?: T;
       };
+  archivee?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

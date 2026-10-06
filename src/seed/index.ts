@@ -84,7 +84,7 @@ async function seed() {
 
   for (const item of fr.actualites) {
     const enItem = en.actualites.find((a) => a.slug === item.slug)!
-    const shared = { slug: item.slug, order: item.order, publie: true, date: item.date ?? null, image: item.image ? media[item.image] : null, source: { url: item.source.url } }
+    const shared = { slug: item.slug, order: item.order, _status: 'published', archivee: false, date: item.date ?? null, image: item.image ? media[item.image] : null, source: { url: item.source.url } }
     const local = (a: typeof item) => ({ title: a.title, category: a.category, dateLabel: a.dateLabel, excerpt: a.excerpt, body: a.body ?? '', source: { label: a.source.label, url: a.source.url } })
     await upsertLocalized(payload, 'actualites', { slug: { equals: item.slug } }, { ...shared, ...local(item) }, local(enItem))
   }
