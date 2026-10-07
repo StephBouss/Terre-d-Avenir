@@ -15,10 +15,10 @@ test('Mot de la présidente sans signature non validée', async ({ page }) => {
   await expect(page.locator('main img:not([alt=""])')).toHaveCount(0) // aucun portrait ni image signifiante
 })
 
-test('Organisation : état « en préparation » et FAQ', async ({ page }) => {
+test('Organisation : titre de l’organigramme et FAQ', async ({ page }) => {
   await page.goto('/en/organisation')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Our organization')
-  await expect(page.getByText('The presentation of our organization is being prepared.', { exact: false })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 2, name: 'Our organization chart' })).toBeVisible()
   await page.getByText('How can I contact the NGO?').click()
   await expect(page.getByText(/not published automatically/)).toBeVisible()
 })

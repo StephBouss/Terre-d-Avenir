@@ -1,7 +1,8 @@
 import { APIError, ValidationError } from 'payload'
 import { describe, expect, it, vi } from 'vitest'
 import { bloquerSuppressionParent, validerRattachement } from '@/hooks/postes'
-import { MESSAGES_RATTACHEMENT, MESSAGE_SUPPRESSION, idDe, verifierRattachement } from '@/lib/organigramme'
+import { MESSAGES_RATTACHEMENT, MESSAGE_SUPPRESSION, construireArbre, idDe, verifierRattachement, type PosteNoeud } from '@/lib/organigramme'
+import type { Poste } from '@/payload-types'
 
 /** Postes en base : id → parent (null = racine). Un id absent = poste inexistant. */
 const lecteur = (parents: Record<string, number | null>) => async (id: number | string) => (String(id) in parents ? parents[String(id)] : undefined)
@@ -66,5 +67,27 @@ describe('hook de suppression des postes', () => {
   })
   it('acceptée sans poste rattaché', async () => {
     await expect(bloquerSuppressionParent({ id: 1, req: reqEnfants(0, 0) } as never)).resolves.toBeUndefined()
+  })
+})
+
+const poste = (id: number, parent: number | null, ordre: number, intitule = `P${id}`) => ({ id, parent, ordre, intitule }) as unknown as Poste
+const forme = (noeuds: PosteNoeud[]): unknown[] => noeuds.map((n) => [n.poste.id, n.parentId, forme(n.enfants)])
+
+describe('construction de l’arbre', () => {
+  it('rattache chaque poste à son parent ; frères triés par ordre, puis intitulé', () => {
+    const arbre = construireArbre([poste(1, null, 0), poste(3, 1, 2), poste(2, 1, 1), poste(4, 2, 0, 'B'), poste(5, 2, 0, 'A')])
+    expect(forme(arbre)).toEqual([[1, null, [[2, 1, [[5, 2, []], [4, 2, []]]], [3, 1, []]]]])
+  })
+  it('un poste dont le parent n’est pas dans la liste (non publié) remonte à la racine', () => {
+    expect(forme(construireArbre([poste(2, 9, 0)]))).toEqual([[2, null, []]])
+  })
+  it('auto-référence : le poste devient une racine', () => {
+    expect(forme(construireArbre([poste(7, 7, 0)]))).toEqual([[7, null, []]])
+  })
+  it('boucle présente en base : cassée à l’affichage, aucun poste perdu', () => {
+    expect(forme(construireArbre([poste(1, null, 0), poste(5, 6, 0), poste(6, 5, 1)]))).toEqual([
+      [1, null, []],
+      [5, null, [[6, 5, []]]],
+    ])
   })
 })

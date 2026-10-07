@@ -139,4 +139,9 @@ export const fr = {
       notice: 'Veuillez prendre connaissance des informations sur le traitement de votre demande.',
     },
   },
+  organigramme: {
+    titre: 'Notre organigramme',
+    vide: 'Organigramme en cours de validation.',
+    liste: 'Organigramme : liste des postes',
+  },
 }

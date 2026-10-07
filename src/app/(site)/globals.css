@@ -651,3 +651,68 @@ img {
 
 [aria-disabled='true'],
 :disabled { cursor: not-allowed; }
+
+/* Organigramme : traits du schéma en arbre (décoratif, aria-hidden). */
+.org-arbre,
+.org-arbre ul {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+.org-arbre ul {
+  padding-top: 24px;
+}
+.org-arbre ul::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 24px;
+  border-left: 2px solid var(--color-muted-foreground);
+}
+.org-arbre li {
+  list-style: none;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 8px 0;
+}
+.org-arbre li::before,
+.org-arbre li::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 50%;
+  width: 50%;
+  height: 24px;
+  border-top: 2px solid var(--color-muted-foreground);
+}
+.org-arbre li::after {
+  right: auto;
+  left: 50%;
+  border-left: 2px solid var(--color-muted-foreground);
+}
+.org-arbre li:first-child::before,
+.org-arbre li:last-child::after {
+  border: 0 none;
+}
+.org-arbre li:last-child::before {
+  border-right: 2px solid var(--color-muted-foreground);
+  border-radius: 0 6px 0 0;
+}
+.org-arbre li:first-child::after {
+  border-radius: 6px 0 0 0;
+}
+.org-arbre > li,
+.org-arbre li:only-child {
+  padding-top: 0;
+}
+.org-arbre > li::before,
+.org-arbre > li::after,
+.org-arbre li:only-child::before,
+.org-arbre li:only-child::after {
+  display: none;
+}

@@ -141,4 +141,9 @@ export const en: Dictionary = {
       notice: 'Please read the information on how your request is processed.',
     },
   },
+  organigramme: {
+    titre: 'Our organization chart',
+    vide: 'Organisation chart being finalised.',
+    liste: 'Organization chart: list of positions',
+  },
 }

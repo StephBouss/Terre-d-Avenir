@@ -1,4 +1,5 @@
 import type { Where } from 'payload'
+import type { Poste } from '@/payload-types'
 
 export type IdPoste = number | string
 
@@ -47,4 +48,35 @@ export async function verifierRattachement(
     courant = suivant
   }
   return null
+}
+
+export type PosteNoeud = { poste: Poste; parentId: number | null; enfants: PosteNoeud[] }
+
+const comparer = (a: Poste, b: Poste): number =>
+  (a.ordre ?? 0) - (b.ordre ?? 0) || (a.intitule ?? '').localeCompare(b.intitule ?? '') || a.id - b.id
+
+/**
+ * Arbre des postes, frères triés par ordre puis intitulé.
+ * Un poste dont le parent est absent de la liste (non publié, sans intitulé dans la langue) remonte à la racine.
+ * Une boucle éventuellement présente en base (refusée à l’écriture) est cassée : aucun poste n’est perdu.
+ */
+export function construireArbre(postes: Poste[]): PosteNoeud[] {
+  const presents = new Set(postes.map((p) => String(p.id)))
+  const enfants = new Map<string, Poste[]>()
+  const racines: Poste[] = []
+  for (const p of postes) {
+    const parent = idDe(p.parent)
+    if (parent !== null && presents.has(String(parent)) && String(parent) !== String(p.id)) {
+      enfants.set(String(parent), [...(enfants.get(String(parent)) ?? []), p])
+    } else racines.push(p)
+  }
+  const places = new Set<string>()
+  const construire = (p: Poste, parentId: number | null): PosteNoeud => {
+    places.add(String(p.id))
+    const fils = (enfants.get(String(p.id)) ?? []).filter((f) => !places.has(String(f.id))).sort(comparer)
+    return { poste: p, parentId, enfants: fils.map((f) => construire(f, p.id)) }
+  }
+  const arbre = [...racines].sort(comparer).map((p) => construire(p, null))
+  for (const p of [...postes].sort(comparer)) if (!places.has(String(p.id))) arbre.push(construire(p, null))
+  return arbre
 }
