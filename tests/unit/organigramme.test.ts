@@ -63,13 +63,14 @@ describe('hook de validation des postes', () => {
 
 describe('réponse d’erreur de validation (production)', () => {
   it('rétablit data.errors avec le chemin du champ', () => {
-    const erreur = Object.assign(new Error(MESSAGES_RATTACHEMENT.lui), { name: 'ValidationError', data: { collection: 'postes', errors: [{ path: 'parent', message: MESSAGES_RATTACHEMENT.lui }] } })
+    const erreur = Object.assign(new Error(MESSAGES_RATTACHEMENT.lui), { name: 'e', data: { collection: 'postes', errors: [{ path: 'parent', message: MESSAGES_RATTACHEMENT.lui }] } })
     const sortie = restaurerErreurValidation({ error: erreur } as never)
     expect(sortie).toEqual({ status: 400, response: { errors: [{ name: 'ValidationError', message: MESSAGES_RATTACHEMENT.lui, data: erreur.data }] } })
   })
   it('ignore les autres erreurs', () => {
     expect(restaurerErreurValidation({ error: new Error('autre') } as never)).toBeUndefined()
     expect(restaurerErreurValidation({ error: Object.assign(new Error('x'), { name: 'ValidationError' }) } as never)).toBeUndefined()
+    expect(restaurerErreurValidation({ error: Object.assign(new Error('x'), { data: { errors: 'non' } }) } as never)).toBeUndefined()
   })
 })
 

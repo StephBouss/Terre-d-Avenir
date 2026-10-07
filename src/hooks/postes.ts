@@ -35,12 +35,13 @@ export const bloquerSuppressionParent: CollectionBeforeDeleteHook = async ({ id,
 }
 
 /**
- * En production, Payload ne reconnaît pas l’erreur de validation (deux copies chargées) et la réduit à son message :
+ * En production, la mise en forme de Payload ne reconnaît pas l’erreur de validation (nom de classe minifié, ou deux copies chargées) et la réduit à son message :
  * le champ « Rattaché à » n’est plus signalé. On rétablit la réponse standard, avec `data.errors` et le chemin du champ.
  */
 export const restaurerErreurValidation: CollectionAfterErrorHook = ({ error }) => {
-  const e = error as Error & { data?: { errors?: unknown[] } }
-  if (e?.name === 'ValidationError' && e.data?.errors) {
+  const e = error as Error & { data?: { errors?: unknown } }
+  // Pas de test sur `error.name` : en production le nom de classe est minifié (`this.constructor.name`), donc inutilisable.
+  if (Array.isArray(e?.data?.errors)) {
     return { status: 400, response: { errors: [{ name: 'ValidationError', message: e.message, data: e.data }] } }
   }
 }

@@ -129,7 +129,7 @@ test.describe('carte « Messages non traités »', { tag: '@desktop' }, () => {
     const carte = page.locator('.kpi-dashboard article').filter({ has: page.getByRole('heading', { name: 'Messages non traités' }) })
     await expect(carte.getByRole('link', { name: /^Total\s*[1-9]\d*$/ })).toBeVisible() // au moins le message non traité de ce test
     await expect(carte.getByRole('link', { name: /^Adhésions\s*\d+$/ })).toHaveAttribute('href', /where\[traite\]\[not_equals\]=true&where\[type\]\[equals\]=adhesion$/)
-    await expect(carte.getByRole('link', { name: /^E-mails en échecs*d+$/ })).toHaveAttribute('href', /where[emailEtat][equals]=echec$/)
+    await expect(carte.getByRole('link', { name: /^E-mails en échec\s*\d+$/ })).toHaveAttribute('href', /where\[emailEtat\]\[equals\]=echec$/)
     await carte.getByRole('link', { name: /^Contact\s*\d+$/ }).click()
     // Payload réécrit la requête avec des crochets encodés : on compare l’URL décodée.
     await expect.poll(() => decodeURIComponent(page.url())).toMatch(/\/admin\/collections\/messages\?.*where\[traite\]\[not_equals\]=true.*where\[type\]\[equals\]=contact/)
