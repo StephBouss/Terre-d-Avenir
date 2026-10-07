@@ -31,9 +31,17 @@ export function mediaCounts(rows: MediaRow[]) {
   }
 }
 
+export type MessageRow = { type?: string | null }
+
+export function messageCounts(rows: MessageRow[]) {
+  return {
+    total: rows.length,
+    adhesion: rows.filter((r) => r.type === 'adhesion').length,
+    contact: rows.filter((r) => r.type === 'contact').length,
+  }
+}
+
 export const NO_SOURCE = [
-  { id: 'adhesions', title: 'Adhésions (KPI-01 à KPI-10)', note: 'Aucune source configurée — disponible au lot 2' },
-  { id: 'transactions', title: 'Transactions (KPI-11 à KPI-17)', note: 'Aucune source configurée — disponible au lot 4' },
   { id: 'chargements', title: 'Chargements en erreur (KPI-19)', note: 'Aucune source configurée' },
   { id: 'sauvegardes', title: 'Sauvegardes (KPI-20)', note: 'Aucune sauvegarde configurée' },
 ]

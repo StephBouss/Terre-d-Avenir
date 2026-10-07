@@ -1,5 +1,5 @@
 import { expect, test, type APIRequestContext } from '@playwright/test'
-import { adminToken } from './admin-helpers'
+import { adminToken, loginAdmin } from './admin-helpers'
 import { emailsCaptures } from './email-capture'
 import { envoyerFormulaire, lireMessage, purgerMessages } from './formulaires-helpers'
 
@@ -50,5 +50,43 @@ test.describe('notification e-mail des messages', { tag: '@desktop' }, () => {
     expect(email!.subject).toContain(reference)
     expect(email!.text).toContain(`/admin/collections/messages/${message!.id}`)
     expect(email!.replyTo).toBe(CONTACT.email)
+  })
+
+  test('admin : données lisibles, puis « Renvoyer l’e-mail » sur un message non configuré', async ({ page, request }) => {
+    const message = await lireMessage(request, token, refs.sansAdresse)
+    expect(message?.emailEtat).toBe('non_configure')
+    await loginAdmin(page)
+    await page.goto(`/admin/collections/messages/${message!.id}`)
+    const donnees = page.locator('.donnees-lisibles')
+    await expect(donnees.getByText('Message', { exact: true })).toBeVisible()
+    await expect(donnees.getByText(CONTACT.message)).toBeVisible()
+    await page.getByRole('button', { name: 'Renvoyer l’e-mail' }).click()
+    await expect(page.getByText('E-mail envoyé.')).toBeVisible()
+    expect((await lireMessage(request, token, refs.sansAdresse))?.emailEtat).toBe('envoye')
+    expect(emailsCaptures().some((e) => e.text?.includes(refs.sansAdresse))).toBe(true)
+    await page.reload()
+    await expect(page.getByRole('button', { name: 'Renvoyer l’e-mail' })).toHaveCount(0)
+  })
+
+  test('endpoint de renvoi : refusé sans session, refusé pour un e-mail déjà envoyé', async ({ request }) => {
+    const message = await lireMessage(request, token, refs.avecAdresse)
+    expect((await request.post(`/api/messages/${message!.id}/renvoyer`)).status()).toBe(403)
+    expect((await request.post(`/api/messages/${message!.id}/renvoyer`, { headers: { Authorization: `JWT ${token}` } })).status()).toBe(409)
+  })
+
+  test('liste : colonnes demandées, non traités d’abord', async ({ page, request }) => {
+    const message = await lireMessage(request, token, refs.sansAdresse)
+    const patch = await request.patch(`/api/messages/${message!.id}`, { headers: { Authorization: `JWT ${token}` }, data: { traite: true } })
+    expect(patch.ok(), await patch.text()).toBe(true)
+    await loginAdmin(page)
+    await page.goto(`/admin/collections/messages?search=${PREFIXE}`)
+    const entete = page.locator('table thead')
+    for (const colonne of ['Référence', 'Type', 'Nom', 'État de l’e-mail', 'Traité', 'Créé(e) à']) await expect(entete).toContainText(colonne)
+    await expect(page.locator('table tbody')).toContainText(refs.avecAdresse)
+    const lignes = await page.locator('table tbody tr').allTextContents()
+    const nonTraite = lignes.findIndex((t) => t.includes(refs.avecAdresse))
+    const traite = lignes.findIndex((t) => t.includes(refs.sansAdresse))
+    expect(nonTraite).toBeGreaterThanOrEqual(0)
+    expect(traite).toBeGreaterThan(nonTraite)
   })
 })

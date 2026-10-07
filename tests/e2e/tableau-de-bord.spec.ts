@@ -1,5 +1,6 @@
 import { expect, test, type APIRequestContext } from '@playwright/test'
 import { adminToken, loginAdmin } from './admin-helpers'
+import { envoyerFormulaire, lireMessage, purgerMessages } from './formulaires-helpers'
 
 test.describe('tableau de bord des indicateurs', { tag: '@desktop' }, () => {
   test.skip(({ isMobile }) => isMobile, 'admin desktop')
@@ -11,8 +12,6 @@ test.describe('tableau de bord des indicateurs', { tag: '@desktop' }, () => {
     await expect(board.getByText(/Situation au .* \(heure de Libreville\)/)).toBeVisible()
     // Seed : 6 actualités publiées. Regex tolérante : d'autres specs créent des actualités en parallèle (nettoyées en afterAll).
     await expect(board.getByRole('link', { name: /Publiées\s*([6-9]|\d{2})/ })).toBeVisible()
-    await expect(board.getByText('Aucune source configurée — disponible au lot 2')).toBeVisible()
-    await expect(board.getByText('Aucune source configurée — disponible au lot 4')).toBeVisible()
     await expect(board.getByText('Aucune sauvegarde configurée')).toBeVisible()
   })
 
@@ -94,5 +93,41 @@ test.describe('liens des cartes', { tag: '@desktop' }, () => {
     for (const [name, collection] of [['Actualités', 'actualites'], ['Pages', 'pages'], ['Projets', 'projets']] as const) {
       await expect(board.getByRole('link', { name: new RegExp(`^${name}\\s*\\d+`) })).toHaveAttribute('href', new RegExp(`/admin/collections/${collection}\\?locale=en$`))
     }
+  })
+})
+
+const PREFIXE_KPI = 'e2e-kpi-'
+
+test.describe('carte « Messages non traités »', { tag: '@desktop' }, () => {
+  test.describe.configure({ mode: 'serial' })
+  test.skip(({ isMobile }) => isMobile, 'données partagées : desktop uniquement')
+  let token = ''
+  const refs = { nonTraite: '', traite: '' }
+
+  test.beforeAll(async ({ request }) => {
+    token = await adminToken(request)
+    await purgerMessages(request, token, PREFIXE_KPI)
+    const contact = { email: 'visiteur@example.org', message: 'Message de test du tableau de bord.' }
+    refs.nonTraite = (await (await envoyerFormulaire(request, 'contact', { ...contact, nom: `${PREFIXE_KPI}A-traiter` })).json()).reference
+    refs.traite = (await (await envoyerFormulaire(request, 'contact', { ...contact, nom: `${PREFIXE_KPI}Deja-traite` })).json()).reference
+    const traite = await lireMessage(request, token, refs.traite)
+    const patch = await request.patch(`/api/messages/${traite!.id}`, { headers: { Authorization: `JWT ${token}` }, data: { traite: true } })
+    expect(patch.ok(), await patch.text()).toBe(true)
+  })
+  test.afterAll(async ({ request }) => {
+    await purgerMessages(request, token, PREFIXE_KPI)
+  })
+
+  test('valeur réelle, répartition par type et lien vers la liste filtrée', async ({ page }) => {
+    await loginAdmin(page)
+    const carte = page.locator('.kpi-dashboard article').filter({ has: page.getByRole('heading', { name: 'Messages non traités' }) })
+    await expect(carte.getByRole('link', { name: /^Total\s*[1-9]\d*$/ })).toBeVisible() // au moins le message non traité de ce test
+    await expect(carte.getByRole('link', { name: /^Adhésions\s*\d+$/ })).toHaveAttribute('href', /where\[traite\]\[not_equals\]=true&where\[type\]\[equals\]=adhesion$/)
+    await carte.getByRole('link', { name: /^Contact\s*\d+$/ }).click()
+    await expect(page).toHaveURL(/\/admin\/collections\/messages\?.*where\[traite\]\[not_equals\]=true/)
+    // D’autres specs créent des messages en parallèle : on restreint la liste filtrée aux messages de ce test.
+    await page.goto(`${page.url()}&search=${PREFIXE_KPI}`)
+    await expect(page.locator('table tbody')).toContainText(refs.nonTraite)
+    await expect(page.locator('table tbody')).not.toContainText(refs.traite)
   })
 })

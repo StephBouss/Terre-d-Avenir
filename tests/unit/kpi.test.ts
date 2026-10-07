@@ -1,7 +1,7 @@
 import type { Payload } from 'payload'
 import { describe, expect, it } from 'vitest'
 import { loadKpis } from '@/lib/kpi/load'
-import { NO_SOURCE, actualiteCounts, formatSituation, mediaCounts, missingTranslations } from '@/lib/kpi/compute'
+import { NO_SOURCE, actualiteCounts, formatSituation, mediaCounts, messageCounts, missingTranslations } from '@/lib/kpi/compute'
 
 describe('KPI', () => {
   it('compte les actualités par état (archivée prioritaire)', () => {
@@ -35,9 +35,14 @@ describe('KPI', () => {
     ).toEqual({ total: 3, galerie: 2, provisoires: 1, sansAlt: 1, droitsNonConfirmes: 2 })
   })
 
-  it('cartes sans source : adhésions, transactions, chargements, sauvegardes', () => {
-    expect(NO_SOURCE.map((c) => c.id)).toEqual(['adhesions', 'transactions', 'chargements', 'sauvegardes'])
+  it('cartes sans source : chargements, sauvegardes (les adhésions ont une source : les messages ; le site est une vitrine, sans transactions)', () => {
+    expect(NO_SOURCE.map((c) => c.id)).toEqual(['chargements', 'sauvegardes'])
     expect(NO_SOURCE.every((c) => c.note.length > 0)).toBe(true)
+  })
+
+  it('messages non traités : total et répartition par type', () => {
+    expect(messageCounts([{ type: 'adhesion' }, { type: 'contact' }, { type: 'contact' }])).toEqual({ total: 3, adhesion: 1, contact: 2 })
+    expect(messageCounts([])).toEqual({ total: 0, adhesion: 0, contact: 0 })
   })
 
   it('situation datée en heure de Libreville', () => {
@@ -75,6 +80,13 @@ describe('KPI', () => {
         pages: { kind: 'value', value: 1 },
         projets: { kind: 'value', value: 1 },
       })
+    })
+
+    it('messages illisibles : carte indisponible, les autres gardent leur valeur', async () => {
+      const k = await loadKpis(fake((a) => a.collection === 'messages'))
+      const unavailable = { kind: 'unavailable' }
+      expect(k.messages).toEqual({ total: unavailable, adhesion: unavailable, contact: unavailable })
+      expect(k.actualites.publiees).toEqual({ kind: 'value', value: 1 })
     })
 
     it('une seule lecture en erreur : seule la carte concernée est indisponible', async () => {

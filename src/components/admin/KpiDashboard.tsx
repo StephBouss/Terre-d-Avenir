@@ -23,6 +23,7 @@ function Row({ label, state, href, title }: { label: string; state: KpiState; hr
 
 // Filtre « alt vide » : NULL ou chaîne vide (Payload enregistre l'un ou l'autre selon la saisie). Un alt blanc ou contenant [...] ne s'exprime pas en URL.
 const SANS_ALT = 'where[and][0][provisoire][not_equals]=true&where[and][1][or][0][alt][exists]=false&where[and][1][or][1][alt][equals]='
+const NON_TRAITES = 'where[traite][not_equals]=true'
 const SANS_ALT_NOTE = 'Le compte inclut aussi les textes alternatifs blancs ou contenant [...], que la liste filtrée ne peut pas isoler.'
 
 export default async function KpiDashboard({ payload, user }: ServerProps) {
@@ -36,6 +37,15 @@ export default async function KpiDashboard({ payload, user }: ServerProps) {
         <p>Situation au {formatSituation(new Date())} (heure de Libreville)</p>
       </header>
       <div className="kpi-grid">
+        <article className="kpi-card">
+          <h3>Messages non traités</h3>
+          <p className="kpi-muted kpi-help">Formulaires reçus, case « Traité » non cochée</p>
+          <ul>
+            <Row label="Total" state={k.messages.total} href={`${LIST}/messages?${NON_TRAITES}`} />
+            <Row label="Adhésions" state={k.messages.adhesion} href={`${LIST}/messages?${NON_TRAITES}&where[type][equals]=adhesion`} />
+            <Row label="Contact" state={k.messages.contact} href={`${LIST}/messages?${NON_TRAITES}&where[type][equals]=contact`} />
+          </ul>
+        </article>
         <article className="kpi-card">
           <h3>Actualités</h3>
           <p className="kpi-muted kpi-help">État visible sur le site</p>

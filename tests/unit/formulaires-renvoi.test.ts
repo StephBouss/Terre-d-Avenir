@@ -1,0 +1,44 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { renvoyerEmail } from '@/lib/formulaires/renvoi'
+
+const MESSAGE = { id: 5, reference: 'CT-ABCDEF', type: 'contact', locale: 'fr', createdAt: '2026-10-07T08:00:00.000Z', donnees: { nom: 'Mba' } }
+
+function requete(user: unknown, message: Record<string, unknown> | null) {
+  const update = vi.fn(async () => ({}))
+  const req = {
+    user,
+    routeParams: { id: '5' },
+    payload: {
+      findByID: vi.fn(async () => message),
+      findGlobal: vi.fn(async () => ({ emailContact: null, emailAdhesions: null })),
+      update,
+      sendEmail: vi.fn(),
+    },
+  }
+  return { req: req as never, update }
+}
+
+beforeEach(() => {
+  vi.stubEnv('SMTP_HOST', '')
+  vi.stubEnv('EMAIL_CAPTURE_DIR', '')
+})
+afterEach(() => vi.unstubAllEnvs())
+
+describe('renvoi de l’e-mail d’un message', () => {
+  it('403 sans session', async () => {
+    expect((await renvoyerEmail(requete(null, { ...MESSAGE, emailEtat: 'echec' }).req)).status).toBe(403)
+  })
+  it('404 pour un message inconnu', async () => {
+    expect((await renvoyerEmail(requete({ id: 1 }, null).req)).status).toBe(404)
+  })
+  it('409 si l’e-mail est déjà envoyé', async () => {
+    expect((await renvoyerEmail(requete({ id: 1 }, { ...MESSAGE, emailEtat: 'envoye' }).req)).status).toBe(409)
+  })
+  it('échec ou non configuré : nouvelle tentative, état enregistré et renvoyé', async () => {
+    const { req, update } = requete({ id: 1 }, { ...MESSAGE, emailEtat: 'echec' })
+    const res = await renvoyerEmail(req)
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({ emailEtat: 'non_configure', emailErreur: null, emailEnvoyeLe: null })
+    expect(update).toHaveBeenCalledTimes(1)
+  })
+})

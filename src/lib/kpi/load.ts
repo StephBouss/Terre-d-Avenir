@@ -1,5 +1,5 @@
 import type { Payload } from 'payload'
-import { actualiteCounts, mediaCounts, missingTranslations, type KpiState, type TitleRow } from './compute'
+import { actualiteCounts, mediaCounts, messageCounts, missingTranslations, type KpiState, type TitleRow } from './compute'
 
 const ALL = { limit: 0, pagination: false, depth: 0 } as const
 
@@ -13,7 +13,7 @@ async function safe<T>(read: () => Promise<T>): Promise<T | null> {
 }
 
 export async function loadKpis(payload: Payload) {
-  const [actualites, pages, projets, medias, actuEn, pagesEn, projetsEn] = await Promise.all([
+  const [actualites, pages, projets, medias, actuEn, pagesEn, projetsEn, messages] = await Promise.all([
     safe(() => payload.find({ collection: 'actualites', ...ALL, select: { _status: true, archivee: true } })),
     safe(() => payload.count({ collection: 'pages' })),
     safe(() => payload.count({ collection: 'projets' })),
@@ -21,6 +21,7 @@ export async function loadKpis(payload: Payload) {
     safe(() => payload.find({ collection: 'actualites', ...ALL, locale: 'en', fallbackLocale: false, select: { title: true } })),
     safe(() => payload.find({ collection: 'pages', ...ALL, locale: 'en', fallbackLocale: false, select: { h1: true } })),
     safe(() => payload.find({ collection: 'projets', ...ALL, locale: 'en', fallbackLocale: false, select: { title: true } })),
+    safe(() => payload.find({ collection: 'messages', ...ALL, where: { traite: { not_equals: true } }, select: { type: true } })),
   ])
 
   const value = (n: number): KpiState => ({ kind: 'value', value: n })
@@ -46,6 +47,9 @@ export async function loadKpis(payload: Payload) {
     pages: pages ? value(pages.totalDocs) : unavailable,
     projets: projets ? value(projets.totalDocs) : unavailable,
     traductions: { total: tradTotal, actualites: tradActu, pages: tradPages, projets: tradProjets },
+    messages: messages
+      ? (({ total, adhesion, contact }) => ({ total: value(total), adhesion: value(adhesion), contact: value(contact) }))(messageCounts(messages.docs))
+      : { total: unavailable, adhesion: unavailable, contact: unavailable },
     medias: med
       ? { total: value(med.total), galerie: value(med.galerie), provisoires: value(med.provisoires), sansAlt: value(med.sansAlt), droitsNonConfirmes: value(med.droitsNonConfirmes) }
       : { total: unavailable, galerie: unavailable, provisoires: unavailable, sansAlt: unavailable, droitsNonConfirmes: unavailable },

@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { renvoyerEmail } from '../lib/formulaires/renvoi'
 
 /** Champs remplis par le traitement du formulaire : visibles mais jamais modifiables depuis l’admin ou l’API REST. */
 const fige = { readOnly: true } as const
@@ -13,10 +14,12 @@ export const Messages: CollectionConfig = {
     group: 'Formulaires',
     defaultColumns: ['reference', 'type', 'nom', 'emailEtat', 'traite', 'createdAt'],
     listSearchableFields: ['reference', 'nom'],
+    components: { edit: { beforeDocumentControls: ['/components/admin/RenvoyerEmail'] } },
     description: 'Demandes d’adhésion et messages de contact envoyés depuis le site. Lecture réservée à l’admin.',
   },
   // Non traités d’abord (false < true), puis les plus récents.
   defaultSort: ['traite', '-createdAt'],
+  endpoints: [{ path: '/:id/renvoyer', method: 'post', handler: renvoyerEmail }],
   access: {
     read: ({ req }) => Boolean(req.user),
     // Création uniquement par l’API locale du traitement de formulaire (overrideAccess), jamais par REST ou GraphQL.
@@ -39,7 +42,7 @@ export const Messages: CollectionConfig = {
       access: nonModifiable,
     },
     { name: 'nom', label: 'Nom', type: 'text', admin: fige, access: nonModifiable },
-    { name: 'donnees', label: 'Données envoyées', type: 'json', required: true, admin: fige, access: nonModifiable },
+    { name: 'donnees', label: 'Données envoyées', type: 'json', required: true, admin: { readOnly: true, components: { Field: '/components/admin/DonneesLisibles' } }, access: nonModifiable },
     {
       name: 'locale',
       label: 'Langue',
