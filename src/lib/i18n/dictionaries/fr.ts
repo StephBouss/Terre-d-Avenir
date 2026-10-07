@@ -64,6 +64,14 @@ export const fr = {
     title: 'Version non publiée',
     text: 'Cette version linguistique n’est pas encore publiée. Les autres versions disponibles sont proposées ci-dessous.',
   },
+  albums: {
+    heading: 'Albums',
+    loosePhotos: 'Photos',
+    back: 'Retour à la médiathèque',
+    viewAlbum: 'Voir les photos de l’événement',
+    photos: 'photos',
+    photo: 'photo',
+  },
   gallery: {
     open: 'Agrandir l’image',
     dialog: 'Visionneuse d’images',

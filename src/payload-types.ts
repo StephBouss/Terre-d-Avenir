@@ -71,6 +71,7 @@ export interface Config {
     actualites: Actualite;
     projets: Projet;
     medias: Media;
+    albums: Album;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -83,6 +84,7 @@ export interface Config {
     actualites: ActualitesSelect<false> | ActualitesSelect<true>;
     projets: ProjetsSelect<false> | ProjetsSelect<true>;
     medias: MediasSelect<false> | MediasSelect<true>;
+    albums: AlbumsSelect<false> | AlbumsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -280,9 +282,37 @@ export interface Actualite {
     url?: string | null;
   };
   /**
+   * Affiche un bouton « Voir les photos de l’événement » vers cet album.
+   */
+  album?: (number | null) | Album;
+  /**
    * Retire l’actualité du site sans la supprimer. Prend effet après « Publier les modifications ».
    */
   archivee?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "albums".
+ */
+export interface Album {
+  id: number;
+  title: string;
+  /**
+   * Adresse de l’album : /mediatheque/albums/<slug>
+   */
+  slug: string;
+  order: number;
+  date?: string | null;
+  dateLabel?: string | null;
+  description?: string | null;
+  cover?: (number | null) | Media;
+  /**
+   * Glisser pour réordonner.
+   */
+  photos: (number | Media)[];
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -373,6 +403,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'medias';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'albums';
+        value: number | Album;
       } | null)
     | ({
         relationTo: 'users';
@@ -477,6 +511,7 @@ export interface ActualitesSelect<T extends boolean = true> {
         label?: T;
         url?: T;
       };
+  album?: T;
   archivee?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -555,6 +590,23 @@ export interface MediasSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "albums_select".
+ */
+export interface AlbumsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  order?: T;
+  date?: T;
+  dateLabel?: T;
+  description?: T;
+  cover?: T;
+  photos?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

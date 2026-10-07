@@ -66,6 +66,14 @@ export const en: Dictionary = {
     title: 'Version not published',
     text: 'This language version has not been published yet. The available versions are listed below.',
   },
+  albums: {
+    heading: 'Albums',
+    loosePhotos: 'Photos',
+    back: 'Back to the media library',
+    viewAlbum: 'See the event photos',
+    photos: 'photos',
+    photo: 'photo',
+  },
   gallery: {
     open: 'Enlarge image',
     dialog: 'Image viewer',

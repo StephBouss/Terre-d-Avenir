@@ -5,6 +5,7 @@ import ArticleBody from '@/components/article/ArticleBody'
 import ArticleHero from '@/components/article/ArticleHero'
 import { RevealGroup } from '@/components/motion/RevealGroup'
 import PreviewBanner from '@/components/layout/PreviewBanner'
+import { Cta } from '@/components/ui/Cta'
 import CtaBand from '@/components/ui/CtaBand'
 import NewsCard from '@/components/ui/NewsCard'
 import SectionHeader from '@/components/ui/SectionHeader'
@@ -66,6 +67,13 @@ export default async function ArticlePage({ params }: Props) {
         newTabLabel={dict.common.newTab}
         share={{ url: siteUrl() + localizedHref(locale, `/actualites/${slug}`), labels: { newTab: dict.common.newTab, share: dict.common.share, copyLink: dict.common.copyLink, linkCopied: dict.common.linkCopied } }}
       />
+      {typeof actualite.album === 'object' && actualite.album?._status === 'published' && (
+        <div className="bg-background pb-12">
+          <div className="max-w-4xl mx-auto px-6">
+            <Cta locale={locale} href={`/mediatheque/albums/${actualite.album.slug}`} label={dict.albums.viewAlbum} newTabLabel={dict.common.newTab} />
+          </div>
+        </div>
+      )}
       {others.length > 0 && (
         <section className="bg-background py-20">
           <div className="max-w-[1280px] mx-auto px-6 flex flex-col gap-10">

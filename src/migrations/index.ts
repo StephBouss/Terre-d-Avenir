@@ -4,6 +4,7 @@ import * as migration_20261006_161958_actualites_brouillons from './20261006_161
 import * as migration_20261007_002738_diaporama from './20261007_002738_diaporama';
 import * as migration_20261007_003528_pages_image_entete from './20261007_003528_pages_image_entete';
 import * as migration_20261007_004542_medias_champs from './20261007_004542_medias_champs';
+import * as migration_20261007_013109_albums from './20261007_013109_albums';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20261007_004542_medias_champs.up,
     down: migration_20261007_004542_medias_champs.down,
-    name: '20261007_004542_medias_champs'
+    name: '20261007_004542_medias_champs',
+  },
+  {
+    up: migration_20261007_013109_albums.up,
+    down: migration_20261007_013109_albums.down,
+    name: '20261007_013109_albums'
   },
 ];

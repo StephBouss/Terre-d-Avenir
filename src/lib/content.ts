@@ -1,7 +1,7 @@
 import { cache } from 'react'
-import { getPayload } from 'payload'
+import { getPayload, type Where } from 'payload'
 import config from '@payload-config'
-import type { Actualite, Diaporama, Media, Page, Projet, Reglage } from '@/payload-types'
+import type { Actualite, Album, Diaporama, Media, Page, Projet, Reglage } from '@/payload-types'
 import type { PageSlug } from '@/collections/Pages'
 import type { Locale } from './i18n/config'
 import { VISIBLE_ACTUALITE } from './actualites'
@@ -50,6 +50,20 @@ export const getGalleryMedia = cache(async (locale: Locale): Promise<Media[]> =>
   const payload = await client()
   const res = await payload.find({ collection: 'medias', where: { galerie: { equals: true } }, sort: ['ordre', 'createdAt'], locale, depth: 0, limit: 200 })
   return res.docs
+})
+
+export const PUBLISHED_ALBUM: Where = { _status: { equals: 'published' } }
+
+export const getAlbums = cache(async (locale: Locale): Promise<Album[]> => {
+  const payload = await client()
+  const res = await payload.find({ collection: 'albums', where: PUBLISHED_ALBUM, sort: ['order', '-date'], locale, depth: 1, limit: 100 })
+  return res.docs
+})
+
+export const getAlbum = cache(async (slug: string, locale: Locale): Promise<Album | null> => {
+  const payload = await client()
+  const res = await payload.find({ collection: 'albums', where: { and: [{ slug: { equals: slug } }, PUBLISHED_ALBUM] }, locale, depth: 1, limit: 1 })
+  return res.docs[0] ?? null
 })
 
 export const getReglages = cache(async (locale: Locale): Promise<Reglage> => {

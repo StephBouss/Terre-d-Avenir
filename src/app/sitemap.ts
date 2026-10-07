@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { getActualites, getProjets } from '@/lib/content'
+import { getActualites, getAlbums, getProjets } from '@/lib/content'
 import { STATIC_PATHS } from '@/lib/routes'
 import { buildSitemapEntries, siteUrl } from '@/lib/seo'
 
@@ -7,10 +7,11 @@ import { buildSitemapEntries, siteUrl } from '@/lib/seo'
 export const dynamic = 'force-dynamic'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [actualites, projets] = await Promise.all([getActualites('fr'), getProjets('fr')])
+  const [actualites, projets, albums] = await Promise.all([getActualites('fr'), getProjets('fr'), getAlbums('fr')])
   return buildSitemapEntries(siteUrl(), [
     ...STATIC_PATHS,
     ...actualites.map((a) => `/actualites/${a.slug}`),
     ...projets.map((p) => `/projets/${p.slug}`),
+    ...albums.map((a) => `/mediatheque/albums/${a.slug}`),
   ])
 }

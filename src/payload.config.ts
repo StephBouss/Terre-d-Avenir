@@ -7,6 +7,7 @@ import { fr } from '@payloadcms/translations/languages/fr'
 import sharp from 'sharp'
 import { Actualites } from './collections/Actualites'
 import { Medias } from './collections/Medias'
+import { Albums } from './collections/Albums'
 import { Pages } from './collections/Pages'
 import { Projets } from './collections/Projets'
 import { Users } from './collections/Users'
@@ -23,7 +24,7 @@ export default buildConfig({
     components: { beforeDashboard: ['/components/admin/KpiDashboard'] },
   },
   i18n: { supportedLanguages: { fr }, fallbackLanguage: 'fr' },
-  collections: [Pages, Actualites, Projets, Medias, Users],
+  collections: [Pages, Actualites, Projets, Medias, Albums, Users],
   globals: [Reglages, Diaporama],
   localization: {
     locales: LOCALES.map((code) => ({ code, label: NATIVE_NAMES[code] })),

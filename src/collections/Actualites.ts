@@ -40,6 +40,7 @@ export const Actualites: CollectionConfig = {
         { name: 'url', label: 'URL', type: 'text' },
       ],
     },
+    { name: 'album', label: 'Album lié', type: 'relationship', relationTo: 'albums', admin: { description: 'Affiche un bouton « Voir les photos de l’événement » vers cet album.' } },
     {
       name: 'archivee',
       label: 'Archivée',
