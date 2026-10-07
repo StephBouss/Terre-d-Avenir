@@ -661,6 +661,11 @@ img {
   margin: 0;
   padding: 0;
 }
+/* Largeur du contenu, centrée : un arbre plus large que la page défile au lieu d'être rogné des deux côtés. */
+.org-arbre {
+  width: max-content;
+  margin-inline: auto;
+}
 .org-arbre ul {
   padding-top: 24px;
 }
@@ -678,7 +683,7 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 8px 0;
+  padding: 24px 5px 0;
 }
 .org-arbre li::before,
 .org-arbre li::after {

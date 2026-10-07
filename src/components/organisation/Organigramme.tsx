@@ -20,7 +20,7 @@ function Portrait({ media, taille, decoratif }: { media: number | Media | null |
 function CarteArbre({ noeud }: { noeud: PosteNoeud }) {
   const p = noeud.poste
   return (
-    <div className="w-[168px] rounded-lg border border-border bg-background p-4 flex flex-col items-center text-center gap-2" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+    <div className="w-[150px] rounded-lg border border-border bg-background p-3 flex flex-col items-center text-center gap-2" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
       <Portrait media={p.personnePhoto} taille={72} decoratif />
       <p className="text-sm font-bold text-foreground leading-snug">{p.intitule}</p>
       {visible(p.personneNom) && <p className="text-sm font-semibold text-primary">{p.personneNom}</p>}
