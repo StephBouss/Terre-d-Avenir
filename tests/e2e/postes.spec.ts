@@ -24,6 +24,9 @@ test.describe('organigramme : règles des postes', { tag: '@desktop' }, () => {
     const res = await request.patch(`/api/postes/${ids.racine}?draft=true&locale=fr`, { headers, data: { parent: ids.racine } })
     expect(res.status()).toBe(400)
     expect(await res.text()).toContain('Un poste ne peut pas être rattaché à lui-même.')
+    // Le champ « Rattaché à » doit être désigné, y compris en production (sinon l’admin ne le surligne pas).
+    const { errors } = await res.json()
+    expect(errors[0].data.errors[0].path).toBe('parent')
   })
 
   test('boucle refusée avec un message explicite', async ({ request }) => {

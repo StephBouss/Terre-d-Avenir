@@ -1,5 +1,6 @@
 import type { Where } from 'payload'
 import type { Poste } from '@/payload-types'
+import { isPlaceholder } from './text'
 
 export type IdPoste = number | string
 
@@ -7,6 +8,9 @@ export type IdPoste = number | string
 export const PUBLISHED_POSTE: Where = { _status: { equals: 'published' } }
 /** Poste sans intitulé dans la langue demandée : masqué (pas de repli sur le français). */
 export const INTITULE_RENSEIGNE: Where = { intitule: { exists: true } }
+
+/** Écarte les intitulés vides ou en brouillon (`[...]`), que le filtre de base de données ne peut pas isoler. */
+export const avecIntituleAffichable = <T extends { intitule?: string | null }>(postes: T[]): T[] => postes.filter((p) => !isPlaceholder(p.intitule))
 
 export const MESSAGES_RATTACHEMENT = {
   lui: 'Un poste ne peut pas être rattaché à lui-même.',

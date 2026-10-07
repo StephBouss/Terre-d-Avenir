@@ -1,4 +1,4 @@
-import { APIError, ValidationError, type CollectionBeforeDeleteHook, type CollectionBeforeValidateHook, type PayloadRequest } from 'payload'
+import { APIError, ValidationError, type CollectionAfterErrorHook, type CollectionBeforeDeleteHook, type CollectionBeforeValidateHook, type PayloadRequest } from 'payload'
 import { MESSAGE_SUPPRESSION, idDe, verifierRattachement, type IdPoste } from '../lib/organigramme'
 
 /** Parent d’un poste dans sa dernière version (brouillon compris) ; undefined si le poste n’existe pas. */
@@ -32,4 +32,15 @@ export const bloquerSuppressionParent: CollectionBeforeDeleteHook = async ({ id,
   const publies = await req.payload.find({ collection: 'postes', where, depth: 0, limit: 1, overrideAccess: true, req })
   const brouillons = await req.payload.find({ collection: 'postes', where, depth: 0, limit: 1, draft: true, overrideAccess: true, req })
   if (publies.totalDocs + brouillons.totalDocs > 0) throw new APIError(MESSAGE_SUPPRESSION, 400, null, true)
+}
+
+/**
+ * En production, Payload ne reconnaît pas l’erreur de validation (deux copies chargées) et la réduit à son message :
+ * le champ « Rattaché à » n’est plus signalé. On rétablit la réponse standard, avec `data.errors` et le chemin du champ.
+ */
+export const restaurerErreurValidation: CollectionAfterErrorHook = ({ error }) => {
+  const e = error as Error & { data?: { errors?: unknown[] } }
+  if (e?.name === 'ValidationError' && e.data?.errors) {
+    return { status: 400, response: { errors: [{ name: 'ValidationError', message: e.message, data: e.data }] } }
+  }
 }

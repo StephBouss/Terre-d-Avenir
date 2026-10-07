@@ -8,7 +8,7 @@ import type { Locale } from './i18n/config'
 import { VISIBLE_ACTUALITE } from './actualites'
 import { PUBLISHED_ALBUM } from './albums'
 import { TITLED } from './filtres'
-import { INTITULE_RENSEIGNE, PUBLISHED_POSTE } from './organigramme'
+import { INTITULE_RENSEIGNE, PUBLISHED_POSTE, avecIntituleAffichable } from './organigramme'
 
 const client = cache(() => getPayload({ config }))
 
@@ -102,5 +102,5 @@ export const getPostes = cache(async (locale: Locale, draft = false): Promise<Po
     sort: 'ordre',
     limit: 200,
   })
-  return res.docs
+  return avecIntituleAffichable(res.docs)
 })

@@ -1,7 +1,7 @@
 import { APIError, ValidationError } from 'payload'
 import { describe, expect, it, vi } from 'vitest'
-import { bloquerSuppressionParent, validerRattachement } from '@/hooks/postes'
-import { MESSAGES_RATTACHEMENT, MESSAGE_SUPPRESSION, construireArbre, idDe, verifierRattachement, type PosteNoeud } from '@/lib/organigramme'
+import { bloquerSuppressionParent, restaurerErreurValidation, validerRattachement } from '@/hooks/postes'
+import { MESSAGES_RATTACHEMENT, avecIntituleAffichable, MESSAGE_SUPPRESSION, construireArbre, idDe, verifierRattachement, type PosteNoeud } from '@/lib/organigramme'
 import type { Poste } from '@/payload-types'
 
 /** Postes en base : id → parent (null = racine). Un id absent = poste inexistant. */
@@ -50,9 +50,33 @@ describe('hook de validation des postes', () => {
     await expect(appel).rejects.toBeInstanceOf(ValidationError)
     await expect(appel).rejects.toMatchObject({ data: { errors: [{ path: 'parent', message: MESSAGES_RATTACHEMENT.boucle }] } })
   })
+  it('lit le parent dans la dernière version (brouillon compris)', async () => {
+    const req = reqParents({ '1': null, '2': 1 })
+    await validerRattachement({ data: { parent: 2 }, originalDoc: { id: 1 }, req } as never).catch(() => undefined)
+    expect((req as unknown as { payload: { findByID: ReturnType<typeof vi.fn> } }).payload.findByID).toHaveBeenCalledWith(expect.objectContaining({ draft: true }))
+  })
   it('laisse passer une modification qui ne touche pas au parent', async () => {
     const data = { ordre: 3 }
     expect(await validerRattachement({ data, originalDoc: { id: 1 }, req: reqParents({}) } as never)).toBe(data)
+  })
+})
+
+describe('réponse d’erreur de validation (production)', () => {
+  it('rétablit data.errors avec le chemin du champ', () => {
+    const erreur = Object.assign(new Error(MESSAGES_RATTACHEMENT.lui), { name: 'ValidationError', data: { collection: 'postes', errors: [{ path: 'parent', message: MESSAGES_RATTACHEMENT.lui }] } })
+    const sortie = restaurerErreurValidation({ error: erreur } as never)
+    expect(sortie).toEqual({ status: 400, response: { errors: [{ name: 'ValidationError', message: MESSAGES_RATTACHEMENT.lui, data: erreur.data }] } })
+  })
+  it('ignore les autres erreurs', () => {
+    expect(restaurerErreurValidation({ error: new Error('autre') } as never)).toBeUndefined()
+    expect(restaurerErreurValidation({ error: Object.assign(new Error('x'), { name: 'ValidationError' }) } as never)).toBeUndefined()
+  })
+})
+
+describe('intitulés de poste affichables', () => {
+  it('écarte les intitulés vides ou en brouillon', () => {
+    const postes = [{ intitule: 'Président' }, { intitule: '' }, { intitule: null }, { intitule: '[à renseigner]' }, {}]
+    expect(avecIntituleAffichable(postes)).toEqual([{ intitule: 'Président' }])
   })
 })
 

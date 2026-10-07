@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { bloquerSuppressionParent, validerRattachement } from '../hooks/postes'
+import { bloquerSuppressionParent, restaurerErreurValidation, validerRattachement } from '../hooks/postes'
 import { revalidateCollection, revalidateCollectionDelete } from '../hooks/revalidate'
 import { PUBLISHED_POSTE } from '../lib/organigramme'
 import { previewUrl } from '../lib/preview'
@@ -25,6 +25,7 @@ export const Postes: CollectionConfig = {
     beforeDelete: [bloquerSuppressionParent],
     afterChange: [revalidateCollection],
     afterDelete: [revalidateCollectionDelete],
+    afterError: [restaurerErreurValidation],
   },
   defaultSort: 'ordre',
   fields: [
