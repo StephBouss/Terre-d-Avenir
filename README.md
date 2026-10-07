@@ -48,6 +48,8 @@ Tout se modifie dans `/admin`. Un champ vide ou contenant `[...]` est masqué su
 
 Les formulaires d'adhésion et de contact sont actifs. Chaque envoi est enregistré dans *Formulaires > Messages reçus*, avec une référence (`ADH-XXXXXX` ou `CT-XXXXXX`) affichée au visiteur, puis notifié par e-mail si l'envoi est configuré (voir « Envoi des e-mails »). Protections : champ piège invisible contre les robots, 5 envois au plus par adresse IP et par 10 minutes (en mémoire, remis à zéro au redémarrage ; l'IP vient de l'en-tête `X-Forwarded-For` du proxy, c'est un garde-fou et non une sécurité), et une clé d'envoi qui empêche les doublons.
 
+**Limites de débit et proxy.** En plus des 5 envois par IP, un plafond global de 30 envois par 10 minutes, tous visiteurs confondus, borne le spam même si l'IP est falsifiée (réglable par `FORMULAIRES_PLAFOND_GLOBAL`). Next.js ne pose `X-Forwarded-For` que s'il est absent : derrière un proxy, celui-ci doit **écraser** l'en-tête envoyé par le client, par exemple avec nginx `proxy_set_header X-Forwarded-For $remote_addr;`, sinon la limite par IP se contourne.
+
 ## Administration
 
 - **Admin :** `/admin`, en français.

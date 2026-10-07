@@ -1,3 +1,4 @@
+import { erreurSansDonnees } from './erreur'
 import type { Payload } from 'payload'
 import type { Message } from '@/payload-types'
 import { transportConfigure } from '../email/adaptateur'
@@ -40,7 +41,7 @@ async function enregistrerEtat(payload: Payload, message: Message, etat: EtatEma
   try {
     await mettreAJour()
   } catch (error) {
-    payload.logger.error({ err: error }, `État de l’e-mail non enregistré pour ${message.reference} (${etat.emailEtat}), nouvel essai`)
+    payload.logger.error({ err: erreurSansDonnees(error) }, `État de l’e-mail non enregistré pour ${message.reference} (${etat.emailEtat}), nouvel essai`)
     await mettreAJour()
   }
 }

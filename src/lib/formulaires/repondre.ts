@@ -1,8 +1,9 @@
+import { erreurSansDonnees } from './erreur'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { lireCorpsJson } from './corps'
 import { ipDepuisEntetes, localeDepuisReferer } from './entetes'
-import { LIMITEUR } from './limite'
+import { LIMITEUR, LIMITEUR_GLOBAL } from './limite'
 import type { ReponseFormulaire, TypeFormulaire } from './schema'
 import { traiterEnvoi } from './traitement'
 
@@ -22,10 +23,11 @@ export async function repondreFormulaire(type: TypeFormulaire, request: Request)
       locale: localeDepuisReferer(request.headers.get('referer')),
       payload,
       limiteur: LIMITEUR,
+      limiteurGlobal: LIMITEUR_GLOBAL,
     })
     return repondre(sortie.corps, sortie.status)
   } catch (error) {
-    payload.logger.error({ err: error }, `Formulaire ${type} : enregistrement impossible`)
+    payload.logger.error({ err: erreurSansDonnees(error) }, `Formulaire ${type} : enregistrement impossible`)
     return repondre({ ok: false, erreur: 'serveur' }, 500)
   }
 }

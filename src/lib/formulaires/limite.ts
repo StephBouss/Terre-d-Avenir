@@ -65,3 +65,12 @@ export class LimiteurDebit {
 // Partagé entre les routes adhésion et contact (chaque Route Handler a son propre bundle).
 const global = globalThis as typeof globalThis & { __limiteurFormulaires?: LimiteurDebit }
 export const LIMITEUR: LimiteurDebit = (global.__limiteurFormulaires ??= new LimiteurDebit())
+
+/** Clé unique du plafond global, tous visiteurs confondus (borne le spam même si l’IP est falsifiée). */
+export const CLE_GLOBALE = '*'
+export const PLAFOND_GLOBAL = (() => {
+  const n = Number.parseInt(process.env.FORMULAIRES_PLAFOND_GLOBAL ?? '', 10)
+  return Number.isInteger(n) && n > 0 ? n : 30
+})()
+const globaux = globalThis as typeof globalThis & { __limiteurGlobalFormulaires?: LimiteurDebit }
+export const LIMITEUR_GLOBAL: LimiteurDebit = (globaux.__limiteurGlobalFormulaires ??= new LimiteurDebit(PLAFOND_GLOBAL, FENETRE_MS))

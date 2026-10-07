@@ -307,6 +307,36 @@ describe('traitement d’un envoi', () => {
     expect(f.messages[0]).toMatchObject({ emailEtat: 'echec', emailErreur: 'SMTP indisponible' })
   })
 
+  it('plafond global : au-delà de 30 envois avec des IP différentes, 429 ; le créneau IP est rendu', async () => {
+    const { payload, messages } = fauxPayload()
+    const limiteurGlobal = new LimiteurDebit(30, 600_000)
+    const limiteur = new LimiteurDebit(5, 600_000)
+    const cles = Array.from({ length: 35 }, (_, i) => `3b241101-e2bb-4255-8caf-4136c566a9${String(i).padStart(2, '0')}`)
+    const sorties = []
+    for (const [i, cle] of cles.entries()) sorties.push(await traiterEnvoi(entree(payload, { ...CONTACT, cle }, { ip: `10.1.0.${i}`, limiteur, limiteurGlobal })))
+    expect(sorties.filter((s) => s.status === 200)).toHaveLength(30)
+    expect(sorties.slice(30).every((s) => s.status === 429)).toBe(true)
+    expect(messages).toHaveLength(30)
+    expect(limiteur.autorise('10.1.0.31', 1_000_000)).toBe(true)
+    expect(limiteur.taille).toBe(30)
+  })
+  it('plafond global : validation refusée ou clé déjà connue libèrent le créneau global', async () => {
+    const { payload } = fauxPayload()
+    const limiteurGlobal = new LimiteurDebit(1, 600_000)
+    expect((await traiterEnvoi(entree(payload, { ...CONTACT, nom: '' }, { limiteurGlobal }))).status).toBe(400)
+    expect((await traiterEnvoi(entree(payload, CONTACT, { limiteurGlobal }))).status).toBe(200)
+    expect((await traiterEnvoi(entree(payload, CONTACT, { limiteurGlobal }))).status).toBe(200)
+    expect((await traiterEnvoi(entree(payload, { ...CONTACT, cle: '3b241101-e2bb-4255-8caf-4136c566a999' }, { limiteurGlobal }))).status).toBe(429)
+  })
+  it('journaux sans données personnelles', async () => {
+    const f = fauxPayload({ destination: 'bureau@exemple.org' })
+    f.brut.update.mockImplementation(async () => {
+      throw Object.assign(new Error('Failed query: update messages params: Awa,Mba,awa@example.org'), { name: 'DrizzleQueryError' })
+    })
+    await traiterEnvoi(entree(f.payload, CONTACT))
+    expect(f.brut.logger.error).toHaveBeenCalled()
+    expect(JSON.stringify(f.brut.logger.error.mock.calls)).not.toMatch(/Mba|awa@example/)
+  })
   it('échec de l’enregistrement : l’erreur remonte (la route répond 500)', async () => {
     const f = fauxPayload({ echecCreation: true })
     await expect(traiterEnvoi(entree(f.payload, CONTACT))).rejects.toThrow('base indisponible')

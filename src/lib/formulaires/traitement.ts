@@ -1,8 +1,9 @@
+import { erreurSansDonnees } from './erreur'
 import type { Payload } from 'payload'
 import type { Message } from '@/payload-types'
 import type { Locale } from '../i18n/config'
 import { notifierMessage } from './email'
-import type { LimiteurDebit } from './limite'
+import { CLE_GLOBALE, type LimiteurDebit } from './limite'
 import { genererReference } from './reference'
 import {
   CHAMPS_AUTORISES,
@@ -23,6 +24,8 @@ export type EntreeTraitement = {
   locale: Locale
   payload: Payload
   limiteur: LimiteurDebit
+  /** Plafond tous visiteurs confondus (clé « * »). */
+  limiteurGlobal?: LimiteurDebit
   maintenant?: number
 }
 export type SortieTraitement = { status: number; corps: ReponseFormulaire }
@@ -73,7 +76,7 @@ async function enregistrer(payload: Payload, type: TypeFormulaire, cle: string, 
  * Traite un envoi de formulaire. Ordre : requête bien formée, pot de miel, idempotence, limite, validation,
  * enregistrement (le succès n’est annoncé que s’il réussit), puis e-mail (son échec n’annule rien).
  */
-export async function traiterEnvoi({ type, corps, ip, locale, payload, limiteur, maintenant = Date.now() }: EntreeTraitement): Promise<SortieTraitement> {
+export async function traiterEnvoi({ type, corps, ip, locale, payload, limiteur, limiteurGlobal, maintenant = Date.now() }: EntreeTraitement): Promise<SortieTraitement> {
   if (!corps || typeof corps !== 'object' || Array.isArray(corps)) return REQUETE
   const brut = corps as Record<string, unknown>
   const cle = typeof brut.cle === 'string' ? brut.cle.toLowerCase() : ''
@@ -89,10 +92,18 @@ export async function traiterEnvoi({ type, corps, ip, locale, payload, limiteur,
 
   // Créneau réservé tout de suite (aucun await entre le contrôle et la réservation), rendu si l’envoi n’est pas enregistré.
   if (!limiteur.reserve(ip, maintenant)) return { status: 429, corps: { ok: false, erreur: 'limite' } }
+  const libere = () => {
+    limiteur.annule(ip, maintenant)
+    limiteurGlobal?.annule(CLE_GLOBALE, maintenant)
+  }
+  if (limiteurGlobal && !limiteurGlobal.reserve(CLE_GLOBALE, maintenant)) {
+    limiteur.annule(ip, maintenant)
+    return { status: 429, corps: { ok: false, erreur: 'limite' } }
+  }
 
   const resultat = type === 'adhesion' ? validerAdhesion(brut) : validerContact(brut)
   if (!resultat.ok) {
-    limiteur.annule(ip, maintenant)
+    libere()
     return { status: 400, corps: { ok: false, erreur: 'validation', champs: resultat.erreurs } }
   }
 
@@ -100,16 +111,16 @@ export async function traiterEnvoi({ type, corps, ip, locale, payload, limiteur,
   try {
     enregistre = await enregistrer(payload, type, cle, resultat.donnees, locale)
   } catch (error) {
-    limiteur.annule(ip, maintenant)
+    libere()
     throw error
   }
   const { message, nouveau } = enregistre
-  if (!nouveau) limiteur.annule(ip, maintenant)
+  if (!nouveau) libere()
   else {
     try {
       await notifierMessage(payload, message)
     } catch (error) {
-      payload.logger.error({ err: error }, `Notification e-mail impossible pour ${message.reference}`)
+      payload.logger.error({ err: erreurSansDonnees(error) }, `Notification e-mail impossible pour ${message.reference}`)
     }
   }
   return succes(message.reference)

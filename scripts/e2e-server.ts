@@ -20,6 +20,8 @@ const E2E_ENV = {
   // Faux transport : aucun e-mail réel, même si le .env contient un SMTP.
   EMAIL_CAPTURE_DIR: path.resolve(EMAIL_CAPTURE_DIR),
   SMTP_HOST: '',
+  // Le plafond global (30 par défaut en production) serait dépassé par la suite complète, qui envoie de nombreux formulaires.
+  FORMULAIRES_PLAFOND_GLOBAL: '1000',
 }
 
 const run = (command: string) =>
