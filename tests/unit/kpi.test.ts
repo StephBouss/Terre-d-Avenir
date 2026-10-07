@@ -35,8 +35,8 @@ describe('KPI', () => {
     ).toEqual({ total: 3, galerie: 2, provisoires: 1, sansAlt: 1, droitsNonConfirmes: 2 })
   })
 
-  it('cartes sans source : chargements, sauvegardes (les adhésions ont une source : les messages ; le site est une vitrine, sans transactions)', () => {
-    expect(NO_SOURCE.map((c) => c.id)).toEqual(['chargements', 'sauvegardes'])
+  it('cartes sans source : chargements (les adhésions ont une source : les messages ; le site est une vitrine, sans transactions ni sauvegardes)', () => {
+    expect(NO_SOURCE.map((c) => c.id)).toEqual(['chargements'])
     expect(NO_SOURCE.every((c) => c.note.length > 0)).toBe(true)
   })
 

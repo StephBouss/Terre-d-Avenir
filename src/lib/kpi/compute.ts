@@ -42,9 +42,7 @@ export function messageCounts(rows: MessageRow[]) {
 }
 
 export const NO_SOURCE = [
-  { id: 'chargements', title: 'Chargements en erreur (KPI-19)', note: 'Aucune source configurée' },
-  { id: 'sauvegardes', title: 'Sauvegardes (KPI-20)', note: 'Aucune sauvegarde configurée' },
-]
+  { id: 'chargements', title: 'Chargements en erreur (KPI-19)', note: 'Aucune source configurée' },]
 
 const SITUATION = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Africa/Libreville' })
 

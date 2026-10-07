@@ -1,12 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { INTERETS, LIMITES, longueur, validerAdhesion, type ChampAdhesion } from '@/lib/formulaires/schema'
 import type { Locale } from '@/lib/i18n/config'
 import type { Dictionary } from '@/lib/i18n/dictionaries'
 import { localizedHref } from '@/lib/i18n/paths'
 import ChampErreur from './ChampErreur'
+import SansJavascript from './SansJavascript'
 import SuccesEnvoi from './SuccesEnvoi'
 import { texteErreur } from './texte-erreur'
 import { useEnvoiFormulaire } from './useEnvoiFormulaire'
@@ -28,7 +29,11 @@ const ID: Record<ChampAdhesion, string> = {
 }
 const ORDRE = Object.keys(ID) as ChampAdhesion[]
 
-type Props = { locale: Locale; labels: Dictionary['adhesionForm']; commun: Dictionary['formulaires']; pays: { code: string; nom: string }[] }
+/** Seuils d’annonce vocale du compteur : 80 %, 90 % et 100 % de la limite. */
+const SEUILS = [0.8, 0.9, 1]
+const palier = (n: number) => SEUILS.filter((p) => n >= Math.ceil(LIMITES.motivation * p)).length
+
+type Props = { locale: Locale; labels: Dictionary['adhesionForm']; commun: Dictionary['formulaires']; pays: { code: string; nom: string }[]; facebookUrl?: string | null }
 
 function lire(form: HTMLFormElement): Record<string, unknown> {
   const fd = new FormData(form)
@@ -47,9 +52,24 @@ function lire(form: HTMLFormElement): Record<string, unknown> {
   }
 }
 
-export default function AdhesionForm({ locale, labels, commun, pays }: Props) {
+export default function AdhesionForm({ locale, labels, commun, pays, facebookUrl }: Props) {
   const { pret, statut, reference, erreurs, soumettre } = useEnvoiFormulaire('adhesion', validerAdhesion)
   const [caracteres, setCaracteres] = useState(0)
+  const [annonce, setAnnonce] = useState({ palier: 0, restants: 0 })
+  const zone = useRef<HTMLTextAreaElement>(null)
+
+  function mesurer(valeur: string) {
+    const n = longueur(valeur)
+    setCaracteres(n)
+    const p = palier(n)
+    // L’annonce ne change qu’au franchissement d’un seuil, jamais à chaque frappe.
+    setAnnonce((a) => (a.palier === p ? a : { palier: p, restants: LIMITES.motivation - n }))
+  }
+
+  // Après l’hydratation, le navigateur a pu restaurer la valeur du textarea : le compteur part de la valeur réelle.
+  useEffect(() => {
+    if (pret && zone.current) mesurer(zone.current.value)
+  }, [pret])
 
   if (statut === 'succes' && reference) {
     return (
@@ -81,6 +101,7 @@ export default function AdhesionForm({ locale, labels, commun, pays }: Props) {
 
   return (
     <form method="post" noValidate onSubmit={envoyer} className="relative bg-background rounded-lg border border-border p-8 flex flex-col gap-6" style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+      <SansJavascript commun={commun} facebookUrl={facebookUrl} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label htmlFor={ID.nom} className={LABEL}>{labels.lastName}</label>
@@ -150,12 +171,16 @@ export default function AdhesionForm({ locale, labels, commun, pays }: Props) {
             name="motivation"
             rows={5}
             maxLength={LIMITES.motivation}
-            onChange={(e) => setCaracteres(longueur(e.target.value))}
+            ref={zone}
+            onChange={(e) => mesurer(e.target.value)}
             className={FIELD}
             {...decrit('motivation', 'adh-motivation-aide', 'adh-motivation-compteur')}
           />
           <p id="adh-motivation-aide" className={HELP}>{labels.helpMotivation}</p>
-          <p id="adh-motivation-compteur" className={HELP}>{compteur}</p>
+          <p id="adh-motivation-compteur" className={HELP} suppressHydrationWarning>{compteur}</p>
+          <p className="sr-only" role="status" aria-live="polite" suppressHydrationWarning>
+            {annonce.palier > 0 ? commun.caracteresRestants.replace('{n}', nombre.format(annonce.restants)) : ''}
+          </p>
           <ChampErreur id={`${ID.motivation}-erreur`} message={erreur('motivation')} />
         </div>
         <div className="md:col-span-2">
@@ -177,7 +202,14 @@ export default function AdhesionForm({ locale, labels, commun, pays }: Props) {
         <input id="adh-site" name="siteWeb" type="text" tabIndex={-1} autoComplete="off" />
       </div>
       <p role="status" className="text-sm text-muted-foreground min-h-5">{statut === 'envoi' ? labels.sending : ''}</p>
-      {statut === 'erreur' && <p role="alert" className="text-sm font-semibold text-error">{labels.networkError}</p>}
+      {statut === 'erreur' && (
+        <div role="alert" className="flex flex-col gap-2">
+          <p className="text-sm font-semibold text-error">{labels.networkError}</p>
+          <Link href={localizedHref(locale, '/contact')} className="text-sm font-bold text-primary underline">
+            {commun.contacterOng}
+          </Link>
+        </div>
+      )}
       {statut === 'limite' && <p role="alert" className="text-sm font-semibold text-error">{commun.limite}</p>}
       <div>
         <button type="submit" disabled={!pret || statut === 'envoi'} className="font-bold text-base px-8 py-3 rounded-md font-body disabled:opacity-60 disabled:cursor-wait" style={{ background: '#E6BF58', color: '#17372C' }}>

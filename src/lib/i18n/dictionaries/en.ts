@@ -128,6 +128,10 @@ export const en: Dictionary = {
     retourAccueil: 'Back to home',
     limite: 'Several submissions have already been made from this connection. Please try again in about ten minutes.',
     piege: 'Leave this field empty',
+    contacterOng: 'Contact the NGO',
+    sansJs: 'This form requires JavaScript.',
+    sansJsFacebook: 'You can contact the NGO through its Facebook page.',
+    caracteresRestants: '{n} characters left',
     erreurs: {
       requis: 'This field is required to process your request.',
       tropLong: 'This text cannot exceed {max} characters.',

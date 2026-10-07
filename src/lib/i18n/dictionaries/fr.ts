@@ -126,6 +126,10 @@ export const fr = {
     retourAccueil: 'Retour à l’accueil',
     limite: 'Plusieurs envois ont déjà été faits depuis cette connexion. Réessayez dans une dizaine de minutes.',
     piege: 'Laissez ce champ vide',
+    contacterOng: 'Contacter l’ONG',
+    sansJs: 'Ce formulaire nécessite JavaScript.',
+    sansJsFacebook: 'Vous pouvez contacter l’ONG via sa page Facebook.',
+    caracteresRestants: 'Il reste {n} caractères',
     erreurs: {
       requis: 'Ce champ est nécessaire pour traiter votre demande.',
       tropLong: 'Ce texte ne peut pas dépasser {max} caractères.',

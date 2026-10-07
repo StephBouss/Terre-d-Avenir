@@ -198,3 +198,91 @@ describe('masquage des brouillons', () => {
     expect(container).toBeEmptyDOMElement()
   })
 })
+
+describe('accessibilité et repli des formulaires (revue tâche 5)', () => {
+  afterEach(() => vi.unstubAllGlobals())
+  const FB = 'https://www.facebook.com/exemple'
+  const PAYS = [{ code: 'GA', nom: 'Gabon' }]
+  const adhesion = (locale: 'fr' | 'en' = 'fr', facebookUrl: string | null = FB) => {
+    const d = getDictionary(locale)
+    return <AdhesionForm locale={locale} labels={d.adhesionForm} commun={d.formulaires} pays={PAYS} facebookUrl={facebookUrl} />
+  }
+  const annonce = () => document.querySelector('p.sr-only[role="status"]')!
+
+  it('annonce le compteur aux seuils de 80 %, 90 % et 100 %, pas à chaque frappe', async () => {
+    const user = userEvent.setup()
+    render(adhesion())
+    const zone = screen.getByLabelText('Votre motivation (facultatif)')
+    expect(annonce()).toHaveAttribute('aria-live', 'polite')
+    expect(annonce()).toHaveTextContent('')
+    await user.click(zone)
+    await user.paste('a'.repeat(799))
+    expect(annonce()).toHaveTextContent('')
+    await user.paste('a')
+    expect(annonce()).toHaveTextContent('Il reste 200 caractères')
+    await user.paste('a')
+    expect(annonce()).toHaveTextContent('Il reste 200 caractères') // pas de nouvelle annonce entre deux seuils
+    await user.paste('a'.repeat(99))
+    expect(annonce()).toHaveTextContent('Il reste 100 caractères')
+    await user.paste('a'.repeat(100))
+    expect(annonce()).toHaveTextContent('Il reste 0 caractères')
+  })
+
+  it('le compteur visuel n’est pas une zone live ; le textarea le référence', () => {
+    render(adhesion())
+    const compteur = document.getElementById('adh-motivation-compteur')!
+    expect(compteur).not.toHaveAttribute('aria-live')
+    expect(screen.getByLabelText('Votre motivation (facultatif)').getAttribute('aria-describedby')).toContain('adh-motivation-compteur')
+  })
+
+  it('annonce traduite en anglais', async () => {
+    const user = userEvent.setup()
+    render(adhesion('en'))
+    await user.click(screen.getByLabelText('Your motivation (optional)'))
+    await user.paste('a'.repeat(800))
+    expect(annonce()).toHaveTextContent('200 characters left')
+  })
+
+  it('centres d’intérêt : fieldset avec legend', () => {
+    render(adhesion())
+    expect(screen.getByRole('group', { name: dict.adhesionForm.interests })).toBeInTheDocument()
+  })
+
+  it('compteur initialisé depuis la valeur restaurée par le navigateur', () => {
+    const lecteur = vi.spyOn(HTMLTextAreaElement.prototype, 'value', 'get').mockReturnValue('a'.repeat(12))
+    try {
+      render(adhesion())
+      expect(document.getElementById('adh-motivation-compteur')).toHaveTextContent(/^12 [/] 1/)
+    } finally {
+      lecteur.mockRestore()
+    }
+  })
+
+  it('erreur réseau : lien vers le contact (adhésion), pas de lien vers la même page (contact)', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('réseau')))
+    const user = userEvent.setup()
+    render(adhesion())
+    await user.type(screen.getByLabelText('Nom *'), 'Mba')
+    await user.type(screen.getByLabelText('Prénom(s) *'), 'Awa')
+    await user.type(screen.getByLabelText('Téléphone avec indicatif international *'), '+241 06 12 34 56')
+    await user.selectOptions(screen.getByLabelText('Pays de résidence (facultatif)'), 'GA')
+    await user.click(screen.getByRole('checkbox', { name: dict.adhesionForm.notice }))
+    await user.click(screen.getByRole('button', { name: 'Envoyer ma demande' }))
+    const lien = await screen.findByRole('link', { name: 'Contacter l’ONG' })
+    expect(lien).toHaveAttribute('href', '/fr/contact')
+  })
+
+  it('sans JavaScript : noscript traduit avec lien Facebook, pour les deux formulaires', () => {
+    const d = getDictionary('en')
+    const html = renderToString(adhesion('en'))
+    expect(html).toContain('<noscript>')
+    expect(html).toContain('This form requires JavaScript.')
+    expect(html).toContain(`href="${FB}"`)
+    const contact = renderToString(<ContactForm locale="fr" labels={dict.contactForm} commun={dict.formulaires} facebookUrl={FB} />)
+    expect(contact).toContain('Ce formulaire nécessite JavaScript.')
+    expect(contact).toContain(`href="${FB}"`)
+    expect(contact).not.toContain('/fr/contact')
+    expect(d.formulaires.sansJs).toBeTruthy()
+    expect(renderToString(adhesion('fr', null))).not.toContain('facebook.com')
+  })
+})

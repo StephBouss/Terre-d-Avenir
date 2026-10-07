@@ -6,6 +6,7 @@ import type { Locale } from '@/lib/i18n/config'
 import type { Dictionary } from '@/lib/i18n/dictionaries'
 import { localizedHref } from '@/lib/i18n/paths'
 import ChampErreur from './ChampErreur'
+import SansJavascript from './SansJavascript'
 import SuccesEnvoi from './SuccesEnvoi'
 import { texteErreur } from './texte-erreur'
 import { useEnvoiFormulaire } from './useEnvoiFormulaire'
@@ -17,7 +18,7 @@ const HELP = 'mt-1.5 text-xs text-muted-foreground'
 const ID: Record<ChampContact, string> = { nom: 'ct-nom', prenom: 'ct-prenom', email: 'ct-email', telephone: 'ct-tel', organisation: 'ct-org', message: 'ct-message' }
 const ORDRE = Object.keys(ID) as ChampContact[]
 
-type Props = { locale: Locale; labels: Dictionary['contactForm']; commun: Dictionary['formulaires'] }
+type Props = { locale: Locale; labels: Dictionary['contactForm']; commun: Dictionary['formulaires']; facebookUrl?: string | null }
 
 function lire(form: HTMLFormElement): Record<string, unknown> {
   const fd = new FormData(form)
@@ -25,7 +26,7 @@ function lire(form: HTMLFormElement): Record<string, unknown> {
   return { nom: v('nom'), prenom: v('prenom'), email: v('email'), telephone: v('telephone'), organisation: v('organisation'), message: v('message'), siteWeb: v('siteWeb') }
 }
 
-export default function ContactForm({ locale, labels, commun }: Props) {
+export default function ContactForm({ locale, labels, commun, facebookUrl }: Props) {
   const { pret, statut, reference, erreurs, soumettre } = useEnvoiFormulaire('contact', validerContact)
 
   if (statut === 'succes' && reference) {
@@ -47,6 +48,7 @@ export default function ContactForm({ locale, labels, commun }: Props) {
 
   return (
     <form method="post" noValidate onSubmit={envoyer} className="relative flex flex-col gap-5">
+      <SansJavascript commun={commun} facebookUrl={facebookUrl} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label htmlFor={ID.nom} className={LABEL}>{labels.lastName}</label>

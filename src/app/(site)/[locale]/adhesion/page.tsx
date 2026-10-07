@@ -6,7 +6,7 @@ import FaqList from '@/components/ui/FaqList'
 import PageHero from '@/components/ui/PageHero'
 import { Paragraphs } from '@/components/ui/Paragraphs'
 import SectionHeader from '@/components/ui/SectionHeader'
-import { getPage } from '@/lib/content'
+import { getPage, getReglages } from '@/lib/content'
 import { optionsPays } from '@/lib/formulaires/pays'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { metadataFor, resolveLocale, type LocaleParams } from '@/lib/page'
@@ -19,6 +19,7 @@ export default async function AdhesionPage({ params }: LocaleParams) {
   const locale = await resolveLocale(params)
   const dict = getDictionary(locale)
   const page = await getPage('adhesion', locale)
+  const reglages = await getReglages(locale).catch(() => null)
   if (!page) notFound()
   const section = (key: string) => getSection(page, key)
   const formulaire = section('formulaire')
@@ -33,7 +34,7 @@ export default async function AdhesionPage({ params }: LocaleParams) {
             <Paragraphs text={formulaire?.body} className="text-base text-muted-foreground" />
           </Reveal>
           <Reveal>
-            <AdhesionForm locale={locale} labels={dict.adhesionForm} commun={dict.formulaires} pays={optionsPays(locale)} />
+            <AdhesionForm locale={locale} labels={dict.adhesionForm} commun={dict.formulaires} pays={optionsPays(locale)} facebookUrl={reglages?.facebookUrl} />
           </Reveal>
         </div>
       </section>
