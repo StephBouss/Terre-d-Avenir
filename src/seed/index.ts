@@ -2,6 +2,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getPayload, type Payload } from 'payload'
 import config from '../payload.config'
+import type { PageSlug } from '../collections/Pages'
 import { en } from './data/en'
 import { FACEBOOK_URL, fr } from './data/fr'
 import type { SeedImageKey } from './data/types'
@@ -9,6 +10,22 @@ import { isSeedMediaFilename } from './media-match'
 import { SEED_CONTEXT, upsertLocalized } from './upsert'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
+
+// Image d'en-tête de chaque page (correspondance du lot 1 conservée ; l'accueil utilise le diaporama).
+const PAGE_HERO: Partial<Record<PageSlug, SeedImageKey>> = {
+  ong: 'community',
+  'mot-de-la-presidente': 'forest',
+  organisation: 'solidarity',
+  projets: 'education',
+  actualites: 'forest',
+  adhesion: 'youth',
+  mediatheque: 'sport',
+  partenariats: 'solidarity',
+  transparence: 'community',
+  contact: 'forest',
+  confidentialite: 'forest',
+  'mentions-legales': 'forest',
+}
 
 const IMAGES: Record<SeedImageKey, { altFr: string; altEn: string; provisoire: boolean; galerie: boolean; credit: string }> = {
   banner: {
@@ -79,7 +96,7 @@ async function seed() {
     const { slug, ...frData } = page
     const enData: Record<string, unknown> = { ...enPage }
     delete enData.slug
-    await upsertLocalized(payload, 'pages', { slug: { equals: slug } }, { slug, ...frData }, enData)
+    await upsertLocalized(payload, 'pages', { slug: { equals: slug } }, { slug, ...frData, heroImage: PAGE_HERO[slug as PageSlug] ? media[PAGE_HERO[slug as PageSlug]!] : null }, enData)
   }
 
   for (const item of fr.actualites) {
@@ -98,7 +115,7 @@ async function seed() {
 
   const heroImages = HERO_ORDER.map((k) => media[k] as number)
   await payload.updateGlobal({ slug: 'diaporama', data: { images: heroImages }, context: SEED_CONTEXT })
-  await payload.updateGlobal({ slug: 'reglages', data: { facebookUrl: FACEBOOK_URL, heroImages, ...fr.reglages }, locale: 'fr', context: SEED_CONTEXT })
+  await payload.updateGlobal({ slug: 'reglages', data: { facebookUrl: FACEBOOK_URL, ...fr.reglages }, locale: 'fr', context: SEED_CONTEXT })
   await payload.updateGlobal({ slug: 'reglages', data: { ...en.reglages }, locale: 'en', context: SEED_CONTEXT })
 
   await seedAdmin(payload)

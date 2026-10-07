@@ -9,7 +9,7 @@ test.describe('accès anonyme à l’API REST', () => {
     expect(docs.every((d) => d._status === 'published' && d.archivee !== true)).toBe(true)
   })
 
-  for (const path of ['/api/pages', '/api/projets', '/api/globals/reglages']) {
+  for (const path of ['/api/pages', '/api/projets', '/api/globals/reglages', '/api/globals/diaporama']) {
     test(`${path} est refusé`, async ({ request }) => {
       const res = await request.get(path)
       expect([401, 403]).toContain(res.status())

@@ -8,7 +8,7 @@ import Icon from '@/components/ui/Icon'
 import { MediaImage } from '@/components/ui/MediaImage'
 import PageHero from '@/components/ui/PageHero'
 import { Paragraphs } from '@/components/ui/Paragraphs'
-import { getPage, getReglages } from '@/lib/content'
+import { getPage } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { metadataFor, resolveLocale, type LocaleParams } from '@/lib/page'
 import { getSection } from '@/lib/sections'
@@ -25,7 +25,7 @@ const ORIENTATIONS = [
 export default async function ContactPage({ params }: LocaleParams) {
   const locale = await resolveLocale(params)
   const dict = getDictionary(locale)
-  const [page, reglages] = await Promise.all([getPage('contact', locale), getReglages(locale)])
+  const page = await getPage('contact', locale)
   if (!page) notFound()
   const section = (key: string) => getSection(page, key)
   const formulaire = section('formulaire')
@@ -33,7 +33,7 @@ export default async function ContactPage({ params }: LocaleParams) {
 
   return (
     <>
-      <PageHero eyebrow={dict.nav.contact} title={page.h1 ?? ''} intro={page.intro} image={reglages.heroImages?.[0]} />
+      <PageHero eyebrow={dict.nav.contact} title={page.h1 ?? ''} intro={page.intro} image={page.heroImage} />
       <section className="bg-background py-20">
         <div className="max-w-[1280px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-3 gap-12">
           <RevealGroup className="flex flex-col gap-6">
@@ -65,7 +65,7 @@ export default async function ContactPage({ params }: LocaleParams) {
             {!isPlaceholder(localisation.heading) && <h2 className="text-2xl font-bold text-foreground font-headings mb-6">{localisation.heading}</h2>}
             <div className="relative w-full rounded-lg overflow-hidden flex items-center justify-center" style={{ height: 320, background: '#F7F8F4', border: '1px solid #e8e8e8' }}>
               <div className="absolute inset-0" style={{ opacity: 0.7 }}>
-                <MediaImage media={reglages.heroImages?.[0]} fill decorative sizes="100vw" className="w-full h-full object-cover" />
+                <MediaImage media={page.heroImage} fill decorative sizes="100vw" className="w-full h-full object-cover" />
               </div>
               <div className="absolute flex flex-col items-center gap-2">
                 <div className="rounded-full w-12 h-12 flex items-center justify-center" style={{ background: '#005C38' }}>

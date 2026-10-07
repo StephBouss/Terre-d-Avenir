@@ -4,5 +4,5 @@ import { metadataFor, type LocaleParams } from '@/lib/page'
 export const generateMetadata = metadataFor('confidentialite', '/confidentialite')
 
 export default function ConfidentialitePage({ params }: LocaleParams) {
-  return <TextPage slug="confidentialite" eyebrowKey="confidentialite" imageIndex={0} params={params} />
+  return <TextPage slug="confidentialite" eyebrowKey="confidentialite" params={params} />
 }

@@ -159,6 +159,10 @@ export interface Page {
    * Laisser vide tant que le texte n’est pas validé : un champ vide est masqué sur le site.
    */
   intro?: string | null;
+  /**
+   * Photo affichée en haut de la page. Vide : fond vert de la charte. (Sans effet sur l’accueil, qui utilise le diaporama.)
+   */
+  heroImage?: (number | null) | Media;
   sections?:
     | {
         /**
@@ -193,36 +197,6 @@ export interface Page {
     | null;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "actualites".
- */
-export interface Actualite {
-  id: number;
-  title: string;
-  slug: string;
-  order: number;
-  category?: string | null;
-  /**
-   * Ex. « 8 août 2026 » ou « Initiative publiée ».
-   */
-  dateLabel?: string | null;
-  date?: string | null;
-  excerpt?: string | null;
-  body?: string | null;
-  image?: (number | null) | Media;
-  source?: {
-    label?: string | null;
-    url?: string | null;
-  };
-  /**
-   * Retire l’actualité du site sans la supprimer. Prend effet après « Publier les modifications ».
-   */
-  archivee?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -270,6 +244,36 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "actualites".
+ */
+export interface Actualite {
+  id: number;
+  title: string;
+  slug: string;
+  order: number;
+  category?: string | null;
+  /**
+   * Ex. « 8 août 2026 » ou « Initiative publiée ».
+   */
+  dateLabel?: string | null;
+  date?: string | null;
+  excerpt?: string | null;
+  body?: string | null;
+  image?: (number | null) | Media;
+  source?: {
+    label?: string | null;
+    url?: string | null;
+  };
+  /**
+   * Retire l’actualité du site sans la supprimer. Prend effet après « Publier les modifications ».
+   */
+  archivee?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -414,6 +418,7 @@ export interface PagesSelect<T extends boolean = true> {
   metaDescription?: T;
   h1?: T;
   intro?: T;
+  heroImage?: T;
   sections?:
     | T
     | {
@@ -605,7 +610,6 @@ export interface Reglage {
   facebookUrl: string;
   location?: string | null;
   footerTagline?: string | null;
-  heroImages?: (number | Media)[] | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -616,7 +620,7 @@ export interface Reglage {
 export interface Diaporama {
   id: number;
   /**
-   * Les 3 premières images défilent en fond du Hero ; l’ensemble des images alimente aussi le collage de droite. Glisser pour réordonner.
+   * Les 3 premières images défilent en fond du Hero (la 3e sert aussi à la section Ancrage) ; les suivantes alimentent le collage de droite. Glisser pour réordonner.
    */
   images: (number | Media)[];
   updatedAt?: string | null;
@@ -630,7 +634,6 @@ export interface ReglagesSelect<T extends boolean = true> {
   facebookUrl?: T;
   location?: T;
   footerTagline?: T;
-  heroImages?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

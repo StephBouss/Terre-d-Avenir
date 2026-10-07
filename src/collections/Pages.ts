@@ -46,6 +46,13 @@ export const Pages: CollectionConfig = {
     },
     { name: 'intro', label: 'Introduction', type: 'textarea', localized: true, admin: { description: EMPTY_HINT } },
     {
+      name: 'heroImage',
+      label: 'Image d’en-tête',
+      type: 'upload',
+      relationTo: 'medias',
+      admin: { description: 'Photo affichée en haut de la page. Vide : fond vert de la charte. (Sans effet sur l’accueil, qui utilise le diaporama.)' },
+    },
+    {
       name: 'sections',
       type: 'array',
       localized: true,

@@ -5,13 +5,13 @@ import { MediaImage } from '@/components/ui/MediaImage'
 import { isPlaceholder } from '@/lib/text'
 import type { Media } from '@/payload-types'
 
-type Props = { eyebrow: string; title: string; intro?: string | null; images: Media[] }
+type Props = { eyebrow: string; title: string; intro?: string | null; image?: Media | number | null }
 
-export default function ActualitesHero({ eyebrow, title, intro, images }: Props) {
+export default function ActualitesHero({ eyebrow, title, intro, image }: Props) {
   return (
     <section className="relative flex items-center overflow-hidden py-16 md:py-20" style={{ background: '#003E2A', minHeight: 520 }}>
       <div className="absolute inset-0 z-0" style={{ opacity: 0.55 }}>
-        <MediaImage media={images[0]} fill decorative eager sizes="100vw" className="w-full h-full object-cover" />
+        <MediaImage media={image} fill decorative eager sizes="100vw" className="w-full h-full object-cover" />
       </div>
       <div className="absolute inset-0 z-[1]" style={{ background: 'linear-gradient(105deg, #003E2Aea 28%, #003E2Acc 52%, #003E2A99 100%)' }} />
       <div className="relative z-10 max-w-[1280px] mx-auto px-6 h-full w-full">

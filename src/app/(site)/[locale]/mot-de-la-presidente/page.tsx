@@ -4,7 +4,7 @@ import { CtaList } from '@/components/ui/Cta'
 import PageHero from '@/components/ui/PageHero'
 import { Paragraphs } from '@/components/ui/Paragraphs'
 import QuoteMark from '@/components/ui/QuoteMark'
-import { getPage, getReglages } from '@/lib/content'
+import { getPage } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { metadataFor, resolveLocale, type LocaleParams } from '@/lib/page'
 import { getSection } from '@/lib/sections'
@@ -14,12 +14,12 @@ export const generateMetadata = metadataFor('mot-de-la-presidente', '/mot-de-la-
 export default async function MotPage({ params }: LocaleParams) {
   const locale = await resolveLocale(params)
   const dict = getDictionary(locale)
-  const [page, reglages] = await Promise.all([getPage('mot-de-la-presidente', locale), getReglages(locale)])
+  const page = await getPage('mot-de-la-presidente', locale)
   if (!page) notFound()
   const message = getSection(page, 'message')
   return (
     <>
-      <PageHero eyebrow={dict.nav.mot} title={page.h1 ?? ''} intro={page.intro} image={reglages.heroImages?.[0]} />
+      <PageHero eyebrow={dict.nav.mot} title={page.h1 ?? ''} intro={page.intro} image={page.heroImage} />
       <section className="bg-background py-24">
         <div className="max-w-[1280px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-16 items-start">
           <Reveal className="lg:sticky lg:top-28">

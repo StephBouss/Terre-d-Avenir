@@ -12,6 +12,5 @@ export const Reglages: GlobalConfig = {
     { name: 'facebookUrl', label: 'Page Facebook', type: 'text', required: true },
     { name: 'location', label: 'Localisation affichée', type: 'text', localized: true },
     { name: 'footerTagline', label: 'Texte du pied de page', type: 'textarea', localized: true },
-    { name: 'heroImages', label: 'Images du diaporama d’accueil', type: 'upload', relationTo: 'medias', hasMany: true },
   ],
 }

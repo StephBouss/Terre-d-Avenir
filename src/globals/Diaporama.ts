@@ -18,7 +18,7 @@ export const Diaporama: GlobalConfig = {
       required: true,
       minRows: 1,
       admin: {
-        description: 'Les 3 premières images défilent en fond du Hero ; l’ensemble des images alimente aussi le collage de droite. Glisser pour réordonner.',
+        description: 'Les 3 premières images défilent en fond du Hero (la 3e sert aussi à la section Ancrage) ; les suivantes alimentent le collage de droite. Glisser pour réordonner.',
       },
     },
   ],
