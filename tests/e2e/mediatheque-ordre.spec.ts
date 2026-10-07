@@ -15,6 +15,7 @@ test.describe('ordre de la médiathèque', () => {
     const list = (await (await request.get('/api/medias?limit=100', { headers })).json()).docs as { id: number; filename: string }[]
     const youth = list.find((m) => /^youth(-\d+)?\.jpg$/.test(m.filename))!
     const sport = list.find((m) => /^sport(-\d+)?\.jpg$/.test(m.filename))!
+    // youth est créé avant sport dans le seed : sans le tri par « ordre », youth passerait devant.
     for (const [doc, ordre] of [[sport, 1], [youth, 2]] as const) {
       const res = await request.patch(`/api/medias/${doc.id}`, { headers, data: { galerie: true, ordre } })
       expect(res.ok()).toBe(true)
