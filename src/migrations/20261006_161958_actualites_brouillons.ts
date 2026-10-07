@@ -68,11 +68,15 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "_actualites_v" CASCADE;
   DROP TABLE "_actualites_v_locales" CASCADE;
   DROP INDEX "actualites__status_idx";
+  -- Brouillons créés par la migration « up » : champs désormais facultatifs, à remplir avant de rétablir NOT NULL.
+  UPDATE "actualites" SET "slug" = 'brouillon-' || "id" WHERE "slug" IS NULL;
+  UPDATE "actualites" SET "order" = 0 WHERE "order" IS NULL;
+  UPDATE "actualites_locales" SET "title" = '' WHERE "title" IS NULL;
   ALTER TABLE "actualites" ALTER COLUMN "slug" SET NOT NULL;
   ALTER TABLE "actualites" ALTER COLUMN "order" SET NOT NULL;
   ALTER TABLE "actualites_locales" ALTER COLUMN "title" SET NOT NULL;
   ALTER TABLE "actualites" ADD COLUMN "publie" boolean DEFAULT true;
-  UPDATE "actualites" SET "publie" = ("_status" = 'published');
+  UPDATE "actualites" SET "publie" = ("_status" = 'published' AND "archivee" IS NOT TRUE);
   ALTER TABLE "actualites" DROP COLUMN "archivee";
   ALTER TABLE "actualites" DROP COLUMN "_status";
   DROP TYPE "public"."enum_actualites_status";
