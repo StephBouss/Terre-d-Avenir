@@ -8,6 +8,10 @@ const EXPECTED: [string, RegExp][] = [
   ['/fr/adhesion', /youth/],
   ['/fr/mediatheque', /sport/],
   ['/fr/contact', /forest/],
+  ['/fr/actualites', /forest/],
+  ['/fr/mot-de-la-presidente', /forest/],
+  ['/fr/partenariats', /solidarity/],
+  ['/fr/transparence', /community/],
 ]
 
 for (const [path, image] of EXPECTED) {

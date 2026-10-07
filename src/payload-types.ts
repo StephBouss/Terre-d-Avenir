@@ -215,6 +215,18 @@ export interface Media {
    * Une image provisoire est toujours affichée comme décorative.
    */
   provisoire?: boolean | null;
+  /**
+   * Les plus petits nombres s’affichent en premier.
+   */
+  ordre?: number | null;
+  source?: string | null;
+  lieu?: string | null;
+  datePrise?: string | null;
+  /**
+   * Renseigne le dossier ; ne remplace pas une preuve de droits.
+   */
+  droitsConfirmes?: boolean | null;
+  droitsNote?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -502,6 +514,12 @@ export interface MediasSelect<T extends boolean = true> {
   credit?: T;
   galerie?: T;
   provisoire?: T;
+  ordre?: T;
+  source?: T;
+  lieu?: T;
+  datePrise?: T;
+  droitsConfirmes?: T;
+  droitsNote?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

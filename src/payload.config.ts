@@ -37,5 +37,6 @@ export default buildConfig({
     push: false,
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
+  upload: { limits: { fileSize: 20_000_000 } }, // 20 Mo par photo (PRD BO-10)
   sharp,
 })

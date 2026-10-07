@@ -48,7 +48,7 @@ export const getProjet = cache(async (slug: string, locale: Locale): Promise<Pro
 
 export const getGalleryMedia = cache(async (locale: Locale): Promise<Media[]> => {
   const payload = await client()
-  const res = await payload.find({ collection: 'medias', where: { galerie: { equals: true } }, sort: 'createdAt', locale, depth: 0, limit: 200 })
+  const res = await payload.find({ collection: 'medias', where: { galerie: { equals: true } }, sort: ['ordre', 'createdAt'], locale, depth: 0, limit: 200 })
   return res.docs
 })
 
