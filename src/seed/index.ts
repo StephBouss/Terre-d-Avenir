@@ -6,6 +6,7 @@ import config from '../payload.config'
 import type { PageSlug } from '../collections/Pages'
 import { en } from './data/en'
 import { FACEBOOK_URL, fr } from './data/fr'
+import { ALBUM_PHOTO_SETS } from './data/photos'
 import type { SeedAlbumPhotoKey, SeedImageKey } from './data/types'
 import { isSeedMediaFilename } from './media-match'
 import { SEED_CONTEXT, upsertLocalized } from './upsert'
@@ -43,49 +44,6 @@ const IMAGES: Record<SeedImageKey, { altFr: string; altEn: string; provisoire: b
   health: { altFr: '', altEn: '', provisoire: true, galerie: false, credit: 'Unsplash (image provisoire)' },
   community: { altFr: '', altEn: '', provisoire: true, galerie: false, credit: 'Unsplash (image provisoire)' },
   solidarity: { altFr: '', altEn: '', provisoire: true, galerie: false, credit: 'Unsplash (image provisoire)' },
-}
-
-const KAFELE_COMMON = {
-  credit: "Terre d'Avenir KOMO-KANGO",
-  source: "Page Facebook de l'association (publication du 4 septembre 2026)",
-  datePrise: '2026-09-04',
-  droitsConfirmes: true,
-  droitsNote: "Photos publiées par l'association sur sa page Facebook ; droits de diffusion confirmés par l'association le 6 octobre 2026.",
-  provisoire: false,
-  galerie: false,
-}
-const KAFELE_LIEU = { fr: 'Kafélé et Nianame, Komo-Kango', en: 'Kafélé and Nianame, Komo-Kango' }
-const KAFELE_PHOTOS: Record<SeedAlbumPhotoKey, { file: string; altFr: string; altEn: string }> = {
-  'kafele-1': {
-    file: 'photo-1.jpg',
-    altFr: "Poignée de main lors de la remise d'un document, sous la tente de la cérémonie",
-    altEn: 'Handshake as a document is handed over under the ceremony tent',
-  },
-  'kafele-2': {
-    file: 'photo-2.jpg',
-    altFr: 'Les invités assis sous la tente pendant la cérémonie de réception des travaux',
-    altEn: 'Guests seated under the tent during the handover ceremony',
-  },
-  'kafele-3': {
-    file: 'photo-3.jpg',
-    altFr: "Visite d'une salle du dispensaire réhabilité, en présence du personnel soignant",
-    altEn: 'Visit of a room in the rehabilitated health centre, with the medical staff',
-  },
-  'kafele-4': {
-    file: 'photo-4.jpg',
-    altFr: 'Photo de groupe des participants devant le bâtiment réhabilité',
-    altEn: 'Group photo of the participants in front of the rehabilitated building',
-  },
-  'kafele-5': {
-    file: 'photo-5.jpg',
-    altFr: 'Des élèves rassemblés en plein air, assis à leurs tables-bancs',
-    altEn: 'Pupils gathered outdoors, seated at their desks',
-  },
-  'kafele-6': {
-    file: 'photo-6.jpg',
-    altFr: 'Le bâtiment réhabilité, aux murs jaune et gris et au toit bleu',
-    altEn: 'The rehabilitated building, with yellow and grey walls and a blue roof',
-  },
 }
 
 const HERO_ORDER: SeedImageKey[] = ['forest', 'youth', 'community', 'education', 'sport', 'health', 'solidarity', 'banner']
@@ -145,15 +103,18 @@ async function seedMedia(payload: Payload): Promise<Record<SeedImageKey | SeedAl
       altEn: meta.altEn,
     })
   }
-  for (const [key, photo] of Object.entries(KAFELE_PHOTOS) as [SeedAlbumPhotoKey, (typeof KAFELE_PHOTOS)[SeedAlbumPhotoKey]][]) {
-    ids[key] = await upsertMedia(payload, {
-      key: `kafele-nianame-${key.slice('kafele-'.length)}-photo`,
-      filePath: path.join(dirname, 'images', 'albums', 'kafele-nianame', photo.file),
-      data: KAFELE_COMMON,
-      altFr: photo.altFr,
-      altEn: photo.altEn,
-      lieu: KAFELE_LIEU,
-    })
+  for (const set of ALBUM_PHOTO_SETS) {
+    for (const photo of set.photos) {
+      ids[photo.key] = await upsertMedia(payload, {
+        // Nom téléversé « <dossier>-N-photo.jpg » : une clé « photo-N » serait renumérotée par Payload (photo-1 → photo-7).
+        key: `${set.dir}-${photo.key.slice(photo.key.lastIndexOf('-') + 1)}-photo`,
+        filePath: path.join(dirname, 'images', 'albums', set.dir, photo.file),
+        data: set.common,
+        altFr: photo.altFr,
+        altEn: photo.altEn,
+        lieu: set.lieu,
+      })
+    }
   }
   return ids
 }
