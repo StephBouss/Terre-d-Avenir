@@ -16,7 +16,8 @@ describe('adaptateur e-mail', () => {
   it('transport configuré : SMTP_HOST ou dossier de capture', () => {
     expect(transportConfigure({})).toBe(false)
     expect(transportConfigure({ SMTP_HOST: '  ' })).toBe(false)
-    expect(transportConfigure({ SMTP_HOST: 'smtp.exemple.org' })).toBe(true)
+    expect(transportConfigure({ SMTP_HOST: 'smtp.exemple.org', SMTP_FROM: 'site@exemple.org' })).toBe(true)
+    expect(transportConfigure({ SMTP_HOST: 'smtp.exemple.org' })).toBe(false)
     expect(transportConfigure({ EMAIL_CAPTURE_DIR: '.data/e2e-emails' })).toBe(true)
   })
 

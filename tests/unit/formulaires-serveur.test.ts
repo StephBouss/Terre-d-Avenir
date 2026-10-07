@@ -52,6 +52,7 @@ const entree = (payload: Payload, corps: unknown, over: Partial<Parameters<typeo
 
 beforeEach(() => {
   vi.stubEnv('SMTP_HOST', '')
+  vi.stubEnv('SMTP_FROM', 'site@exemple.org')
   vi.stubEnv('EMAIL_CAPTURE_DIR', '')
   vi.stubEnv('NEXT_PUBLIC_SITE_URL', 'https://site.org')
 })
