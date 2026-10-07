@@ -16,6 +16,12 @@ test.describe('accès anonyme à l’API REST', () => {
     })
   }
 
+  test('les précisions sur les droits des médias ne sont pas exposées', async ({ request }) => {
+    const docs: Record<string, unknown>[] = (await (await request.get('/api/medias?limit=100')).json()).docs
+    expect(docs.length).toBeGreaterThan(0)
+    expect(docs.some((d) => 'droitsNote' in d)).toBe(false)
+  })
+
   test('les médias restent publics', async ({ request }) => {
     const res = await request.get('/api/medias?limit=1')
     expect(res.status()).toBe(200)

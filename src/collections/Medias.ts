@@ -32,6 +32,6 @@ export const Medias: CollectionConfig = {
     { name: 'lieu', label: 'Lieu (si documenté)', type: 'text', localized: true },
     { name: 'datePrise', label: 'Date de prise de vue (si documentée)', type: 'date' },
     { name: 'droitsConfirmes', label: 'Droits de diffusion confirmés', type: 'checkbox', defaultValue: false, admin: { description: 'Renseigne le dossier ; ne remplace pas une preuve de droits.' } },
-    { name: 'droitsNote', label: 'Précisions sur les droits', type: 'textarea' },
+    { name: 'droitsNote', label: 'Précisions sur les droits', type: 'textarea', access: { read: ({ req }) => Boolean(req.user) } },
   ],
 }
