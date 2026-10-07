@@ -31,6 +31,7 @@ describe('adaptateur e-mail', () => {
     await adapter.sendEmail({ to: 'dest@exemple.org', subject: 'Sujet', text: 'Corps' })
     const fichiers = fs.readdirSync(dossier)
     expect(fichiers).toHaveLength(1)
+    expect(fichiers[0]).toMatch(/.json$/) // pas de reste .tmp : l’écriture est atomique (écriture puis renommage)
     expect(JSON.parse(fs.readFileSync(path.join(dossier, fichiers[0]), 'utf8'))).toMatchObject({ to: 'dest@exemple.org', subject: 'Sujet', text: 'Corps' })
     expect(emailAdapter({ EMAIL_CAPTURE_DIR: dossier })).toBeTypeOf('function')
   })

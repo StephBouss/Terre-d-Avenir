@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, renameSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import type { EmailAdapter } from 'payload'
@@ -67,7 +67,9 @@ export function adaptateurCapture(dossier: string): EmailAdapter<{ fichier: stri
     sendEmail: async (message) => {
       mkdirSync(dossier, { recursive: true })
       const fichier = path.join(dossier, `${Date.now()}-${randomUUID()}.json`)
-      writeFileSync(fichier, JSON.stringify(message))
+      // Écriture atomique : le lecteur (tests e2e) ne voit jamais un fichier .json à moitié écrit.
+      writeFileSync(`${fichier}.tmp`, JSON.stringify(message))
+      renameSync(`${fichier}.tmp`, fichier)
       return { fichier }
     },
   })
