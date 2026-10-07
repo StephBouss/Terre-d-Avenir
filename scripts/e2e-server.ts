@@ -34,12 +34,15 @@ async function terminate(child: ChildProcess, timeoutMs = 15_000): Promise<void>
   await Promise.race([exited, new Promise<void>((resolve) => setTimeout(resolve, timeoutMs))])
 }
 
-/** Arrête une instance e2e restée active (run précédent interrompu) : uniquement le dossier e2e, jamais la base de dev. */
-function stopStaleDatabase(): void {
+/**
+ * Arrête l’instance e2e (dossier e2e uniquement, jamais la base de dev) avec `pg_ctl stop -m fast -w`, qui attend l’arrêt complet.
+ * Sert au démarrage (run précédent interrompu) et au teardown : `pg.stop()` de la bibliothèque laisse sinon des postgres.exe orphelins sous Windows.
+ */
+function stopDatabaseWithPgCtl(): void {
   if (process.platform !== 'win32') return
   if (!existsSync(path.join(E2E_DATA_DIR, 'postmaster.pid'))) return
   const pgCtl = path.resolve('node_modules/@embedded-postgres/windows-x64/native/bin/pg_ctl.exe')
-  if (existsSync(pgCtl)) spawnSync(pgCtl, ['stop', '-D', path.resolve(E2E_DATA_DIR), '-m', 'fast'], { stdio: 'ignore' })
+  if (existsSync(pgCtl)) spawnSync(pgCtl, ['stop', '-D', path.resolve(E2E_DATA_DIR), '-m', 'fast', '-w'], { stdio: 'ignore' })
 }
 
 async function waitForServer(server: ChildProcess, timeoutMs = 120_000): Promise<void> {
@@ -79,12 +82,13 @@ async function loginOnce(): Promise<void> {
  * Le teardown arrête d’abord le serveur, puis la base, pour ne laisser ni erreur de connexion ni processus orphelin.
  */
 export default async function globalSetup(): Promise<() => Promise<void>> {
-  stopStaleDatabase()
+  stopDatabaseWithPgCtl()
   const pg = await startDatabase({ port: E2E_DB_PORT, dataDir: E2E_DATA_DIR })
   let server: ChildProcess | undefined
   const teardown = async () => {
     if (server) await terminate(server)
-    await pg.stop().catch(() => {})
+    stopDatabaseWithPgCtl()
+    await pg.stop().catch(() => {}) // repli (autres plateformes, ou pg_ctl absent)
   }
   try {
     await run('npm run migrate')
