@@ -51,6 +51,8 @@ Au lot 1, les formulaires (adhésion, contact) sont affichés mais désactivés 
 ## Administration
 
 - **Admin :** `/admin`, en français.
+- **Compte unique :** l'administration n'a qu'un seul compte. Il est créé par le seed (`SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD`) ou par la page « premier utilisateur ». Aucun autre compte ne peut être créé, et le dernier compte ne peut pas être supprimé. Pour changer d'adresse ou de mot de passe, modifier ce compte dans *Administration > Utilisateurs*.
+- **Mot de passe oublié :** le lien de la page de connexion envoie un e-mail de réinitialisation **uniquement si le SMTP est configuré** (voir « Envoi des e-mails »). Sans SMTP, la page reste accessible mais aucun e-mail ne part.
 - **Actualités :** « Enregistrer le brouillon » ne publie pas ; « Publier » met en ligne. « Archivée » retire l'actualité du site sans la supprimer. « Aperçu » montre un brouillon aux admins connectés et nécessite `PREVIEW_SECRET`.
 - **Images :** *Diaporama d'accueil* pour le Hero de l'accueil ; « Image d'en-tête » dans chaque page ; *Médiathèque* : cocher « Afficher dans la médiathèque » et régler l'ordre.
 - **Indicateurs :** page d'accueil de l'admin, avec des valeurs réelles uniquement (« Indisponible » en cas d'erreur de lecture). Les cartes adhésions et transactions s'activeront avec les lots 2 et 4.
