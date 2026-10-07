@@ -1,3 +1,4 @@
+import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getPayload, type Payload } from 'payload'
@@ -5,7 +6,7 @@ import config from '../payload.config'
 import type { PageSlug } from '../collections/Pages'
 import { en } from './data/en'
 import { FACEBOOK_URL, fr } from './data/fr'
-import type { SeedImageKey } from './data/types'
+import type { SeedAlbumPhotoKey, SeedImageKey } from './data/types'
 import { isSeedMediaFilename } from './media-match'
 import { SEED_CONTEXT, upsertLocalized } from './upsert'
 
@@ -44,34 +45,115 @@ const IMAGES: Record<SeedImageKey, { altFr: string; altEn: string; provisoire: b
   solidarity: { altFr: '', altEn: '', provisoire: true, galerie: false, credit: 'Unsplash (image provisoire)' },
 }
 
+const KAFELE_COMMON = {
+  credit: "Terre d'Avenir KOMO-KANGO",
+  source: "Page Facebook de l'association (publication du 4 septembre 2026)",
+  datePrise: '2026-09-04',
+  droitsConfirmes: true,
+  droitsNote: "Photos publiées par l'association sur sa page Facebook ; droits de diffusion confirmés par l'association le 6 octobre 2026.",
+  provisoire: false,
+  galerie: false,
+}
+const KAFELE_LIEU = { fr: 'Kafélé et Nianame, Komo-Kango', en: 'Kafélé and Nianame, Komo-Kango' }
+const KAFELE_PHOTOS: Record<SeedAlbumPhotoKey, { file: string; altFr: string; altEn: string }> = {
+  'kafele-1': {
+    file: 'photo-1.jpg',
+    altFr: "Poignée de main lors de la remise d'un document, sous la tente de la cérémonie",
+    altEn: 'Handshake as a document is handed over under the ceremony tent',
+  },
+  'kafele-2': {
+    file: 'photo-2.jpg',
+    altFr: 'Les invités assis sous la tente pendant la cérémonie de réception des travaux',
+    altEn: 'Guests seated under the tent during the handover ceremony',
+  },
+  'kafele-3': {
+    file: 'photo-3.jpg',
+    altFr: "Visite d'une salle du dispensaire réhabilité, en présence du personnel soignant",
+    altEn: 'Visit of a room in the rehabilitated health centre, with the medical staff',
+  },
+  'kafele-4': {
+    file: 'photo-4.jpg',
+    altFr: 'Photo de groupe des participants devant le bâtiment réhabilité',
+    altEn: 'Group photo of the participants in front of the rehabilitated building',
+  },
+  'kafele-5': {
+    file: 'photo-5.jpg',
+    altFr: 'Des élèves rassemblés en plein air, assis à leurs tables-bancs',
+    altEn: 'Pupils gathered outdoors, seated at their desks',
+  },
+  'kafele-6': {
+    file: 'photo-6.jpg',
+    altFr: 'Le bâtiment réhabilité, aux murs jaune et gris et au toit bleu',
+    altEn: 'The rehabilitated building, with yellow and grey walls and a blue roof',
+  },
+}
+
 const HERO_ORDER: SeedImageKey[] = ['forest', 'youth', 'community', 'education', 'sport', 'health', 'solidarity', 'banner']
 
-async function seedMedia(payload: Payload): Promise<Record<SeedImageKey, number | string>> {
-  const ids = {} as Record<SeedImageKey, number | string>
-  for (const [key, meta] of Object.entries(IMAGES) as [SeedImageKey, (typeof IMAGES)[SeedImageKey]][]) {
-    const filename = `${key}.jpg`
-    // Payload renomme en « banner-1.jpg » si le fichier existe déjà dans media/ : on retrouve ces variantes, et elles seules.
-    const candidates = await payload.find({
+type MediaSeed = {
+  /** Clé du nom de fichier téléversé (« banner », « kafele-nianame-1-photo ») : sert à retrouver les variantes renommées par Payload. */
+  key: string
+  filePath: string
+  data: Record<string, unknown>
+  altFr: string
+  altEn: string
+  lieu?: { fr: string; en: string }
+}
+
+async function upsertMedia(payload: Payload, m: MediaSeed): Promise<number | string> {
+  const ext = path.extname(m.filePath)
+  // Le fichier est téléversé sous « <clé><ext> » : une clé terminée par « -N » serait renumérotée par Payload (photo-1 → photo-7).
+  const upload = { data: fs.readFileSync(m.filePath), name: `${m.key}${ext}`, mimetype: 'image/jpeg', size: fs.statSync(m.filePath).size }
+  // Payload renomme en « banner-1.jpg » si le fichier existe déjà dans media/ : on retrouve ces variantes, et elles seules.
+  const candidates = await payload.find({
+    collection: 'medias',
+    where: { filename: { like: m.key } },
+    sort: 'id',
+    limit: 50,
+    depth: 0,
+  })
+  const found = candidates.docs.filter((d) => isSeedMediaFilename(d.filename, m.key, ext))
+  const base = { ...m.data, ...(m.lieu ? { lieu: m.lieu.fr } : {}) }
+  const doc =
+    found[0] ??
+    (await payload.create({
       collection: 'medias',
-      where: { filename: { like: key } },
-      sort: 'id',
-      limit: 50,
-      depth: 0,
+      data: { ...base, alt: m.altFr } as never,
+      file: upload,
+      locale: 'fr',
+      context: SEED_CONTEXT,
+    }))
+  await payload.update({ collection: 'medias', id: doc.id, data: { ...base, alt: m.altFr } as never, locale: 'fr', context: SEED_CONTEXT })
+  await payload.update({
+    collection: 'medias',
+    id: doc.id,
+    data: { alt: m.altEn, ...(m.lieu ? { lieu: m.lieu.en } : {}) } as never,
+    locale: 'en',
+    context: SEED_CONTEXT,
+  })
+  return doc.id
+}
+
+async function seedMedia(payload: Payload): Promise<Record<SeedImageKey | SeedAlbumPhotoKey, number | string>> {
+  const ids = {} as Record<SeedImageKey | SeedAlbumPhotoKey, number | string>
+  for (const [key, meta] of Object.entries(IMAGES) as [SeedImageKey, (typeof IMAGES)[SeedImageKey]][]) {
+    ids[key] = await upsertMedia(payload, {
+      key,
+      filePath: path.join(dirname, 'images', `${key}.jpg`),
+      data: { credit: meta.credit, provisoire: meta.provisoire, galerie: meta.galerie },
+      altFr: meta.altFr,
+      altEn: meta.altEn,
     })
-    const found = candidates.docs.filter((d) => isSeedMediaFilename(d.filename, key, path.extname(filename)))
-    const base = { credit: meta.credit, provisoire: meta.provisoire, galerie: meta.galerie }
-    const doc =
-      found[0] ??
-      (await payload.create({
-        collection: 'medias',
-        data: { ...base, alt: meta.altFr },
-        filePath: path.join(dirname, 'images', filename),
-        locale: 'fr',
-        context: SEED_CONTEXT,
-      }))
-    await payload.update({ collection: 'medias', id: doc.id, data: { ...base, alt: meta.altFr }, locale: 'fr', context: SEED_CONTEXT })
-    await payload.update({ collection: 'medias', id: doc.id, data: { alt: meta.altEn }, locale: 'en', context: SEED_CONTEXT })
-    ids[key] = doc.id
+  }
+  for (const [key, photo] of Object.entries(KAFELE_PHOTOS) as [SeedAlbumPhotoKey, (typeof KAFELE_PHOTOS)[SeedAlbumPhotoKey]][]) {
+    ids[key] = await upsertMedia(payload, {
+      key: `kafele-nianame-${photo.file.replace(/D/g, '')}-photo`,
+      filePath: path.join(dirname, 'images', 'albums', 'kafele-nianame', photo.file),
+      data: KAFELE_COMMON,
+      altFr: photo.altFr,
+      altEn: photo.altEn,
+      lieu: KAFELE_LIEU,
+    })
   }
   return ids
 }
@@ -99,9 +181,18 @@ async function seed() {
     await upsertLocalized(payload, 'pages', { slug: { equals: slug } }, { slug, ...frData, heroImage: PAGE_HERO[slug as PageSlug] ? media[PAGE_HERO[slug as PageSlug]!] : null }, enData)
   }
 
+  // Les albums sont seedés avant les actualités, qui y renvoient.
+  const albumIds: Record<string, number | string> = {}
+  for (const album of fr.albums) {
+    const enAlbum = en.albums.find((a) => a.slug === album.slug)!
+    const shared = { slug: album.slug, order: album.order, _status: 'published', date: album.date ?? null, cover: media[album.cover], photos: album.photos.map((k) => media[k]) }
+    const local = (a: typeof album) => ({ title: a.title, dateLabel: a.dateLabel, description: a.description })
+    albumIds[album.slug] = await upsertLocalized(payload, 'albums', { slug: { equals: album.slug } }, { ...shared, ...local(album) }, local(enAlbum))
+  }
+
   for (const item of fr.actualites) {
     const enItem = en.actualites.find((a) => a.slug === item.slug)!
-    const shared = { slug: item.slug, order: item.order, _status: 'published', archivee: false, date: item.date ?? null, image: item.image ? media[item.image] : null, source: { url: item.source.url } }
+    const shared = { slug: item.slug, order: item.order, _status: 'published', archivee: false, date: item.date ?? null, image: item.image ? media[item.image] : null, album: item.album ? albumIds[item.album] : null, source: { url: item.source.url } }
     const local = (a: typeof item) => ({ title: a.title, category: a.category, dateLabel: a.dateLabel, excerpt: a.excerpt, body: a.body ?? '', source: { label: a.source.label, url: a.source.url } })
     await upsertLocalized(payload, 'actualites', { slug: { equals: item.slug } }, { ...shared, ...local(item) }, local(enItem))
   }
@@ -120,8 +211,8 @@ async function seed() {
 
   await seedAdmin(payload)
 
-  const count = async (collection: 'pages' | 'actualites' | 'projets' | 'medias') => (await payload.count({ collection })).totalDocs
-  console.log(`Seed terminé : pages=${await count('pages')} actualites=${await count('actualites')} projets=${await count('projets')} medias=${await count('medias')}`)
+  const count = async (collection: 'pages' | 'albums' | 'actualites' | 'projets' | 'medias') => (await payload.count({ collection })).totalDocs
+  console.log(`Seed terminé : pages=${await count('pages')} albums=${await count('albums')} actualites=${await count('actualites')} projets=${await count('projets')} medias=${await count('medias')}`)
 }
 
 await seed()

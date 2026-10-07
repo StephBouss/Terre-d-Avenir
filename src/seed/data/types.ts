@@ -2,6 +2,7 @@ import type { PageSlug } from '@/collections/Pages'
 import type { PROJET_ICONS } from '@/collections/Projets'
 
 export type SeedImageKey = 'banner' | 'forest' | 'youth' | 'education' | 'sport' | 'health' | 'community' | 'solidarity'
+export type SeedAlbumPhotoKey = 'kafele-1' | 'kafele-2' | 'kafele-3' | 'kafele-4' | 'kafele-5' | 'kafele-6'
 export type SeedCta = { label: string; href: string }
 export type SeedItem = { title?: string; text?: string }
 export type SeedSection = { key: string; eyebrow?: string; heading?: string; body?: string; items?: SeedItem[]; ctas?: SeedCta[] }
@@ -11,13 +12,24 @@ export type SeedActualite = {
   slug: string
   order: number
   date?: string
-  image?: SeedImageKey
+  image?: SeedImageKey | SeedAlbumPhotoKey
+  album?: string
   title: string
   category: string
   dateLabel: string
   excerpt: string
   body?: string
   source: SeedSource
+}
+export type SeedAlbum = {
+  slug: string
+  order: number
+  date?: string
+  cover: SeedAlbumPhotoKey
+  photos: SeedAlbumPhotoKey[]
+  title: string
+  dateLabel: string
+  description: string
 }
 export type SeedProjet = {
   slug: string
@@ -31,4 +43,4 @@ export type SeedProjet = {
   source: SeedSource
 }
 export type SeedReglages = { location: string; footerTagline: string }
-export type LocaleContent = { pages: SeedPage[]; actualites: SeedActualite[]; projets: SeedProjet[]; reglages: SeedReglages }
+export type LocaleContent = { pages: SeedPage[]; albums: SeedAlbum[]; actualites: SeedActualite[]; projets: SeedProjet[]; reglages: SeedReglages }

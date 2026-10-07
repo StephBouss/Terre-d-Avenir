@@ -9,7 +9,7 @@ test.describe('tableau de bord des indicateurs', () => {
     const board = page.locator('.kpi-dashboard')
     await expect(board.getByRole('heading', { name: 'Indicateurs' })).toBeVisible()
     await expect(board.getByText(/Situation au .* \(heure de Libreville\)/)).toBeVisible()
-    // Seed : 3 actualités publiées. Regex tolérante : d'autres specs créent des actualités en parallèle (nettoyées en afterAll).
+    // Seed : 4 actualités publiées. Regex tolérante : d'autres specs créent des actualités en parallèle (nettoyées en afterAll).
     await expect(board.getByRole('link', { name: /Publiées\s*[3-9]/ })).toBeVisible()
     await expect(board.getByText('Aucune source configurée — disponible au lot 2')).toBeVisible()
     await expect(board.getByText('Aucune source configurée — disponible au lot 4')).toBeVisible()

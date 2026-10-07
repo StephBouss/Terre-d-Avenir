@@ -483,7 +483,33 @@ export const fr: LocaleContent = {
     },
   ],
 
+  albums: [
+    {
+      slug: 'kafele-nianame-2026-09',
+      order: 0,
+      date: '2026-09-04',
+      cover: 'kafele-6',
+      photos: ['kafele-1', 'kafele-2', 'kafele-3', 'kafele-4', 'kafele-5', 'kafele-6'],
+      title: "Kafélé et Nianame : un dispensaire et une école réhabilités",
+      dateLabel: "4 septembre 2026",
+      description: "Réception des travaux de réhabilitation du dispensaire de Kafélé et de l'école publique communale de Nianame, le 4 septembre 2026.",
+    },
+  ],
+
   actualites: [
+    {
+      slug: 'kafele-nianame-rehabilitation',
+      order: 0,
+      date: '2026-09-04',
+      image: 'kafele-6',
+      album: 'kafele-nianame-2026-09',
+      title: "Kafélé et Nianame : un dispensaire et une école réhabilités",
+      category: "Vie associative",
+      dateLabel: "4 septembre 2026",
+      excerpt: "Réception des travaux de réhabilitation du dispensaire de Kafélé et de l'école publique communale de Nianame, en présence de la Présidente de l'association.",
+      body: "Madame Laurence Ndong, Ministre de la Fonction publique et du Renforcement des capacités et Présidente de l'association Komo-Kango Terre d'Avenir, a pris part, aux côtés des responsables du ministère des Mines et des Ressources géologiques, à la réception des travaux de réhabilitation du dispensaire de Kafélé et de l'école publique communale de Nianame.\n\nRéalisés par Xiang Wei Gabon dans le cadre de sa responsabilité sociétale (RSE), ces travaux améliorent concrètement l'accès aux soins et les conditions d'apprentissage des populations. Ils ont été exécutés par Construction du Komo SARL, une PME locale : la Présidente a salué ce choix, qui soutient l'entrepreneuriat et l'emploi des jeunes.\n\nÀ Nianame, des fournitures scolaires ont été remises aux élèves. À Kafélé, l'engagement a été pris d'accompagner l'équipement du dispensaire pour le rendre pleinement opérationnel.\n\nLa Présidente a également sensibilisé les populations à l'importance du Fonds 4 de la CNAMGS et appelé à une mobilisation accrue des acteurs publics et privés en faveur du développement local, conformément à la vision du Président de la République, Chef de l'État, Chef du Gouvernement, Son Excellence Brice Clotaire Oligui Nguema.",
+      source: { label: "Sur Facebook", url: FACEBOOK_URL },
+    },
     {
       slug: 'tournoi-komo-kango-terre-davenir',
       order: 1,

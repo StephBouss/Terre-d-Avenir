@@ -472,7 +472,33 @@ export const en: LocaleContent = {
     },
   ],
 
+  albums: [
+    {
+      slug: 'kafele-nianame-2026-09',
+      order: 0,
+      date: '2026-09-04',
+      cover: 'kafele-6',
+      photos: ['kafele-1', 'kafele-2', 'kafele-3', 'kafele-4', 'kafele-5', 'kafele-6'],
+      title: "Kafélé and Nianame: a health centre and a school rehabilitated",
+      dateLabel: "4 September 2026",
+      description: "Handover of the rehabilitation works at the Kafélé health centre and the Nianame public community school, on 4 September 2026.",
+    },
+  ],
+
   actualites: [
+    {
+      slug: 'kafele-nianame-rehabilitation',
+      order: 0,
+      date: '2026-09-04',
+      image: 'kafele-6',
+      album: 'kafele-nianame-2026-09',
+      title: "Kafélé and Nianame: a health centre and a school rehabilitated",
+      category: "Association life",
+      dateLabel: "4 September 2026",
+      excerpt: "Handover of the rehabilitation works at the Kafélé health centre and the Nianame public community school, attended by the association's President.",
+      body: "Mrs Laurence Ndong, Minister of the Civil Service and Capacity Building and President of the Komo-Kango Terre d'Avenir association, joined officials from the Ministry of Mines and Geological Resources for the handover of the rehabilitation works at the Kafélé health centre and the Nianame public community school.\n\nCarried out by Xiang Wei Gabon as part of its corporate social responsibility (CSR) programme, the works bring tangible improvements to access to healthcare and to learning conditions for local people. They were executed by Construction du Komo SARL, a local small business: the President welcomed this choice, which supports entrepreneurship and youth employment.\n\nIn Nianame, school supplies were handed out to the pupils. In Kafélé, a commitment was made to help equip the health centre so that it becomes fully operational.\n\nThe President also raised awareness among local people of the importance of Fund 4 of the CNAMGS and called for greater mobilisation of public and private actors for local development, in line with the vision of the President of the Republic, Head of State and Head of Government, His Excellency Brice Clotaire Oligui Nguema.",
+      source: { label: "On Facebook", url: FACEBOOK_URL },
+    },
     {
       slug: 'tournoi-komo-kango-terre-davenir',
       order: 1,
