@@ -3,7 +3,7 @@ import { adminToken } from './admin-helpers'
 
 test.describe.configure({ mode: 'serial' })
 
-test.describe('albums', () => {
+test.describe('albums', { tag: '@desktop' }, () => {
   test.skip(({ isMobile }) => isMobile, 'données partagées : desktop uniquement')
   let token = ''
   const created: { collection: string; id: number | string }[] = []
@@ -62,7 +62,7 @@ test.describe('albums', () => {
 // PNG 1×1 valide : suffisant pour créer une photo de test.
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAHbN4NAAAAABJRU5ErkJggg==', 'base64')
 
-test.describe('visibilité des albums', () => {
+test.describe('visibilité des albums', { tag: '@desktop' }, () => {
   test.skip(({ isMobile }) => isMobile, 'données partagées : desktop uniquement')
   test.describe.configure({ mode: 'serial' })
   let headers: { Authorization: string }

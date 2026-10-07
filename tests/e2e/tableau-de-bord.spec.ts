@@ -1,7 +1,7 @@
 import { expect, test, type APIRequestContext } from '@playwright/test'
 import { adminToken, loginAdmin } from './admin-helpers'
 
-test.describe('tableau de bord des indicateurs', () => {
+test.describe('tableau de bord des indicateurs', { tag: '@desktop' }, () => {
   test.skip(({ isMobile }) => isMobile, 'admin desktop')
 
   test('valeurs réelles, situation datée et cartes sans source', async ({ page }) => {
@@ -29,7 +29,7 @@ test.describe('tableau de bord des indicateurs', () => {
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAHbN4NAAAAABJRU5ErkJggg==', 'base64')
 const PREFIX = 'e2e-tdb'
 
-test.describe('liens des alertes photos', () => {
+test.describe('liens des alertes photos', { tag: '@desktop' }, () => {
   test.skip(({ isMobile }) => isMobile, 'données partagées : desktop uniquement')
   test.describe.configure({ mode: 'serial' })
   let headers: { Authorization: string }
@@ -77,7 +77,7 @@ test.describe('liens des alertes photos', () => {
   })
 })
 
-test.describe('liens des cartes', () => {
+test.describe('liens des cartes', { tag: '@desktop' }, () => {
   test.skip(({ isMobile }) => isMobile, 'admin desktop')
 
   test('« Brouillons » exclut les archivées, comme le compte', async ({ page }) => {

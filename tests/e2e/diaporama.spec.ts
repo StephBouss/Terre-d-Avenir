@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 import { loginAdmin } from './admin-helpers'
 
-test.describe('diaporama d’accueil', () => {
+test.describe('diaporama d’accueil', { tag: '@desktop' }, () => {
   test.skip(({ isMobile }) => isMobile, 'admin vérifiée sur desktop')
 
   test('écran dédié dans le groupe Images', async ({ page }) => {

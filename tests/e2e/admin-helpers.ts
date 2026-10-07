@@ -9,7 +9,7 @@ export async function loginAdmin(page: Page): Promise<void> {
   const state = JSON.parse(readFileSync(ADMIN_STATE_FILE, 'utf8')) as { cookies: Parameters<BrowserContext['addCookies']>[0] }
   await page.context().addCookies(state.cookies)
   await page.goto('/admin')
-  await expect(page).toHaveURL(/\/admin(\/)?$/)
+  await expect(page).toHaveURL(/\/admin\/?(\?.*)?$/)
 }
 
 /** Jeton JWT partagé pour l'API REST de Payload (en-tête Authorization: JWT <token>), obtenu par le globalSetup. */

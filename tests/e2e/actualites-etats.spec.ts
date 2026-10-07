@@ -6,13 +6,12 @@ const ARCHIVED = { slug: 'e2e-archivee', title: 'E2E archivée invisible' }
 
 test.describe.configure({ mode: 'serial' })
 
-test.describe('états des actualités', () => {
+test.describe('états des actualités', { tag: '@desktop' }, () => {
   test.skip(({ isMobile }) => isMobile, 'données partagées : desktop uniquement')
   let token = ''
   const ids: (string | number)[] = []
 
-  test.beforeAll(async ({ request, isMobile }) => {
-    if (isMobile) return // les hooks tournent aussi sur le projet mobile : éviter les doublons de slug
+  test.beforeAll(async ({ request }) => {
     token = await adminToken(request)
     await purgeActualites(request, token, [DRAFT.slug, ARCHIVED.slug])
     const headers = { Authorization: `JWT ${token}` }
@@ -30,8 +29,7 @@ test.describe('états des actualités', () => {
     ids.push((await archived.json()).doc.id)
   })
 
-  test.afterAll(async ({ request, isMobile }) => {
-    if (isMobile) return
+  test.afterAll(async ({ request }) => {
     for (const id of ids) await request.delete(`/api/actualites/${id}`, { headers: { Authorization: `JWT ${token}` } })
   })
 
