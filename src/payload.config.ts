@@ -11,6 +11,7 @@ import { Albums } from './collections/Albums'
 import { Messages } from './collections/Messages'
 import { Pages } from './collections/Pages'
 import { Projets } from './collections/Projets'
+import { Postes } from './collections/Postes'
 import { Users } from './collections/Users'
 import { Diaporama } from './globals/Diaporama'
 import { Reglages } from './globals/Reglages'
@@ -26,7 +27,7 @@ export default buildConfig({
     components: { beforeDashboard: ['/components/admin/KpiDashboard'] },
   },
   i18n: { supportedLanguages: { fr }, fallbackLanguage: 'fr' },
-  collections: [Pages, Actualites, Projets, Medias, Albums, Messages, Users],
+  collections: [Pages, Actualites, Projets, Postes, Medias, Albums, Messages, Users],
   globals: [Reglages, Diaporama],
   localization: {
     locales: LOCALES.map((code) => ({ code, label: NATIVE_NAMES[code] })),

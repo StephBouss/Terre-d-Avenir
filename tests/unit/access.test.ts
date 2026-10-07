@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { Actualites } from '@/collections/Actualites'
 import { Messages } from '@/collections/Messages'
 import { Pages } from '@/collections/Pages'
+import { Postes } from '@/collections/Postes'
 import { Projets } from '@/collections/Projets'
 import { Users } from '@/collections/Users'
 import { Reglages } from '@/globals/Reglages'
@@ -55,5 +56,13 @@ describe('messages reçus', () => {
     expect(update!(admin)).toBe(true)
     expect(del!(anonymous)).toBe(false)
     expect(del!(admin)).toBe(true)
+  })
+})
+
+describe('organigramme', () => {
+  it('un visiteur ne lit que les postes publiés, un admin lit tout', () => {
+    const read = Postes.access!.read!
+    expect(read(anonymous)).toEqual({ _status: { equals: 'published' } })
+    expect(read(admin)).toBe(true)
   })
 })

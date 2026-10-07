@@ -70,6 +70,7 @@ export interface Config {
     pages: Page;
     actualites: Actualite;
     projets: Projet;
+    postes: Poste;
     medias: Media;
     albums: Album;
     messages: Message;
@@ -84,6 +85,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     actualites: ActualitesSelect<false> | ActualitesSelect<true>;
     projets: ProjetsSelect<false> | ProjetsSelect<true>;
+    postes: PostesSelect<false> | PostesSelect<true>;
     medias: MediasSelect<false> | MediasSelect<true>;
     albums: AlbumsSelect<false> | AlbumsSelect<true>;
     messages: MessagesSelect<false> | MessagesSelect<true>;
@@ -341,6 +343,38 @@ export interface Projet {
   createdAt: string;
 }
 /**
+ * Postes de l’organigramme, leurs titulaires et leurs rattachements. « Aperçu » montre la page Organisation avec les brouillons.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "postes".
+ */
+export interface Poste {
+  id: number;
+  intitule: string;
+  /**
+   * Une phrase courte.
+   */
+  mission?: string | null;
+  /**
+   * Laisser vide pour le poste au sommet (une seule racine conseillée).
+   */
+  parent?: (number | null) | Poste;
+  /**
+   * Ordre parmi les postes rattachés au même parent : les plus petits d’abord.
+   */
+  ordre?: number | null;
+  /**
+   * Nom public, avec l’accord de la personne.
+   */
+  personneNom?: string | null;
+  personnePhoto?: (number | null) | Media;
+  personneBio?: string | null;
+  cle?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
  * Demandes d’adhésion et messages de contact envoyés depuis le site. Lecture réservée à l’admin.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -435,6 +469,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'projets';
         value: number | Projet;
+      } | null)
+    | ({
+        relationTo: 'postes';
+        value: number | Poste;
       } | null)
     | ({
         relationTo: 'medias';
@@ -578,6 +616,23 @@ export interface ProjetsSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "postes_select".
+ */
+export interface PostesSelect<T extends boolean = true> {
+  intitule?: T;
+  mission?: T;
+  parent?: T;
+  ordre?: T;
+  personneNom?: T;
+  personnePhoto?: T;
+  personneBio?: T;
+  cle?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

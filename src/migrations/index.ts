@@ -7,6 +7,7 @@ import * as migration_20261007_004542_medias_champs from './20261007_004542_medi
 import * as migration_20261007_013109_albums from './20261007_013109_albums';
 import * as migration_20261007_201535_messages from './20261007_201535_messages';
 import * as migration_20261007_201633_reglages_emails from './20261007_201633_reglages_emails';
+import * as migration_20261007_211837_postes from './20261007_211837_postes';
 
 export const migrations = [
   {
@@ -52,6 +53,11 @@ export const migrations = [
   {
     up: migration_20261007_201633_reglages_emails.up,
     down: migration_20261007_201633_reglages_emails.down,
-    name: '20261007_201633_reglages_emails'
+    name: '20261007_201633_reglages_emails',
+  },
+  {
+    up: migration_20261007_211837_postes.up,
+    down: migration_20261007_211837_postes.down,
+    name: '20261007_211837_postes'
   },
 ];
