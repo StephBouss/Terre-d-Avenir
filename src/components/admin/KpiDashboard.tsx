@@ -1,6 +1,6 @@
 import type { ServerProps } from 'payload'
 import Link from 'next/link'
-import { NO_SOURCE, formatSituation, type KpiState } from '@/lib/kpi/compute'
+import { formatSituation, type KpiState } from '@/lib/kpi/compute'
 import { loadKpis } from '@/lib/kpi/load'
 import './kpi-dashboard.css'
 
@@ -24,6 +24,7 @@ function Row({ label, state, href, title }: { label: string; state: KpiState; hr
 // Filtre « alt vide » : NULL ou chaîne vide (Payload enregistre l'un ou l'autre selon la saisie). Un alt blanc ou contenant [...] ne s'exprime pas en URL.
 const SANS_ALT = 'where[and][0][provisoire][not_equals]=true&where[and][1][or][0][alt][exists]=false&where[and][1][or][1][alt][equals]='
 const NON_TRAITES = 'where[traite][not_equals]=true'
+const EMAIL_ECHEC = 'where[emailEtat][equals]=echec'
 const SANS_ALT_NOTE = 'Le compte inclut aussi les textes alternatifs blancs ou contenant [...], que la liste filtrée ne peut pas isoler.'
 
 export default async function KpiDashboard({ payload, user }: ServerProps) {
@@ -44,6 +45,7 @@ export default async function KpiDashboard({ payload, user }: ServerProps) {
             <Row label="Total" state={k.messages.total} href={`${LIST}/messages?${NON_TRAITES}`} />
             <Row label="Adhésions" state={k.messages.adhesion} href={`${LIST}/messages?${NON_TRAITES}&where[type][equals]=adhesion`} />
             <Row label="Contact" state={k.messages.contact} href={`${LIST}/messages?${NON_TRAITES}&where[type][equals]=contact`} />
+            <Row label="E-mails en échec" state={k.messages.emailsEchec} href={`${LIST}/messages?${EMAIL_ECHEC}`} />
           </ul>
         </article>
         <article className="kpi-card">
@@ -88,12 +90,6 @@ export default async function KpiDashboard({ payload, user }: ServerProps) {
             <Row label="Droits non confirmés" state={k.medias.droitsNonConfirmes} href={`${LIST}/medias?where[droitsConfirmes][not_equals]=true`} />
           </ul>
         </article>
-        {NO_SOURCE.map((c) => (
-          <article key={c.id} className="kpi-card kpi-disabled">
-            <h3>{c.title}</h3>
-            <p className="kpi-muted">{c.note}</p>
-          </article>
-        ))}
       </div>
     </section>
   )

@@ -31,19 +31,6 @@ export function mediaCounts(rows: MediaRow[]) {
   }
 }
 
-export type MessageRow = { type?: string | null }
-
-export function messageCounts(rows: MessageRow[]) {
-  return {
-    total: rows.length,
-    adhesion: rows.filter((r) => r.type === 'adhesion').length,
-    contact: rows.filter((r) => r.type === 'contact').length,
-  }
-}
-
-export const NO_SOURCE = [
-  { id: 'chargements', title: 'Chargements en erreur (KPI-19)', note: 'Aucune source configurée' },]
-
 const SITUATION = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Africa/Libreville' })
 
 export function formatSituation(date: Date): string {

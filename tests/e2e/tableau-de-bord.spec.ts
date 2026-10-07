@@ -5,14 +5,15 @@ import { envoyerFormulaire, lireMessage, purgerMessages } from './formulaires-he
 test.describe('tableau de bord des indicateurs', { tag: '@desktop' }, () => {
   test.skip(({ isMobile }) => isMobile, 'admin desktop')
 
-  test('valeurs réelles, situation datée et cartes sans source', async ({ page }) => {
+  test('valeurs réelles et situation datée', async ({ page }) => {
     await loginAdmin(page)
     const board = page.locator('.kpi-dashboard')
     await expect(board.getByRole('heading', { name: 'Indicateurs' })).toBeVisible()
     await expect(board.getByText(/Situation au .* \(heure de Libreville\)/)).toBeVisible()
     // Seed : 6 actualités publiées. Regex tolérante : d'autres specs créent des actualités en parallèle (nettoyées en afterAll).
     await expect(board.getByRole('link', { name: /Publiées\s*([6-9]|\d{2})/ })).toBeVisible()
-    await expect(board.getByText('Aucune source configurée')).toBeVisible()
+    await expect(board.getByText('Aucune source configurée')).toHaveCount(0)
+    await expect(board.getByText(/Chargements en erreur/)).toHaveCount(0)
     await expect(board.getByText(/Sauvegardes/)).toHaveCount(0)
   })
 
@@ -128,6 +129,7 @@ test.describe('carte « Messages non traités »', { tag: '@desktop' }, () => {
     const carte = page.locator('.kpi-dashboard article').filter({ has: page.getByRole('heading', { name: 'Messages non traités' }) })
     await expect(carte.getByRole('link', { name: /^Total\s*[1-9]\d*$/ })).toBeVisible() // au moins le message non traité de ce test
     await expect(carte.getByRole('link', { name: /^Adhésions\s*\d+$/ })).toHaveAttribute('href', /where\[traite\]\[not_equals\]=true&where\[type\]\[equals\]=adhesion$/)
+    await expect(carte.getByRole('link', { name: /^E-mails en échecs*d+$/ })).toHaveAttribute('href', /where[emailEtat][equals]=echec$/)
     await carte.getByRole('link', { name: /^Contact\s*\d+$/ }).click()
     // Payload réécrit la requête avec des crochets encodés : on compare l’URL décodée.
     await expect.poll(() => decodeURIComponent(page.url())).toMatch(/\/admin\/collections\/messages\?.*where\[traite\]\[not_equals\]=true.*where\[type\]\[equals\]=contact/)

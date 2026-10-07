@@ -1,7 +1,7 @@
 import type { Payload } from 'payload'
 import { describe, expect, it } from 'vitest'
 import { loadKpis } from '@/lib/kpi/load'
-import { NO_SOURCE, actualiteCounts, formatSituation, mediaCounts, messageCounts, missingTranslations } from '@/lib/kpi/compute'
+import { actualiteCounts, formatSituation, mediaCounts, missingTranslations } from '@/lib/kpi/compute'
 
 describe('KPI', () => {
   it('compte les actualités par état (archivée prioritaire)', () => {
@@ -35,15 +35,6 @@ describe('KPI', () => {
     ).toEqual({ total: 3, galerie: 2, provisoires: 1, sansAlt: 1, droitsNonConfirmes: 2 })
   })
 
-  it('cartes sans source : chargements (les adhésions ont une source : les messages ; le site est une vitrine, sans transactions ni sauvegardes)', () => {
-    expect(NO_SOURCE.map((c) => c.id)).toEqual(['chargements'])
-    expect(NO_SOURCE.every((c) => c.note.length > 0)).toBe(true)
-  })
-
-  it('messages non traités : total et répartition par type', () => {
-    expect(messageCounts([{ type: 'adhesion' }, { type: 'contact' }, { type: 'contact' }])).toEqual({ total: 3, adhesion: 1, contact: 2 })
-    expect(messageCounts([])).toEqual({ total: 0, adhesion: 0, contact: 0 })
-  })
 
   it('situation datée en heure de Libreville', () => {
     expect(formatSituation(new Date('2026-10-06T23:30:00Z'))).toBe('7 octobre 2026 à 00:30')
@@ -58,14 +49,23 @@ describe('KPI', () => {
       if (collection === 'projets') return [{ title: '[à traduire]' }]
       return [{ galerie: true, provisoire: false, alt: 'Bannière', droitsConfirmes: true }]
     }
+    // Compte de messages selon le filtre reçu : prouve que load.ts interroge avec les mêmes filtres que les liens de la carte.
+    const totauxMessages = (where: object = {}) => {
+      const w = JSON.stringify(where)
+      if (w.includes('emailEtat')) return 2
+      if (w.includes('adhesion')) return 3
+      if (w.includes('contact')) return 4
+      return 9
+    }
     const fake = (failing: (a: Args) => boolean) =>
       ({
         find: async (a: Args) => {
           if (failing(a)) throw new Error('lecture impossible')
           return { docs: docsFor(a) }
         },
-        count: async (a: Args) => {
+        count: async (a: Args & { where?: object }) => {
           if (failing(a)) throw new Error('lecture impossible')
+          if (a.collection === 'messages') return { totalDocs: totauxMessages(a.where) }
           return { totalDocs: 5 }
         },
       }) as unknown as Payload
@@ -82,10 +82,20 @@ describe('KPI', () => {
       })
     })
 
+    it('messages : comptes par filtre (sans lire les messages), e-mails en échec', async () => {
+      const k = await loadKpis(fake(() => false))
+      expect(k.messages).toEqual({
+        total: { kind: 'value', value: 9 },
+        adhesion: { kind: 'value', value: 3 },
+        contact: { kind: 'value', value: 4 },
+        emailsEchec: { kind: 'value', value: 2 },
+      })
+    })
+
     it('messages illisibles : carte indisponible, les autres gardent leur valeur', async () => {
       const k = await loadKpis(fake((a) => a.collection === 'messages'))
       const unavailable = { kind: 'unavailable' }
-      expect(k.messages).toEqual({ total: unavailable, adhesion: unavailable, contact: unavailable })
+      expect(k.messages).toEqual({ total: unavailable, adhesion: unavailable, contact: unavailable, emailsEchec: unavailable })
       expect(k.actualites.publiees).toEqual({ kind: 'value', value: 1 })
     })
 

@@ -1,6 +1,8 @@
-import type { Payload } from 'payload'
-import { actualiteCounts, mediaCounts, messageCounts, missingTranslations, type KpiState, type TitleRow } from './compute'
+import type { Payload, Where } from 'payload'
+import { actualiteCounts, mediaCounts, missingTranslations, type KpiState, type TitleRow } from './compute'
 
+// Mêmes filtres que les liens de la carte « Messages non traités » du tableau de bord.
+const NON_TRAITES: Where = { traite: { not_equals: true } }
 const ALL = { limit: 0, pagination: false, depth: 0 } as const
 
 /** Exécute une lecture ; toute erreur donne « Indisponible » pour cette carte seulement. */
@@ -13,7 +15,7 @@ async function safe<T>(read: () => Promise<T>): Promise<T | null> {
 }
 
 export async function loadKpis(payload: Payload) {
-  const [actualites, pages, projets, medias, actuEn, pagesEn, projetsEn, messages] = await Promise.all([
+  const [actualites, pages, projets, medias, actuEn, pagesEn, projetsEn, msgTotal, msgAdhesion, msgContact, msgEchec] = await Promise.all([
     safe(() => payload.find({ collection: 'actualites', ...ALL, select: { _status: true, archivee: true } })),
     safe(() => payload.count({ collection: 'pages' })),
     safe(() => payload.count({ collection: 'projets' })),
@@ -21,11 +23,15 @@ export async function loadKpis(payload: Payload) {
     safe(() => payload.find({ collection: 'actualites', ...ALL, locale: 'en', fallbackLocale: false, select: { title: true } })),
     safe(() => payload.find({ collection: 'pages', ...ALL, locale: 'en', fallbackLocale: false, select: { h1: true } })),
     safe(() => payload.find({ collection: 'projets', ...ALL, locale: 'en', fallbackLocale: false, select: { title: true } })),
-    safe(() => payload.find({ collection: 'messages', ...ALL, where: { traite: { not_equals: true } }, select: { type: true } })),
+    safe(() => payload.count({ collection: 'messages', where: NON_TRAITES })),
+    safe(() => payload.count({ collection: 'messages', where: { and: [NON_TRAITES, { type: { equals: 'adhesion' } }] } })),
+    safe(() => payload.count({ collection: 'messages', where: { and: [NON_TRAITES, { type: { equals: 'contact' } }] } })),
+    safe(() => payload.count({ collection: 'messages', where: { emailEtat: { equals: 'echec' } } })),
   ])
 
   const value = (n: number): KpiState => ({ kind: 'value', value: n })
   const unavailable: KpiState = { kind: 'unavailable' }
+  const count = (r: { totalDocs: number } | null): KpiState => (r ? value(r.totalDocs) : unavailable)
 
   const actu = actualites ? actualiteCounts(actualites.docs) : null
   const med = medias ? mediaCounts(medias.docs) : null
@@ -47,9 +53,12 @@ export async function loadKpis(payload: Payload) {
     pages: pages ? value(pages.totalDocs) : unavailable,
     projets: projets ? value(projets.totalDocs) : unavailable,
     traductions: { total: tradTotal, actualites: tradActu, pages: tradPages, projets: tradProjets },
-    messages: messages
-      ? (({ total, adhesion, contact }) => ({ total: value(total), adhesion: value(adhesion), contact: value(contact) }))(messageCounts(messages.docs))
-      : { total: unavailable, adhesion: unavailable, contact: unavailable },
+    messages: {
+      total: count(msgTotal),
+      adhesion: count(msgAdhesion),
+      contact: count(msgContact),
+      emailsEchec: count(msgEchec),
+    },
     medias: med
       ? { total: value(med.total), galerie: value(med.galerie), provisoires: value(med.provisoires), sansAlt: value(med.sansAlt), droitsNonConfirmes: value(med.droitsNonConfirmes) }
       : { total: unavailable, galerie: unavailable, provisoires: unavailable, sansAlt: unavailable, droitsNonConfirmes: unavailable },
