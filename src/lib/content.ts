@@ -1,7 +1,7 @@
 import { cache } from 'react'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import type { Actualite, Media, Page, Projet, Reglage } from '@/payload-types'
+import type { Actualite, Diaporama, Media, Page, Projet, Reglage } from '@/payload-types'
 import type { PageSlug } from '@/collections/Pages'
 import type { Locale } from './i18n/config'
 import { VISIBLE_ACTUALITE } from './actualites'
@@ -55,4 +55,10 @@ export const getGalleryMedia = cache(async (locale: Locale): Promise<Media[]> =>
 export const getReglages = cache(async (locale: Locale): Promise<Reglage> => {
   const payload = await client()
   return payload.findGlobal({ slug: 'reglages', locale, depth: 1 })
+})
+
+export const getDiaporama = cache(async (locale: Locale): Promise<Media[]> => {
+  const payload = await client()
+  const global: Diaporama = await payload.findGlobal({ slug: 'diaporama', locale, depth: 1 })
+  return (global.images ?? []).filter((m): m is Media => typeof m === 'object' && m !== null)
 })

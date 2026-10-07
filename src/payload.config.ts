@@ -10,6 +10,7 @@ import { Medias } from './collections/Medias'
 import { Pages } from './collections/Pages'
 import { Projets } from './collections/Projets'
 import { Users } from './collections/Users'
+import { Diaporama } from './globals/Diaporama'
 import { Reglages } from './globals/Reglages'
 import { DEFAULT_LOCALE, LOCALES, NATIVE_NAMES } from './lib/i18n/config'
 
@@ -22,7 +23,7 @@ export default buildConfig({
   },
   i18n: { supportedLanguages: { fr }, fallbackLanguage: 'fr' },
   collections: [Pages, Actualites, Projets, Medias, Users],
-  globals: [Reglages],
+  globals: [Reglages, Diaporama],
   localization: {
     locales: LOCALES.map((code) => ({ code, label: NATIVE_NAMES[code] })),
     defaultLocale: DEFAULT_LOCALE,

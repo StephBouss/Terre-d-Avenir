@@ -95,9 +95,11 @@ export interface Config {
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('fr' | 'en') | ('fr' | 'en')[];
   globals: {
     reglages: Reglage;
+    diaporama: Diaporama;
   };
   globalsSelect: {
     reglages: ReglagesSelect<false> | ReglagesSelect<true>;
+    diaporama: DiaporamaSelect<false> | DiaporamaSelect<true>;
   };
   locale: 'fr' | 'en';
   widgets: {
@@ -609,6 +611,19 @@ export interface Reglage {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "diaporama".
+ */
+export interface Diaporama {
+  id: number;
+  /**
+   * Les 3 premières images défilent en fond du Hero ; l’ensemble des images alimente aussi le collage de droite. Glisser pour réordonner.
+   */
+  images: (number | Media)[];
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "reglages_select".
  */
 export interface ReglagesSelect<T extends boolean = true> {
@@ -616,6 +631,16 @@ export interface ReglagesSelect<T extends boolean = true> {
   location?: T;
   footerTagline?: T;
   heroImages?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "diaporama_select".
+ */
+export interface DiaporamaSelect<T extends boolean = true> {
+  images?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

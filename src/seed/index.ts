@@ -97,6 +97,7 @@ async function seed() {
   }
 
   const heroImages = HERO_ORDER.map((k) => media[k] as number)
+  await payload.updateGlobal({ slug: 'diaporama', data: { images: heroImages }, context: SEED_CONTEXT })
   await payload.updateGlobal({ slug: 'reglages', data: { facebookUrl: FACEBOOK_URL, heroImages, ...fr.reglages }, locale: 'fr', context: SEED_CONTEXT })
   await payload.updateGlobal({ slug: 'reglages', data: { ...en.reglages }, locale: 'en', context: SEED_CONTEXT })
 
