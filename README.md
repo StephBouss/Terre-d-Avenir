@@ -55,6 +55,8 @@ Au lot 1, les formulaires (adhésion, contact) sont affichés mais désactivés 
 - **Images :** *Diaporama d'accueil* pour le Hero de l'accueil ; « Image d'en-tête » dans chaque page ; *Médiathèque* : cocher « Afficher dans la médiathèque » et régler l'ordre.
 - **Indicateurs :** page d'accueil de l'admin, avec des valeurs réelles uniquement (« Indisponible » en cas d'erreur de lecture). Les cartes adhésions et transactions s'activeront avec les lots 2 et 4.
   Les compteurs reflètent l'état publié, c'est-à-dire ce que voit le visiteur (une actualité archivée n'est jamais comptée comme publiée). Le lien « Sans texte alternatif » liste les photos non provisoires dont le texte est absent ou vide ; le compte inclut aussi les textes blancs ou contenant `[...]`, qu'un filtre d'URL ne peut pas isoler (rappelé en infobulle sur la carte).
+- **Base de données :** ne pas utiliser `npm run payload -- migrate:reset` : bug de Payload 3.90, qui lance d'abord le `down` de la migration initiale et échoue. En développement, utiliser `migrate:down` (retour arrière d'un lot) ou `migrate:fresh` (base reconstruite).
+- **Seed :** `npm run seed` écrase les modifications faites dans l'admin sur les contenus qu'il fournit (actualités, albums, pages, réglages). Ne pas le relancer sur une base dont le contenu a été édité à la main.
 
 ## Langues
 
