@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation'
-import ClosedNotice from '@/components/forms/ClosedNotice'
 import ContactForm from '@/components/forms/ContactForm'
 import { Reveal } from '@/components/motion/Reveal'
 import { RevealGroup } from '@/components/motion/RevealGroup'
@@ -54,8 +53,8 @@ export default async function ContactPage({ params }: LocaleParams) {
           </RevealGroup>
           <Reveal className="lg:col-span-2 bg-background rounded-lg border border-border p-8 flex flex-col gap-6">
             {!isPlaceholder(formulaire?.heading) && <h2 className="text-2xl font-bold text-foreground font-headings">{formulaire?.heading}</h2>}
-            <ClosedNotice locale={locale} text={formulaire?.body} ctas={formulaire?.ctas} newTabLabel={dict.common.newTab} />
-            <ContactForm labels={dict.contactForm} />
+            <p className="text-sm text-muted-foreground">{dict.contactForm.requiredHint}</p>
+            <ContactForm locale={locale} labels={dict.contactForm} commun={dict.formulaires} />
           </Reveal>
         </div>
       </section>

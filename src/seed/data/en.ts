@@ -388,8 +388,6 @@ export const en: LocaleContent = {
         {
           key: 'formulaire',
           heading: 'Send a message',
-          body: 'Sending messages from the website is not available yet. You can reach the NGO through its Facebook page.',
-          ctas: [{ label: 'Open the Facebook page', href: FACEBOOK_URL }],
         },
         {
           key: 'localisation',

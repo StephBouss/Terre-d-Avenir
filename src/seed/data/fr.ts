@@ -394,11 +394,8 @@ export const fr: LocaleContent = {
           ctas: [{ label: 'Ouvrir la page Facebook', href: FACEBOOK_URL }],
         },
         {
-          // NOUVEAU — à valider par l'ONG
           key: 'formulaire',
           heading: 'Envoyer un message',
-          body: 'L’envoi de messages depuis le site n’est pas encore ouvert. Vous pouvez joindre l’ONG via sa page Facebook.',
-          ctas: [{ label: 'Ouvrir la page Facebook', href: FACEBOOK_URL }],
         },
         {
           // NOUVEAU — à valider par l'ONG
