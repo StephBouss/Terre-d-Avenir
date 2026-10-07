@@ -81,10 +81,13 @@ test.describe('organigramme public', { tag: '@desktop' }, () => {
     await page.goto('/api/apercu?path=/fr/organisation&secret=e2e-apercu')
     await expect(page.getByRole('status').getByText('Aperçu — non publié')).toBeVisible()
     await expect(page.locator('[data-vue="arbre"]').getByText(BROUILLON)).toBeVisible()
+    // Les brouillons ne doivent pas être indexés.
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/)
     await page.getByRole('link', { name: 'Quitter l’aperçu' }).click()
     await expect(async () => {
       await page.goto('/fr/organisation')
       await expect(page.getByText(BROUILLON)).toHaveCount(0, { timeout: 2_000 })
+      await expect(page.locator('meta[name="robots"][content*="noindex"]')).toHaveCount(0)
     }).toPass({ timeout: 20_000 })
   })
 })

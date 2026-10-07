@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import PreviewBanner from '@/components/layout/PreviewBanner'
 import Organigramme from '@/components/organisation/Organigramme'
@@ -11,7 +12,13 @@ import { metadataFor, resolveLocale, type LocaleParams } from '@/lib/page'
 import { getSection } from '@/lib/sections'
 import { isPlaceholder } from '@/lib/text'
 
-export const generateMetadata = metadataFor('organisation', '/organisation')
+const metadataPublique = metadataFor('organisation', '/organisation')
+
+/** En aperçu, la page montre des brouillons : elle ne doit être indexée par aucun moteur. */
+export async function generateMetadata(props: LocaleParams): Promise<Metadata> {
+  const metadata = await metadataPublique(props)
+  return (await isPreviewing()) ? { ...metadata, robots: { index: false, follow: false } } : metadata
+}
 
 export default async function OrganisationPage({ params }: LocaleParams) {
   const locale = await resolveLocale(params)
