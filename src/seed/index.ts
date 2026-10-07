@@ -147,7 +147,7 @@ async function seedMedia(payload: Payload): Promise<Record<SeedImageKey | SeedAl
   }
   for (const [key, photo] of Object.entries(KAFELE_PHOTOS) as [SeedAlbumPhotoKey, (typeof KAFELE_PHOTOS)[SeedAlbumPhotoKey]][]) {
     ids[key] = await upsertMedia(payload, {
-      key: `kafele-nianame-${photo.file.replace(/D/g, '')}-photo`,
+      key: `kafele-nianame-${key.slice('kafele-'.length)}-photo`,
       filePath: path.join(dirname, 'images', 'albums', 'kafele-nianame', photo.file),
       data: KAFELE_COMMON,
       altFr: photo.altFr,
