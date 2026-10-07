@@ -26,7 +26,7 @@ function lire(form: HTMLFormElement): Record<string, unknown> {
 }
 
 export default function ContactForm({ locale, labels, commun }: Props) {
-  const { statut, reference, erreurs, soumettre } = useEnvoiFormulaire('contact', validerContact)
+  const { pret, statut, reference, erreurs, soumettre } = useEnvoiFormulaire('contact', validerContact)
 
   if (statut === 'succes' && reference) {
     return <SuccesEnvoi texte={labels.success} reference={reference} liens={[{ href: localizedHref(locale, '/'), label: commun.retourAccueil }]} />
@@ -46,7 +46,7 @@ export default function ContactForm({ locale, labels, commun }: Props) {
   }
 
   return (
-    <form noValidate onSubmit={envoyer} className="relative flex flex-col gap-5">
+    <form method="post" noValidate onSubmit={envoyer} className="relative flex flex-col gap-5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label htmlFor={ID.nom} className={LABEL}>{labels.lastName}</label>
@@ -89,7 +89,7 @@ export default function ContactForm({ locale, labels, commun }: Props) {
       {statut === 'erreur' && <p role="alert" className="text-sm font-semibold text-error">{labels.networkError}</p>}
       {statut === 'limite' && <p role="alert" className="text-sm font-semibold text-error">{commun.limite}</p>}
       <div>
-        <button type="submit" disabled={statut === 'envoi'} className="font-bold text-base px-8 py-3 rounded-md font-body bg-primary text-primary-foreground disabled:opacity-60 disabled:cursor-wait">
+        <button type="submit" disabled={!pret || statut === 'envoi'} className="font-bold text-base px-8 py-3 rounded-md font-body bg-primary text-primary-foreground disabled:opacity-60 disabled:cursor-wait">
           {labels.submit}
         </button>
       </div>

@@ -241,14 +241,6 @@ export const fr: LocaleContent = {
         'Vous souhaitez vous engager à nos côtés ? Présentez-vous et exprimez votre souhait de rejoindre l’ONG. Votre demande sera examinée selon les modalités d’adhésion définies par Terre d’Avenir KOMO-KANGO.',
       sections: [
         {
-          key: 'indisponible',
-          body: 'Les demandes d’adhésion en ligne ne sont pas encore ouvertes. Vous pouvez contacter l’ONG via sa page Facebook pour vous renseigner sur la démarche.',
-          ctas: [
-            { label: 'Ouvrir la page Facebook', href: FACEBOOK_URL },
-            { label: 'Contacter l’ONG', href: '/contact' },
-          ],
-        },
-        {
           key: 'etapes',
           heading: 'Une démarche en trois étapes',
           items: [

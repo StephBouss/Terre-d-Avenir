@@ -46,7 +46,7 @@ Aucun Docker n'est nécessaire : PostgreSQL tourne en local via un paquet embarq
 
 Tout se modifie dans `/admin`. Un champ vide ou contenant `[...]` est masqué sur le site. Les images marquées « provisoire » sont à remplacer.
 
-Au lot 1, les formulaires (adhésion, contact) sont affichés mais désactivés : aucune donnée personnelle n'est collectée.
+Les formulaires d'adhésion et de contact sont actifs. Chaque envoi est enregistré dans *Formulaires > Messages reçus*, avec une référence (`ADH-XXXXXX` ou `CT-XXXXXX`) affichée au visiteur, puis notifié par e-mail si l'envoi est configuré (voir « Envoi des e-mails »). Protections : champ piège invisible contre les robots, 5 envois au plus par adresse IP et par 10 minutes (en mémoire, remis à zéro au redémarrage ; l'IP vient de l'en-tête `X-Forwarded-For` du proxy, c'est un garde-fou et non une sécurité), et une clé d'envoi qui empêche les doublons.
 
 ## Administration
 

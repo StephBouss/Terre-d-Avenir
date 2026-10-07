@@ -234,14 +234,6 @@ export const en: LocaleContent = {
         'Would you like to get involved alongside us? Introduce yourself and tell us you wish to join the NGO. Your application will be reviewed according to the membership terms set by Terre d’Avenir KOMO-KANGO.',
       sections: [
         {
-          key: 'indisponible',
-          body: 'Online membership applications are not open yet. You can contact the NGO through its Facebook page to learn more about the process.',
-          ctas: [
-            { label: 'Open the Facebook page', href: FACEBOOK_URL },
-            { label: 'Contact the NGO', href: '/contact' },
-          ],
-        },
-        {
           key: 'etapes',
           heading: 'A three-step process',
           items: [
