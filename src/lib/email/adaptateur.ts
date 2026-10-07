@@ -25,9 +25,37 @@ export function lireExpediteur(valeur: string | undefined): { nom: string; adres
   return ADRESSE.test(v) ? { nom: NOM_EXPEDITEUR_DEFAUT, adresse: v } : null
 }
 
-/** Vrai si un transport réel (SMTP) ou le faux transport des tests e2e est configuré. */
+/** Expéditeur SMTP : SMTP_FROM, sinon SMTP_USER ; null si vide ou invalide. */
+function expediteurSmtp(env: Env): { nom: string; adresse: string } | null {
+  return lireExpediteur(env.SMTP_FROM) ?? lireExpediteur(env.SMTP_USER)
+}
+
+/** La capture e2e ne s’active que si SMTP_HOST est vide : un SMTP réel l’emporte toujours. */
+function dossierCapture(env: Env): string | undefined {
+  const dossier = env.EMAIL_CAPTURE_DIR?.trim()
+  return dossier && !env.SMTP_HOST?.trim() ? dossier : undefined
+}
+
+/** Vrai si un transport utilisable (SMTP complet ou faux transport des tests e2e) est configuré. */
 export function transportConfigure(env: Env = process.env): boolean {
-  return Boolean(env.SMTP_HOST?.trim() || env.EMAIL_CAPTURE_DIR?.trim())
+  if (dossierCapture(env)) return true
+  return Boolean(env.SMTP_HOST?.trim() && expediteurSmtp(env))
+}
+
+/** Options du transport Nodemailer. STARTTLS est exigé (aucun identifiant en clair) sauf SMTP_INSECURE=1 (dev local). */
+export function optionsSmtp(env: Env) {
+  const port = Number(env.SMTP_PORT) || 587
+  const user = env.SMTP_USER?.trim()
+  return {
+    host: env.SMTP_HOST?.trim() ?? '',
+    port,
+    secure: port === 465,
+    requireTLS: port !== 465 && env.SMTP_INSECURE !== '1',
+    auth: user ? { user, pass: env.SMTP_PASS ?? '' } : undefined,
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000,
+  }
 }
 
 /** Faux transport e2e : chaque e-mail est écrit en JSON dans `dossier`, rien n’est envoyé. */
@@ -47,30 +75,20 @@ export function adaptateurCapture(dossier: string): EmailAdapter<{ fichier: stri
 
 /**
  * Adaptateur de la config Payload :
- * - EMAIL_CAPTURE_DIR (e2e uniquement) : faux transport ;
+ * - EMAIL_CAPTURE_DIR (e2e uniquement, et seulement si SMTP_HOST est vide) : faux transport ;
  * - SMTP_HOST : Nodemailer en SMTP ;
  * - sinon : aucun (Payload écrit alors les e-mails dans la console ; les formulaires passent en « non configuré »).
  */
 export function emailAdapter(env: Env = process.env): EmailAdapter | Promise<EmailAdapter> | undefined {
-  const capture = env.EMAIL_CAPTURE_DIR?.trim()
+  const capture = dossierCapture(env)
   if (capture) return adaptateurCapture(capture) as EmailAdapter
-  const host = env.SMTP_HOST?.trim()
-  if (!host) return undefined
-  const port = Number(env.SMTP_PORT) || 587
-  const user = env.SMTP_USER?.trim()
-  const expediteur = lireExpediteur(env.SMTP_FROM) ?? { nom: NOM_EXPEDITEUR_DEFAUT, adresse: user ?? '' }
+  if (!env.SMTP_HOST?.trim()) return undefined
+  const expediteur = expediteurSmtp(env)
+  if (!expediteur) return undefined // expéditeur vide ou invalide : état « non configuré »
   return nodemailerAdapter({
     defaultFromAddress: expediteur.adresse,
     defaultFromName: expediteur.nom,
     skipVerify: true, // pas de connexion SMTP au démarrage ni pendant le build
-    transportOptions: {
-      host,
-      port,
-      secure: port === 465,
-      auth: user ? { user, pass: env.SMTP_PASS ?? '' } : undefined,
-      connectionTimeout: 10_000,
-      greetingTimeout: 10_000,
-      socketTimeout: 20_000,
-    },
+    transportOptions: optionsSmtp(env),
   })
 }

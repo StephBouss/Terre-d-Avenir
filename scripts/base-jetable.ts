@@ -1,8 +1,9 @@
 import pg from 'pg'
 
 /** Base jetable du serveur de dev (5433), pour tester up/down/up d’une migration sans toucher à `terredavenir`. */
+// Pas d’export : le module exécute du code au premier niveau (top-level await).
 const NOM = 'terredavenir_jetable'
-export const URI_JETABLE = `postgres://postgres:postgres@127.0.0.1:5433/${NOM}`
+const URI_JETABLE = `postgres://postgres:postgres@127.0.0.1:5433/${NOM}`
 
 const action = process.argv[2]
 const client = new pg.Client({ connectionString: 'postgres://postgres:postgres@127.0.0.1:5433/postgres' })

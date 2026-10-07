@@ -64,7 +64,7 @@ Au lot 1, les formulaires (adhésion, contact) sont affichés mais désactivés 
 
 Les formulaires d'adhésion et de contact sont toujours enregistrés dans *Formulaires > Messages reçus*. Un e-mail de notification part en plus si deux conditions sont réunies :
 
-1. **SMTP configuré** : `SMTP_HOST`, `SMTP_PORT` (587 par défaut ; 465 active TLS), `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` (« Nom <adresse> » ou une adresse seule), dans `.env` ou dans l'environnement Docker. Ne jamais commiter de valeur réelle.
+1. **SMTP configuré** : `SMTP_HOST`, `SMTP_PORT` (587 par défaut ; 465 active TLS), `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` (« Nom <adresse> » ou une adresse seule), dans `.env` ou dans l'environnement Docker. Ne jamais commiter de valeur réelle. Le serveur SMTP doit proposer STARTTLS (port 587) ou TLS direct (port 465) : sans cela, la connexion est refusée et aucun identifiant ne circule en clair. `SMTP_INSECURE=1` désactive cette exigence ; il est réservé au développement local (Mailpit, port 1025). Si `SMTP_FROM` et `SMTP_USER` ne donnent aucune adresse valide, le SMTP est considéré comme non configuré.
 2. **Adresse de réception** renseignée dans *Site > Réglages du site > Formulaires* (une adresse pour les adhésions, une pour le contact).
 
 Sinon, l'état e-mail du message vaut « Non configuré » et le site fonctionne normalement. Le même SMTP sert au « mot de passe oublié » de l'admin.
