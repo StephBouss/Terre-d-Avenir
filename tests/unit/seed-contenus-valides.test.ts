@@ -114,8 +114,14 @@ describe('ordre du seed', () => {
       'un-jeune-un-permis',
       'assemblee-generale-decembre-2025',
     ])
-    expect(sorted.map((_, i) => i)).toEqual([0, 1, 2, 3, 4, 5])
-    expect(fr.actualites.map((a) => a.order).sort()).toEqual([0, 1, 2, 3, 4, 5])
+    expect(Object.fromEntries(fr.actualites.map((a) => [a.slug, a.order]))).toEqual({
+      'kafele-nianame-rehabilitation': 0,
+      'tournoi-football-finale-2026': 1,
+      'rencontre-populations-komo-kango': 2,
+      'tournoi-komo-kango-terre-davenir': 3,
+      'un-jeune-un-permis': 4,
+      'assemblee-generale-decembre-2025': 5,
+    })
   })
   it('albums : Kafélé 0, tournoi 1, rencontre 2', () => {
     expect(fr.albums.map((a) => [a.slug, a.order])).toEqual([
