@@ -1,12 +1,26 @@
 import { cache } from 'react'
-import { getPayload, type Where } from 'payload'
+import { draftMode, headers } from 'next/headers'
+import { getPayload } from 'payload'
 import config from '@payload-config'
 import type { Actualite, Album, Diaporama, Media, Page, Projet, Reglage } from '@/payload-types'
 import type { PageSlug } from '@/collections/Pages'
 import type { Locale } from './i18n/config'
 import { VISIBLE_ACTUALITE } from './actualites'
+import { PUBLISHED_ALBUM } from './albums'
+import { TITLED } from './filtres'
 
 const client = cache(() => getPayload({ config }))
+
+/**
+ * Aperçu actif : le cookie d’aperçu ne suffit pas, la session admin doit être valide.
+ * Après une déconnexion, le cookie peut subsister : on retombe alors sur la lecture publique.
+ */
+export const isPreviewing = cache(async (): Promise<boolean> => {
+  if (!(await draftMode()).isEnabled) return false
+  const payload = await client()
+  const { user } = await payload.auth({ headers: await headers() })
+  return Boolean(user)
+})
 
 export const getPage = cache(async (slug: PageSlug, locale: Locale): Promise<Page | null> => {
   const payload = await client()
@@ -16,7 +30,7 @@ export const getPage = cache(async (slug: PageSlug, locale: Locale): Promise<Pag
 
 export const getActualites = cache(async (locale: Locale): Promise<Actualite[]> => {
   const payload = await client()
-  const res = await payload.find({ collection: 'actualites', where: VISIBLE_ACTUALITE, sort: 'order', locale, depth: 1, limit: 100 })
+  const res = await payload.find({ collection: 'actualites', where: { and: [VISIBLE_ACTUALITE, TITLED] }, sort: 'order', locale, depth: 1, limit: 100 })
   return res.docs
 })
 
@@ -25,7 +39,7 @@ export const getActualite = cache(async (slug: string, locale: Locale, draft = f
   const payload = await client()
   const res = await payload.find({
     collection: 'actualites',
-    where: draft ? { slug: { equals: slug } } : { and: [{ slug: { equals: slug } }, VISIBLE_ACTUALITE] },
+    where: draft ? { slug: { equals: slug } } : { and: [{ slug: { equals: slug } }, VISIBLE_ACTUALITE, TITLED] },
     draft,
     locale,
     depth: 1,
@@ -52,19 +66,15 @@ export const getGalleryMedia = cache(async (locale: Locale): Promise<Media[]> =>
   return res.docs
 })
 
-export const PUBLISHED_ALBUM: Where = { _status: { equals: 'published' } }
-/** Un album sans titre dans la langue demandée est masqué (pas de repli sur le français). */
-const TITLED_ALBUM: Where = { title: { exists: true } }
-
 export const getAlbums = cache(async (locale: Locale): Promise<Album[]> => {
   const payload = await client()
-  const res = await payload.find({ collection: 'albums', where: { and: [PUBLISHED_ALBUM, TITLED_ALBUM] }, sort: ['order', '-date'], locale, depth: 1, limit: 100 })
+  const res = await payload.find({ collection: 'albums', where: { and: [PUBLISHED_ALBUM, TITLED] }, sort: ['order', '-date'], locale, depth: 1, limit: 100 })
   return res.docs
 })
 
 export const getAlbum = cache(async (slug: string, locale: Locale): Promise<Album | null> => {
   const payload = await client()
-  const res = await payload.find({ collection: 'albums', where: { and: [{ slug: { equals: slug } }, PUBLISHED_ALBUM, TITLED_ALBUM] }, locale, depth: 1, limit: 1 })
+  const res = await payload.find({ collection: 'albums', where: { and: [{ slug: { equals: slug } }, PUBLISHED_ALBUM, TITLED] }, locale, depth: 1, limit: 1 })
   return res.docs[0] ?? null
 })
 

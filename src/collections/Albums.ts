@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { PUBLISHED_ALBUM } from '../lib/albums'
 import { revalidateCollection, revalidateCollectionDelete } from '../hooks/revalidate'
 
 export const Albums: CollectionConfig = {
@@ -7,7 +8,7 @@ export const Albums: CollectionConfig = {
   labels: { singular: 'Album', plural: 'Albums' },
   admin: { useAsTitle: 'title', group: 'Images', defaultColumns: ['title', '_status', 'dateLabel', 'order'] },
   versions: { drafts: true, maxPerDoc: 20 },
-  access: { read: ({ req }) => (req.user ? true : { _status: { equals: 'published' } }) },
+  access: { read: ({ req }) => (req.user ? true : PUBLISHED_ALBUM) },
   hooks: { afterChange: [revalidateCollection], afterDelete: [revalidateCollectionDelete] },
   defaultSort: 'order',
   fields: [

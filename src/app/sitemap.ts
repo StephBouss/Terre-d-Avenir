@@ -8,15 +8,16 @@ export const dynamic = 'force-dynamic'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [actualites, projets, albums] = await Promise.all([getActualites('fr'), getProjets('fr'), getAlbums('fr')])
-  const albumsEn = new Set((await getAlbums('en')).map((a) => a.slug))
+  const [actualitesEn, albumsEn] = await Promise.all([getActualites('en'), getAlbums('en')]).then(([a, b]) => [new Set(a.map((x) => x.slug)), new Set(b.map((x) => x.slug))])
   const albumPath = (slug: string) => `/mediatheque/albums/${slug}`
   return buildSitemapEntries(siteUrl(), [
     ...STATIC_PATHS,
-    ...actualites.map((a) => `/actualites/${a.slug}`),
+    ...actualites.filter((a) => actualitesEn.has(a.slug)).map((a) => `/actualites/${a.slug}`),
     ...projets.map((p) => `/projets/${p.slug}`),
     ...albums.filter((a) => albumsEn.has(a.slug)).map((a) => albumPath(a.slug)),
   ]).concat(
-    // Album sans titre anglais : listé en français seulement.
+    // Actualité ou album sans titre anglais : listé en français seulement.
+    buildSitemapEntries(siteUrl(), actualites.filter((a) => !actualitesEn.has(a.slug)).map((a) => `/actualites/${a.slug}`), ['fr']),
     buildSitemapEntries(siteUrl(), albums.filter((a) => !albumsEn.has(a.slug)).map((a) => albumPath(a.slug)), ['fr']),
   )
 }

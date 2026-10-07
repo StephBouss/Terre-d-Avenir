@@ -3,7 +3,8 @@ import { expect, test } from '@playwright/test'
 test('liste des actualités FR', async ({ page }) => {
   await page.goto('/fr/actualites')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('La vie de Terre d’Avenir')
-  await expect(page.locator('article')).toHaveCount(6)
+  // Les specs qui créent des actualités (titres « E2E ») tournent en parallèle : on ne compte que celles du seed.
+  await expect(page.locator('article').filter({ hasNotText: 'E2E' })).toHaveCount(6)
   await expect(page.getByRole('link', { name: /Toutes les publications sur Facebook/ })).toHaveAttribute('target', '_blank')
 })
 

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 import ArticleBody from '@/components/article/ArticleBody'
 import ArticleHero from '@/components/article/ArticleHero'
@@ -9,7 +8,8 @@ import { Cta } from '@/components/ui/Cta'
 import CtaBand from '@/components/ui/CtaBand'
 import NewsCard from '@/components/ui/NewsCard'
 import SectionHeader from '@/components/ui/SectionHeader'
-import { getActualite, getActualites, getPage } from '@/lib/content'
+import { isPublishedAlbum } from '@/lib/albums'
+import { getActualite, getActualites, getPage, isPreviewing } from '@/lib/content'
 import { isLocale } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { localizedHref } from '@/lib/i18n/paths'
@@ -26,7 +26,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params
   if (!isLocale(locale)) return {}
-  const { isEnabled: preview } = await draftMode()
+  const preview = await isPreviewing()
   const actualite = await getActualite(slug, locale, preview)
   if (!actualite) return {}
   const image = typeof actualite.image === 'object' ? actualite.image?.url : undefined
@@ -38,7 +38,7 @@ export default async function ArticlePage({ params }: Props) {
   const { locale, slug } = await params
   if (!isLocale(locale)) notFound()
   const dict = getDictionary(locale)
-  const { isEnabled: preview } = await draftMode()
+  const preview = await isPreviewing()
   const [actualite, all, listPage] = await Promise.all([getActualite(slug, locale, preview), getActualites(locale), getPage('actualites', locale)])
   if (!actualite) notFound()
   const others = all.filter((a) => a.slug !== slug).slice(0, 3)
@@ -67,7 +67,7 @@ export default async function ArticlePage({ params }: Props) {
         newTabLabel={dict.common.newTab}
         share={{ url: siteUrl() + localizedHref(locale, `/actualites/${slug}`), labels: { newTab: dict.common.newTab, share: dict.common.share, copyLink: dict.common.copyLink, linkCopied: dict.common.linkCopied } }}
       />
-      {typeof actualite.album === 'object' && actualite.album?._status === 'published' && !isPlaceholder(actualite.album.title) && (
+      {isPublishedAlbum(actualite.album) && !isPlaceholder(actualite.album.title) && (
         <div className="bg-background pb-12">
           <div className="max-w-4xl mx-auto px-6">
             <Cta locale={locale} href={`/mediatheque/albums/${actualite.album.slug}`} label={dict.albums.viewAlbum} newTabLabel={dict.common.newTab} />
