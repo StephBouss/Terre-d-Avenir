@@ -7,8 +7,7 @@ import NewsSection from '@/components/home/NewsSection'
 import ParticiperSection from '@/components/home/ParticiperSection'
 import ThemesSection from '@/components/home/ThemesSection'
 import CtaBand from '@/components/ui/CtaBand'
-import type { Media } from '@/payload-types'
-import { getActualites, getPage, getProjets, getReglages } from '@/lib/content'
+import { getActualites, getDiaporama, getPage, getProjets } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { metadataFor, resolveLocale, type LocaleParams } from '@/lib/page'
 import { getSection } from '@/lib/sections'
@@ -18,15 +17,14 @@ export const generateMetadata = metadataFor('accueil', '/')
 export default async function HomePage({ params }: LocaleParams) {
   const locale = await resolveLocale(params)
   const dict = getDictionary(locale)
-  const [page, projets, actualites, reglages] = await Promise.all([
+  const [page, projets, actualites, images] = await Promise.all([
     getPage('accueil', locale),
     getProjets(locale),
     getActualites(locale),
-    getReglages(locale),
+    getDiaporama(locale),
   ])
   if (!page) notFound()
   const section = (key: string) => getSection(page, key)
-  const images = (reglages.heroImages ?? []).filter((m): m is Media => typeof m === 'object' && m !== null)
   const transparence = section('transparence')
   const newTab = dict.common.newTab
 

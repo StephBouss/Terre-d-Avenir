@@ -1,0 +1,41 @@
+import { expect, test } from '@playwright/test'
+import { adminToken } from './admin-helpers'
+
+test.describe.configure({ mode: 'serial' })
+
+test.describe('ordre de la médiathèque', { tag: '@desktop' }, () => {
+  test.skip(({ isMobile }) => isMobile, 'données partagées : desktop uniquement')
+  let token = ''
+  const ids: (number | string)[] = []
+
+  test.beforeAll(async ({ request }) => {
+    token = await adminToken(request)
+    const headers = { Authorization: `JWT ${token}` }
+    // Deux photos existantes du seed passent en médiathèque avec un ordre explicite.
+    const list = (await (await request.get('/api/medias?limit=100', { headers })).json()).docs as { id: number; filename: string }[]
+    const youth = list.find((m) => /^youth(-\d+)?\.jpg$/.test(m.filename))!
+    const sport = list.find((m) => /^sport(-\d+)?\.jpg$/.test(m.filename))!
+    // youth est créé avant sport dans le seed : sans le tri par « ordre », youth passerait devant.
+    for (const [doc, ordre] of [[sport, 1], [youth, 2]] as const) {
+      const res = await request.patch(`/api/medias/${doc.id}`, { headers, data: { galerie: true, ordre } })
+      expect(res.ok()).toBe(true)
+      ids.push(doc.id)
+    }
+  })
+
+  test.afterAll(async ({ request }) => {
+    for (const id of ids) await request.patch(`/api/medias/${id}`, { headers: { Authorization: `JWT ${token}` }, data: { galerie: false, ordre: 0 } })
+  })
+
+  test('les photos suivent l’ordre d’affichage', async ({ page }) => {
+    // La revalidation part après la réponse de l'API (`after`) : on laisse un court délai de propagation, sans réécriture.
+    const order = async () => {
+      await page.goto('/fr/mediatheque')
+      const hrefs = await page.locator('main a[href*="/medias/file/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href') ?? ''))
+      const iSport = hrefs.findIndex((h) => h.includes('sport'))
+      const iYouth = hrefs.findIndex((h) => h.includes('youth'))
+      return iSport >= 0 && iSport < iYouth
+    }
+    await expect.poll(order, { timeout: 20_000, intervals: [500, 1000, 2000] }).toBe(true)
+  })
+})

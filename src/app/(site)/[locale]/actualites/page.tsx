@@ -7,8 +7,7 @@ import CtaBand from '@/components/ui/CtaBand'
 import NewsCard from '@/components/ui/NewsCard'
 import { Paragraphs } from '@/components/ui/Paragraphs'
 import SectionHeader from '@/components/ui/SectionHeader'
-import type { Media } from '@/payload-types'
-import { getActualites, getPage, getReglages } from '@/lib/content'
+import { getActualites, getPage } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { metadataFor, resolveLocale, type LocaleParams } from '@/lib/page'
 import { getSection } from '@/lib/sections'
@@ -18,15 +17,14 @@ export const generateMetadata = metadataFor('actualites', '/actualites')
 export default async function ActualitesPage({ params }: LocaleParams) {
   const locale = await resolveLocale(params)
   const dict = getDictionary(locale)
-  const [page, actualites, reglages] = await Promise.all([getPage('actualites', locale), getActualites(locale), getReglages(locale)])
+  const [page, actualites] = await Promise.all([getPage('actualites', locale), getActualites(locale)])
   if (!page) notFound()
   const liste = getSection(page, 'liste')
   const fin = getSection(page, 'fin')
-  const images = (reglages.heroImages ?? []).filter((m): m is Media => typeof m === 'object' && m !== null)
 
   return (
     <>
-      <ActualitesHero eyebrow={dict.nav.actualites} title={page.h1 ?? ''} intro={page.intro} images={images} />
+      <ActualitesHero eyebrow={dict.nav.actualites} title={page.h1 ?? ''} intro={page.intro} image={page.heroImage} />
       <section className="bg-background py-24">
         <div className="max-w-[1280px] mx-auto px-6 flex flex-col gap-10">
           <Reveal className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">

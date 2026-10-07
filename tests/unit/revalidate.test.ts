@@ -1,6 +1,9 @@
 import { revalidatePath } from 'next/cache'
+import { after } from 'next/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { revalidateCollection, revalidateCollectionDelete } from '@/hooks/revalidate'
+
+vi.mock('next/server', () => ({ after: vi.fn() }))
 
 function hookArgs(context: Record<string, unknown> = {}) {
   const logger = { error: vi.fn() }
@@ -11,6 +14,25 @@ function hookArgs(context: Record<string, unknown> = {}) {
 describe('hooks de revalidation', () => {
   beforeEach(() => {
     vi.mocked(revalidatePath).mockReset()
+    // Par défaut : hors requête, `after` lève comme dans Next.js.
+    vi.mocked(after).mockReset().mockImplementation(() => {
+      throw new Error('`after` was called outside a request scope.')
+    })
+  })
+
+  it('dans une requête : programme la revalidation après la réponse, sans l’exécuter tout de suite', () => {
+    const scheduled: (() => void)[] = []
+    vi.mocked(after).mockImplementation(((fn: () => void) => void scheduled.push(fn)) as never)
+    revalidateCollection(hookArgs().input)
+    expect(revalidatePath).not.toHaveBeenCalled()
+    expect(scheduled).toHaveLength(1)
+    scheduled[0]()
+    expect(revalidatePath).toHaveBeenCalledWith('/', 'layout')
+  })
+
+  it('hors requête : repli sur une revalidation directe', () => {
+    revalidateCollection(hookArgs().input)
+    expect(revalidatePath).toHaveBeenCalledWith('/', 'layout')
   })
 
   it('revalide le site après une suppression et renvoie le document', () => {

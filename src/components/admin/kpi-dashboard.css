@@ -1,0 +1,15 @@
+.kpi-dashboard { margin-bottom: 2.5rem; }
+.kpi-header p { color: var(--theme-elevation-600); margin-top: 0.25rem; }
+.kpi-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); margin-top: 1rem; }
+.kpi-card { border: 1px solid var(--theme-elevation-150); border-radius: 8px; padding: 1rem 1.25rem; background: var(--theme-elevation-0); }
+.kpi-card h3 { font-size: 0.95rem; margin: 0 0 0.75rem; }
+.kpi-card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
+.kpi-row { display: flex; justify-content: space-between; gap: 1rem; text-decoration: none; color: var(--theme-text); }
+.kpi-row:hover .kpi-value, .kpi-row:focus-visible .kpi-value { text-decoration: underline; }
+.kpi-value { font-size: 1.1rem; }
+.kpi-muted { color: var(--theme-elevation-600); font-size: 0.85rem; }
+.kpi-alert { border-color: #e6bf58; }
+.kpi-disabled { opacity: 0.7; }
+.kpi-help { margin: -0.4rem 0 0.6rem; }
+.kpi-sub { margin: 0.4rem 0 0 !important; padding-left: 0.9rem !important; }
+.kpi-sub .kpi-row span { font-size: 0.9rem; }

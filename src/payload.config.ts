@@ -3,12 +3,15 @@ import { fileURLToPath } from 'node:url'
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { fr } from '@payloadcms/translations/languages/fr'
 import sharp from 'sharp'
 import { Actualites } from './collections/Actualites'
 import { Medias } from './collections/Medias'
+import { Albums } from './collections/Albums'
 import { Pages } from './collections/Pages'
 import { Projets } from './collections/Projets'
 import { Users } from './collections/Users'
+import { Diaporama } from './globals/Diaporama'
 import { Reglages } from './globals/Reglages'
 import { DEFAULT_LOCALE, LOCALES, NATIVE_NAMES } from './lib/i18n/config'
 
@@ -18,9 +21,11 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
+    components: { beforeDashboard: ['/components/admin/KpiDashboard'] },
   },
-  collections: [Pages, Actualites, Projets, Medias, Users],
-  globals: [Reglages],
+  i18n: { supportedLanguages: { fr }, fallbackLanguage: 'fr' },
+  collections: [Pages, Actualites, Projets, Medias, Albums, Users],
+  globals: [Reglages, Diaporama],
   localization: {
     locales: LOCALES.map((code) => ({ code, label: NATIVE_NAMES[code] })),
     defaultLocale: DEFAULT_LOCALE,
@@ -34,5 +39,6 @@ export default buildConfig({
     push: false,
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
+  upload: { limits: { fileSize: 20_000_000 } }, // 20 Mo par photo (PRD BO-10)
   sharp,
 })

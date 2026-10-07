@@ -71,6 +71,7 @@ export interface Config {
     actualites: Actualite;
     projets: Projet;
     medias: Media;
+    albums: Album;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -83,6 +84,7 @@ export interface Config {
     actualites: ActualitesSelect<false> | ActualitesSelect<true>;
     projets: ProjetsSelect<false> | ProjetsSelect<true>;
     medias: MediasSelect<false> | MediasSelect<true>;
+    albums: AlbumsSelect<false> | AlbumsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -95,9 +97,11 @@ export interface Config {
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('fr' | 'en') | ('fr' | 'en')[];
   globals: {
     reglages: Reglage;
+    diaporama: Diaporama;
   };
   globalsSelect: {
     reglages: ReglagesSelect<false> | ReglagesSelect<true>;
+    diaporama: DiaporamaSelect<false> | DiaporamaSelect<true>;
   };
   locale: 'fr' | 'en';
   widgets: {
@@ -157,6 +161,10 @@ export interface Page {
    * Laisser vide tant que le texte n’est pas validé : un champ vide est masqué sur le site.
    */
   intro?: string | null;
+  /**
+   * Photo affichée en haut de la page. Vide : fond vert de la charte. (Sans effet sur l’accueil, qui utilise le diaporama.)
+   */
+  heroImage?: (number | null) | Media;
   sections?:
     | {
         /**
@@ -194,32 +202,6 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "actualites".
- */
-export interface Actualite {
-  id: number;
-  title: string;
-  slug: string;
-  order: number;
-  publie?: boolean | null;
-  category?: string | null;
-  /**
-   * Ex. « 8 août 2026 » ou « Initiative publiée ».
-   */
-  dateLabel?: string | null;
-  date?: string | null;
-  excerpt?: string | null;
-  body?: string | null;
-  image?: (number | null) | Media;
-  source?: {
-    label?: string | null;
-    url?: string | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "medias".
  */
 export interface Media {
@@ -235,6 +217,18 @@ export interface Media {
    * Une image provisoire est toujours affichée comme décorative.
    */
   provisoire?: boolean | null;
+  /**
+   * Les plus petits nombres s’affichent en premier.
+   */
+  ordre?: number | null;
+  source?: string | null;
+  lieu?: string | null;
+  datePrise?: string | null;
+  /**
+   * Renseigne le dossier ; ne remplace pas une preuve de droits.
+   */
+  droitsConfirmes?: boolean | null;
+  droitsNote?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -264,6 +258,64 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "actualites".
+ */
+export interface Actualite {
+  id: number;
+  title: string;
+  slug: string;
+  order: number;
+  category?: string | null;
+  /**
+   * Ex. « 8 août 2026 » ou « Initiative publiée ».
+   */
+  dateLabel?: string | null;
+  date?: string | null;
+  excerpt?: string | null;
+  body?: string | null;
+  image?: (number | null) | Media;
+  source?: {
+    label?: string | null;
+    url?: string | null;
+  };
+  /**
+   * Affiche un bouton « Voir les photos de l’événement » vers cet album.
+   */
+  album?: (number | null) | Album;
+  /**
+   * Retire l’actualité du site sans la supprimer. Prend effet après « Publier les modifications ».
+   */
+  archivee?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "albums".
+ */
+export interface Album {
+  id: number;
+  title: string;
+  /**
+   * Adresse de l’album : /mediatheque/albums/<slug>
+   */
+  slug: string;
+  order: number;
+  date?: string | null;
+  dateLabel?: string | null;
+  description?: string | null;
+  cover?: (number | null) | Media;
+  /**
+   * Glisser pour réordonner.
+   */
+  photos: (number | Media)[];
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -353,6 +405,10 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
+        relationTo: 'albums';
+        value: number | Album;
+      } | null)
+    | ({
         relationTo: 'users';
         value: number | User;
       } | null);
@@ -408,6 +464,7 @@ export interface PagesSelect<T extends boolean = true> {
   metaDescription?: T;
   h1?: T;
   intro?: T;
+  heroImage?: T;
   sections?:
     | T
     | {
@@ -442,7 +499,6 @@ export interface ActualitesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   order?: T;
-  publie?: T;
   category?: T;
   dateLabel?: T;
   date?: T;
@@ -455,8 +511,11 @@ export interface ActualitesSelect<T extends boolean = true> {
         label?: T;
         url?: T;
       };
+  album?: T;
+  archivee?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -490,6 +549,12 @@ export interface MediasSelect<T extends boolean = true> {
   credit?: T;
   galerie?: T;
   provisoire?: T;
+  ordre?: T;
+  source?: T;
+  lieu?: T;
+  datePrise?: T;
+  droitsConfirmes?: T;
+  droitsNote?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -525,6 +590,23 @@ export interface MediasSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "albums_select".
+ */
+export interface AlbumsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  order?: T;
+  date?: T;
+  dateLabel?: T;
+  description?: T;
+  cover?: T;
+  photos?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -598,7 +680,19 @@ export interface Reglage {
   facebookUrl: string;
   location?: string | null;
   footerTagline?: string | null;
-  heroImages?: (number | Media)[] | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "diaporama".
+ */
+export interface Diaporama {
+  id: number;
+  /**
+   * Les 3 premières images défilent en fond du Hero (la 3e sert aussi à la section Ancrage) ; les suivantes alimentent le collage de droite. Glisser pour réordonner.
+   */
+  images: (number | Media)[];
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -610,7 +704,16 @@ export interface ReglagesSelect<T extends boolean = true> {
   facebookUrl?: T;
   location?: T;
   footerTagline?: T;
-  heroImages?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "diaporama_select".
+ */
+export interface DiaporamaSelect<T extends boolean = true> {
+  images?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

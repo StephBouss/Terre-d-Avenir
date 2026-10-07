@@ -24,7 +24,7 @@ export const Pages: CollectionConfig = {
   slug: 'pages',
   typescript: { interface: 'Page' },
   labels: { singular: 'Page', plural: 'Pages' },
-  admin: { useAsTitle: 'slug', defaultColumns: ['slug', 'h1', 'updatedAt'] },
+  admin: { useAsTitle: 'slug', group: 'Contenus', defaultColumns: ['slug', 'h1', 'updatedAt'] },
   access: { read: ({ req }) => Boolean(req.user) },
   hooks: { afterChange: [revalidateCollection], afterDelete: [revalidateCollectionDelete] },
   fields: [
@@ -45,6 +45,13 @@ export const Pages: CollectionConfig = {
       admin: { description: 'Entourer un passage de *astérisques* pour le mettre en doré.' },
     },
     { name: 'intro', label: 'Introduction', type: 'textarea', localized: true, admin: { description: EMPTY_HINT } },
+    {
+      name: 'heroImage',
+      label: 'Image d’en-tête',
+      type: 'upload',
+      relationTo: 'medias',
+      admin: { description: 'Photo affichée en haut de la page. Vide : fond vert de la charte. (Sans effet sur l’accueil, qui utilise le diaporama.)' },
+    },
     {
       name: 'sections',
       type: 'array',

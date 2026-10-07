@@ -13,8 +13,8 @@ export async function upsertLocalized(
   const found = await payload.find({ collection, where, limit: 1, depth: 0, locale: 'fr' })
   const existingId = found.docs[0]?.id
   const doc = existingId
-    ? await payload.update({ collection, id: existingId, data: fr as never, locale: 'fr', context: SEED_CONTEXT })
-    : await payload.create({ collection, data: fr as never, locale: 'fr', context: SEED_CONTEXT })
-  await payload.update({ collection, id: doc.id, data: en as never, locale: 'en', context: SEED_CONTEXT })
+    ? await payload.update({ collection, id: existingId, data: fr as never, locale: 'fr', draft: false, context: SEED_CONTEXT })
+    : await payload.create({ collection, data: fr as never, locale: 'fr', draft: false, context: SEED_CONTEXT })
+  await payload.update({ collection, id: doc.id, data: en as never, locale: 'en', draft: false, context: SEED_CONTEXT })
   return doc.id
 }

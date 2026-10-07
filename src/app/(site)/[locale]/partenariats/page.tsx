@@ -4,5 +4,5 @@ import { metadataFor, type LocaleParams } from '@/lib/page'
 export const generateMetadata = metadataFor('partenariats', '/partenariats')
 
 export default function PartenariatsPage({ params }: LocaleParams) {
-  return <TextPage slug="partenariats" eyebrowKey="partenariats" imageIndex={6} params={params} />
+  return <TextPage slug="partenariats" eyebrowKey="partenariats" params={params} />
 }

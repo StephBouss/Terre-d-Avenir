@@ -10,7 +10,7 @@ const admin = { req: { user: { id: 1 } } } as never
 describe("droits de lecture de l'API", () => {
   it('actualités : un visiteur ne lit que les actualités publiées, un admin lit tout', () => {
     const read = Actualites.access!.read!
-    expect(read(anonymous)).toEqual({ publie: { equals: true } })
+    expect(read(anonymous)).toEqual({ and: [{ _status: { equals: 'published' } }, { archivee: { not_equals: true } }] })
     expect(read(admin)).toBe(true)
   })
 

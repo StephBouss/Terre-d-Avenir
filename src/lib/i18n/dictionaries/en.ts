@@ -38,6 +38,7 @@ export const en: Dictionary = {
     pause: 'Pause slideshow',
     play: 'Play slideshow',
   },
+  preview: { banner: 'Preview — not published', exit: 'Exit preview' },
   common: {
     readArticle: 'Read the article',
     learnMore: 'Learn more',
@@ -64,6 +65,14 @@ export const en: Dictionary = {
   languageUnavailable: {
     title: 'Version not published',
     text: 'This language version has not been published yet. The available versions are listed below.',
+  },
+  albums: {
+    heading: 'Albums',
+    loosePhotos: 'Photos',
+    back: 'Back to the media library',
+    viewAlbum: 'See the event photos',
+    photos: 'photos',
+    photo: 'photo',
   },
   gallery: {
     open: 'Enlarge image',

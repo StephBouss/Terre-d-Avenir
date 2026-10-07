@@ -25,9 +25,11 @@ type Props = {
   icon?: string
   newTabLabel: string
   className?: string
+  /** Bouton de retour : chevron à gauche, pas de flèche finale. */
+  back?: boolean
 }
 
-export function Cta({ locale, href, label, variant = 'primary', icon, newTabLabel, className = '' }: Props) {
+export function Cta({ locale, href, label, variant = 'primary', icon, newTabLabel, className = '', back = false }: Props) {
   if (isPlaceholder(label) || isPlaceholder(href)) return null
   const v = VARIANTS[variant]
   const external = isExternal(href)
@@ -36,10 +38,10 @@ export function Cta({ locale, href, label, variant = 'primary', icon, newTabLabe
   const content = (
     <>
       {/* Le bleu officiel #1877F2 de l'icône Facebook est volontaire (validé le 2026-10-06) ; seuls les textes sont assombris pour le contraste. */}
-      {icon ? <Icon i={icon} size={size} /> : isFacebookUrl(href) ? <FacebookIcon size={16} color={v.light ? '#fff' : '#1877F2'} /> : null}
+      {back ? <Icon i="chevron-left" size={size} /> : icon ? <Icon i={icon} size={size} /> : isFacebookUrl(href) ? <FacebookIcon size={16} color={v.light ? '#fff' : '#1877F2'} /> : null}
       <span>{label}</span>
       {newTab && <span className="sr-only">{` ${newTabLabel}`}</span>}
-      <Icon i={external ? 'arrow-up-right' : 'arrow-right'} size={size} />
+      {!back && <Icon i={external ? 'arrow-up-right' : 'arrow-right'} size={size} />}
     </>
   )
   const cls = `btn-arrow ${v.className} ${className}`

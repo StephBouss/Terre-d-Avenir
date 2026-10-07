@@ -7,7 +7,7 @@ export const Projets: CollectionConfig = {
   slug: 'projets',
   typescript: { interface: 'Projet' },
   labels: { singular: 'Projet', plural: 'Projets & actions' },
-  admin: { useAsTitle: 'theme', defaultColumns: ['theme', 'title', 'order'] },
+  admin: { useAsTitle: 'theme', group: 'Contenus', defaultColumns: ['theme', 'title', 'order'] },
   access: { read: ({ req }) => Boolean(req.user) },
   hooks: { afterChange: [revalidateCollection], afterDelete: [revalidateCollectionDelete] },
   defaultSort: 'order',

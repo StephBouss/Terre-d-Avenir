@@ -1,5 +1,5 @@
 import type { Metadata, MetadataRoute } from 'next'
-import { LOCALES, type Locale } from './i18n/config'
+import { DEFAULT_LOCALE, LOCALES, type Locale } from './i18n/config'
 import { alternates, localizedHref } from './i18n/paths'
 import { stripEmphasis } from './text'
 
@@ -31,9 +31,14 @@ export function pageMetadata({ locale, path, title, description, image }: Args):
   }
 }
 
-export function buildSitemapEntries(baseUrl: string, paths: string[]): MetadataRoute.Sitemap {
+/** `locales` limite les langues listées (contenu absent dans une langue : ni URL, ni alternative). */
+export function buildSitemapEntries(baseUrl: string, paths: string[], locales: readonly Locale[] = LOCALES): MetadataRoute.Sitemap {
   return paths.flatMap((path) => {
-    const languages = Object.fromEntries(Object.entries(alternates(path)).map(([lang, href]) => [lang, baseUrl + href]))
-    return LOCALES.map((locale) => ({ url: baseUrl + localizedHref(locale, path), alternates: { languages } }))
+    const languages = Object.fromEntries(
+      Object.entries(alternates(path))
+        .filter(([lang]) => (lang === 'x-default' ? locales.includes(DEFAULT_LOCALE) : (locales as readonly string[]).includes(lang)))
+        .map(([lang, href]) => [lang, baseUrl + href]),
+    )
+    return locales.map((locale) => ({ url: baseUrl + localizedHref(locale, path), alternates: { languages } }))
   })
 }

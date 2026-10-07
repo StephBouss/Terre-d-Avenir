@@ -247,18 +247,18 @@ export async function down({ db, payload, req }: MigrateDownArgs): Promise<void>
   DROP TABLE "reglages" CASCADE;
   DROP TABLE "reglages_locales" CASCADE;
   DROP TABLE "reglages_rels" CASCADE;
-  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT "payload_locked_documents_rels_pages_fk";
+  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT IF EXISTS "payload_locked_documents_rels_pages_fk";
   
-  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT "payload_locked_documents_rels_actualites_fk";
+  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT IF EXISTS "payload_locked_documents_rels_actualites_fk";
   
-  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT "payload_locked_documents_rels_projets_fk";
+  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT IF EXISTS "payload_locked_documents_rels_projets_fk";
   
-  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT "payload_locked_documents_rels_medias_fk";
+  ALTER TABLE "payload_locked_documents_rels" DROP CONSTRAINT IF EXISTS "payload_locked_documents_rels_medias_fk";
   
-  DROP INDEX "payload_locked_documents_rels_pages_id_idx";
-  DROP INDEX "payload_locked_documents_rels_actualites_id_idx";
-  DROP INDEX "payload_locked_documents_rels_projets_id_idx";
-  DROP INDEX "payload_locked_documents_rels_medias_id_idx";
+  DROP INDEX IF EXISTS "payload_locked_documents_rels_pages_id_idx";
+  DROP INDEX IF EXISTS "payload_locked_documents_rels_actualites_id_idx";
+  DROP INDEX IF EXISTS "payload_locked_documents_rels_projets_id_idx";
+  DROP INDEX IF EXISTS "payload_locked_documents_rels_medias_id_idx";
   ALTER TABLE "payload_locked_documents_rels" DROP COLUMN "pages_id";
   ALTER TABLE "payload_locked_documents_rels" DROP COLUMN "actualites_id";
   ALTER TABLE "payload_locked_documents_rels" DROP COLUMN "projets_id";

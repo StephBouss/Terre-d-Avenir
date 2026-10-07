@@ -48,6 +48,16 @@ Tout se modifie dans `/admin`. Un champ vide ou contenant `[...]` est masqué su
 
 Au lot 1, les formulaires (adhésion, contact) sont affichés mais désactivés : aucune donnée personnelle n'est collectée.
 
+## Administration
+
+- **Admin :** `/admin`, en français.
+- **Actualités :** « Enregistrer le brouillon » ne publie pas ; « Publier » met en ligne. « Archivée » retire l'actualité du site sans la supprimer. « Aperçu » montre un brouillon aux admins connectés et nécessite `PREVIEW_SECRET`.
+- **Images :** *Diaporama d'accueil* pour le Hero de l'accueil ; « Image d'en-tête » dans chaque page ; *Médiathèque* : cocher « Afficher dans la médiathèque » et régler l'ordre.
+- **Indicateurs :** page d'accueil de l'admin, avec des valeurs réelles uniquement (« Indisponible » en cas d'erreur de lecture). Les cartes adhésions et transactions s'activeront avec les lots 2 et 4.
+  Les compteurs reflètent l'état publié, c'est-à-dire ce que voit le visiteur (une actualité archivée n'est jamais comptée comme publiée). Le lien « Sans texte alternatif » liste les photos non provisoires dont le texte est absent ou vide ; le compte inclut aussi les textes blancs ou contenant `[...]`, qu'un filtre d'URL ne peut pas isoler (rappelé en infobulle sur la carte).
+- **Base de données :** ne pas utiliser `npm run payload -- migrate:reset` : bug de Payload 3.90, qui lance d'abord le `down` de la migration initiale et échoue. En développement, utiliser `migrate:down` (retour arrière d'un lot) ou `migrate:fresh` (base reconstruite).
+- **Seed :** `npm run seed` écrase les modifications faites dans l'admin sur les contenus qu'il fournit (actualités, albums, pages, réglages). Ne pas le relancer sur une base dont le contenu a été édité à la main.
+
 ## Langues
 
 Le français et l'anglais sont actifs. Pour ajouter une langue, l'ajouter à `LOCALES` (`src/lib/i18n/config.ts`), créer son dictionnaire, puis lancer `npm run migrate:create` et `npm run migrate`.
@@ -64,6 +74,7 @@ Déploiement avec Docker Compose (PostgreSQL 18 et application sur le port 3000)
 - `POSTGRES_PASSWORD` (obligatoire). Il est inséré tel quel dans `DATABASE_URI` : n'utiliser que des caractères sans risque dans une URL (lettres et chiffres), ou l'encoder (`@` → `%40`, `:` → `%3A`, `/` → `%2F`, etc.)
 - `PAYLOAD_SECRET` (obligatoire)
 - `NEXT_PUBLIC_SITE_URL` (**obligatoire en production**, par exemple `https://exemple.org` : sans elle, les liens canoniques, le sitemap et les liens de partage pointent vers `http://localhost:3000`). Elle est intégrée au site lors de la construction : la modifier exige `docker compose up -d --build`
+- `PREVIEW_SECRET` sécurise l'aperçu des brouillons. Il est obligatoire en production. Sans lui, le bouton Aperçu de l'admin est désactivé. L'aperçu exige que `NEXT_PUBLIC_SITE_URL` ait la même origine que l'admin : sinon le cookie de connexion est absent et l'aperçu renvoie 401
 - `SEED_ADMIN_EMAIL` et `SEED_ADMIN_PASSWORD` (compte administrateur créé par le seed)
 
 Premier déploiement :

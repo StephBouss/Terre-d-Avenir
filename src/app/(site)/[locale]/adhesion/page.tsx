@@ -7,7 +7,7 @@ import FaqList from '@/components/ui/FaqList'
 import PageHero from '@/components/ui/PageHero'
 import { Paragraphs } from '@/components/ui/Paragraphs'
 import SectionHeader from '@/components/ui/SectionHeader'
-import { getPage, getReglages } from '@/lib/content'
+import { getPage } from '@/lib/content'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { metadataFor, resolveLocale, type LocaleParams } from '@/lib/page'
 import { getSection } from '@/lib/sections'
@@ -18,14 +18,14 @@ export const generateMetadata = metadataFor('adhesion', '/adhesion')
 export default async function AdhesionPage({ params }: LocaleParams) {
   const locale = await resolveLocale(params)
   const dict = getDictionary(locale)
-  const [page, reglages] = await Promise.all([getPage('adhesion', locale), getReglages(locale)])
+  const page = await getPage('adhesion', locale)
   if (!page) notFound()
   const section = (key: string) => getSection(page, key)
   const indisponible = section('indisponible')
   const formulaire = section('formulaire')
   return (
     <>
-      <PageHero eyebrow={dict.nav.adhesion} title={page.h1 ?? ''} intro={page.intro} image={reglages.heroImages?.[1]} />
+      <PageHero eyebrow={dict.nav.adhesion} title={page.h1 ?? ''} intro={page.intro} image={page.heroImage} />
       <section className="bg-background pt-12">
         <div className="max-w-[1280px] mx-auto px-6">
           <ClosedNotice locale={locale} text={indisponible?.body} ctas={indisponible?.ctas} newTabLabel={dict.common.newTab} />
