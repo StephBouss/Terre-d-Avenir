@@ -21,7 +21,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isLocale(locale)) return {}
   const album = await getAlbum(slug, locale)
   if (!album) return {}
-  const image = typeof album.cover === 'object' ? album.cover?.url : undefined
+  const cover = album.cover ?? album.photos?.[0]
+  const image = typeof cover === 'object' ? cover?.url : undefined
   return pageMetadata({ locale, path: `/mediatheque/albums/${slug}`, title: `${album.title} — ${SITE_NAME}`, description: album.description, image })
 }
 
@@ -33,13 +34,13 @@ export default async function AlbumPage({ params }: Props) {
   const dict = getDictionary(locale)
   return (
     <>
-      <MediathequeHero eyebrow={dict.nav.mediatheque} title={album.title} intro={album.dateLabel} image={album.cover} />
+      <MediathequeHero eyebrow={dict.nav.mediatheque} title={album.title} intro={album.dateLabel} image={album.cover ?? album.photos?.[0]} />
       <section className="bg-background py-16">
         <div className="max-w-[1280px] mx-auto px-6 flex flex-col gap-10">
           <Paragraphs text={album.description} />
           <Gallery items={toGalleryItems(album.photos ?? [])} labels={dict.gallery} />
           <div>
-            <Cta locale={locale} href="/mediatheque" label={dict.albums.back} variant="outline" newTabLabel={dict.common.newTab} />
+            <Cta locale={locale} href="/mediatheque" label={dict.albums.back} variant="outline" back newTabLabel={dict.common.newTab} />
           </div>
         </div>
       </section>

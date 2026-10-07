@@ -53,16 +53,18 @@ export const getGalleryMedia = cache(async (locale: Locale): Promise<Media[]> =>
 })
 
 export const PUBLISHED_ALBUM: Where = { _status: { equals: 'published' } }
+/** Un album sans titre dans la langue demandée est masqué (pas de repli sur le français). */
+const TITLED_ALBUM: Where = { title: { exists: true } }
 
 export const getAlbums = cache(async (locale: Locale): Promise<Album[]> => {
   const payload = await client()
-  const res = await payload.find({ collection: 'albums', where: PUBLISHED_ALBUM, sort: ['order', '-date'], locale, depth: 1, limit: 100 })
+  const res = await payload.find({ collection: 'albums', where: { and: [PUBLISHED_ALBUM, TITLED_ALBUM] }, sort: ['order', '-date'], locale, depth: 1, limit: 100 })
   return res.docs
 })
 
 export const getAlbum = cache(async (slug: string, locale: Locale): Promise<Album | null> => {
   const payload = await client()
-  const res = await payload.find({ collection: 'albums', where: { and: [{ slug: { equals: slug } }, PUBLISHED_ALBUM] }, locale, depth: 1, limit: 1 })
+  const res = await payload.find({ collection: 'albums', where: { and: [{ slug: { equals: slug } }, PUBLISHED_ALBUM, TITLED_ALBUM] }, locale, depth: 1, limit: 1 })
   return res.docs[0] ?? null
 })
 
