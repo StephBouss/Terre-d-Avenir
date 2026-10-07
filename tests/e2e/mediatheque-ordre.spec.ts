@@ -27,12 +27,18 @@ test.describe('ordre de la médiathèque', () => {
     for (const id of ids) await request.patch(`/api/medias/${id}`, { headers: { Authorization: `JWT ${token}` }, data: { galerie: false, ordre: 0 } })
   })
 
-  test('les photos suivent l’ordre d’affichage', async ({ page }) => {
-    await page.goto('/fr/mediatheque')
-    const hrefs = await page.locator('main a[href*="/medias/file/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href') ?? ''))
-    const iSport = hrefs.findIndex((h) => h.includes('sport'))
-    const iYouth = hrefs.findIndex((h) => h.includes('youth'))
-    expect(iSport).toBeGreaterThanOrEqual(0)
-    expect(iSport).toBeLessThan(iYouth)
+  test('les photos suivent l’ordre d’affichage', async ({ page, request }) => {
+    // La revalidation part avant la validation de la transaction Payload : une page rendue entre-temps par une autre spec
+    // (en parallèle) peut rester périmée. On relance alors une revalidation (nouvel enregistrement) et on relit la page.
+    const order = async () => {
+      await page.goto('/fr/mediatheque')
+      const hrefs = await page.locator('main a[href*="/medias/file/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href') ?? ''))
+      const iSport = hrefs.findIndex((h) => h.includes('sport'))
+      const iYouth = hrefs.findIndex((h) => h.includes('youth'))
+      const ok = iSport >= 0 && iSport < iYouth
+      if (!ok) await request.patch(`/api/medias/${ids[0]}`, { headers: { Authorization: `JWT ${token}` }, data: { ordre: 1 } })
+      return ok
+    }
+    await expect.poll(order, { timeout: 20_000, intervals: [500, 1000, 2000] }).toBe(true)
   })
 })

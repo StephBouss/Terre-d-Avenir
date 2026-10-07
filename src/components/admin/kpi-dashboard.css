@@ -10,3 +10,6 @@
 .kpi-muted { color: var(--theme-elevation-600); font-size: 0.85rem; }
 .kpi-alert { border-color: #e6bf58; }
 .kpi-disabled { opacity: 0.7; }
+.kpi-help { margin: -0.4rem 0 0.6rem; }
+.kpi-sub { margin: 0.4rem 0 0 !important; padding-left: 0.9rem !important; }
+.kpi-sub .kpi-row span { font-size: 0.9rem; }

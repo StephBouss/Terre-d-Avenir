@@ -1,4 +1,6 @@
+import type { Payload } from 'payload'
 import { describe, expect, it } from 'vitest'
+import { loadKpis } from '@/lib/kpi/load'
 import { NO_SOURCE, actualiteCounts, formatSituation, mediaCounts, missingTranslations } from '@/lib/kpi/compute'
 
 describe('KPI', () => {
@@ -40,5 +42,58 @@ describe('KPI', () => {
 
   it('situation datée en heure de Libreville', () => {
     expect(formatSituation(new Date('2026-10-06T23:30:00Z'))).toBe('7 octobre 2026 à 00:30')
+  })
+
+  describe('loadKpis', () => {
+    type Args = { collection: string; locale?: string }
+    const docsFor = ({ collection, locale }: Args) => {
+      if (collection === 'actualites' && locale === 'en') return [{ title: 'News' }, { title: '' }]
+      if (collection === 'actualites') return [{ _status: 'published', archivee: false }, { _status: 'draft', archivee: false }]
+      if (collection === 'pages') return [{ h1: '' }]
+      if (collection === 'projets') return [{ title: '[à traduire]' }]
+      return [{ galerie: true, provisoire: false, alt: 'Bannière', droitsConfirmes: true }]
+    }
+    const fake = (failing: (a: Args) => boolean) =>
+      ({
+        find: async (a: Args) => {
+          if (failing(a)) throw new Error('lecture impossible')
+          return { docs: docsFor(a) }
+        },
+        count: async (a: Args) => {
+          if (failing(a)) throw new Error('lecture impossible')
+          return { totalDocs: 5 }
+        },
+      }) as unknown as Payload
+
+    it('toutes les lectures réussissent : valeurs réelles et répartition des traductions', async () => {
+      const k = await loadKpis(fake(() => false))
+      expect(k.actualites.publiees).toEqual({ kind: 'value', value: 1 })
+      expect(k.pages).toEqual({ kind: 'value', value: 5 })
+      expect(k.traductions).toEqual({
+        total: { kind: 'value', value: 3 },
+        actualites: { kind: 'value', value: 1 },
+        pages: { kind: 'value', value: 1 },
+        projets: { kind: 'value', value: 1 },
+      })
+    })
+
+    it('une seule lecture en erreur : seule la carte concernée est indisponible', async () => {
+      const k = await loadKpis(fake((a) => a.collection === 'medias'))
+      const unavailable = { kind: 'unavailable' }
+      expect(k.medias).toEqual({ total: unavailable, galerie: unavailable, provisoires: unavailable, sansAlt: unavailable, droitsNonConfirmes: unavailable })
+      expect(k.actualites.publiees).toEqual({ kind: 'value', value: 1 })
+      expect(k.pages).toEqual({ kind: 'value', value: 5 })
+      expect(k.projets).toEqual({ kind: 'value', value: 5 })
+      expect(k.traductions.total).toEqual({ kind: 'value', value: 3 })
+    })
+
+    it('traductions : une collection en erreur rend le total indisponible, les autres gardent leur valeur', async () => {
+      const k = await loadKpis(fake((a) => a.collection === 'pages' && a.locale === 'en'))
+      expect(k.traductions.pages).toEqual({ kind: 'unavailable' })
+      expect(k.traductions.total).toEqual({ kind: 'unavailable' })
+      expect(k.traductions.actualites).toEqual({ kind: 'value', value: 1 })
+      expect(k.traductions.projets).toEqual({ kind: 'value', value: 1 })
+      expect(k.pages).toEqual({ kind: 'value', value: 5 })
+    })
   })
 })

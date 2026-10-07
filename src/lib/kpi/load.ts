@@ -1,5 +1,5 @@
 import type { Payload } from 'payload'
-import { actualiteCounts, mediaCounts, missingTranslations, type KpiState } from './compute'
+import { actualiteCounts, mediaCounts, missingTranslations, type KpiState, type TitleRow } from './compute'
 
 const ALL = { limit: 0, pagination: false, depth: 0 } as const
 
@@ -28,14 +28,14 @@ export async function loadKpis(payload: Payload) {
 
   const actu = actualites ? actualiteCounts(actualites.docs) : null
   const med = medias ? mediaCounts(medias.docs) : null
-  const translations =
-    actuEn && pagesEn && projetsEn
-      ? missingTranslations([
-          ...actuEn.docs.map((d) => ({ titleEn: d.title })),
-          ...pagesEn.docs.map((d) => ({ titleEn: d.h1 })),
-          ...projetsEn.docs.map((d) => ({ titleEn: d.title })),
-        ])
-      : null
+  const countEn = (docs: TitleRow[] | undefined): KpiState => (docs ? value(missingTranslations(docs)) : unavailable)
+  const tradActu = countEn(actuEn?.docs.map((d) => ({ titleEn: d.title })))
+  const tradPages = countEn(pagesEn?.docs.map((d) => ({ titleEn: d.h1 })))
+  const tradProjets = countEn(projetsEn?.docs.map((d) => ({ titleEn: d.title })))
+  const tradParts = [tradActu, tradPages, tradProjets]
+  const tradTotal: KpiState = tradParts.every((t) => t.kind === 'value')
+    ? value(tradParts.reduce((sum, t) => sum + (t.kind === 'value' ? t.value : 0), 0))
+    : unavailable
 
   return {
     actualites: {
@@ -45,7 +45,7 @@ export async function loadKpis(payload: Payload) {
     },
     pages: pages ? value(pages.totalDocs) : unavailable,
     projets: projets ? value(projets.totalDocs) : unavailable,
-    traductions: translations === null ? unavailable : value(translations),
+    traductions: { total: tradTotal, actualites: tradActu, pages: tradPages, projets: tradProjets },
     medias: med
       ? { total: value(med.total), galerie: value(med.galerie), provisoires: value(med.provisoires), sansAlt: value(med.sansAlt), droitsNonConfirmes: value(med.droitsNonConfirmes) }
       : { total: unavailable, galerie: unavailable, provisoires: unavailable, sansAlt: unavailable, droitsNonConfirmes: unavailable },
