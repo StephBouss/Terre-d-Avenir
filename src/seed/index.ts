@@ -1,4 +1,3 @@
-import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getPayload, type Payload } from 'payload'
@@ -8,7 +7,8 @@ import { en } from './data/en'
 import { FACEBOOK_URL, fr } from './data/fr'
 import { ALBUM_PHOTO_SETS } from './data/photos'
 import type { SeedAlbumPhotoKey, SeedImageKey } from './data/types'
-import { isSeedMediaFilename } from './media-match'
+import { upsertMedia } from './media'
+import { seedOrganigramme } from './organigramme'
 import { SEED_CONTEXT, upsertLocalized } from './upsert'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -47,50 +47,6 @@ const IMAGES: Record<SeedImageKey, { altFr: string; altEn: string; provisoire: b
 }
 
 const HERO_ORDER: SeedImageKey[] = ['forest', 'youth', 'community', 'education', 'sport', 'health', 'solidarity', 'banner']
-
-type MediaSeed = {
-  /** Clé du nom de fichier téléversé (« banner », « kafele-nianame-1-photo ») : sert à retrouver les variantes renommées par Payload. */
-  key: string
-  filePath: string
-  data: Record<string, unknown>
-  altFr: string
-  altEn: string
-  lieu?: { fr: string; en: string }
-}
-
-async function upsertMedia(payload: Payload, m: MediaSeed): Promise<number | string> {
-  const ext = path.extname(m.filePath)
-  // Le fichier est téléversé sous « <clé><ext> » : une clé terminée par « -N » serait renumérotée par Payload (photo-1 → photo-7).
-  const upload = { data: fs.readFileSync(m.filePath), name: `${m.key}${ext}`, mimetype: 'image/jpeg', size: fs.statSync(m.filePath).size }
-  // Payload renomme en « banner-1.jpg » si le fichier existe déjà dans media/ : on retrouve ces variantes, et elles seules.
-  const candidates = await payload.find({
-    collection: 'medias',
-    where: { filename: { like: m.key } },
-    sort: 'id',
-    limit: 50,
-    depth: 0,
-  })
-  const found = candidates.docs.filter((d) => isSeedMediaFilename(d.filename, m.key, ext))
-  const base = { ...m.data, ...(m.lieu ? { lieu: m.lieu.fr } : {}) }
-  const doc =
-    found[0] ??
-    (await payload.create({
-      collection: 'medias',
-      data: { ...base, alt: m.altFr } as never,
-      file: upload,
-      locale: 'fr',
-      context: SEED_CONTEXT,
-    }))
-  await payload.update({ collection: 'medias', id: doc.id, data: { ...base, alt: m.altFr } as never, locale: 'fr', context: SEED_CONTEXT })
-  await payload.update({
-    collection: 'medias',
-    id: doc.id,
-    data: { alt: m.altEn, ...(m.lieu ? { lieu: m.lieu.en } : {}) } as never,
-    locale: 'en',
-    context: SEED_CONTEXT,
-  })
-  return doc.id
-}
 
 async function seedMedia(payload: Payload): Promise<Record<SeedImageKey | SeedAlbumPhotoKey, number | string>> {
   const ids = {} as Record<SeedImageKey | SeedAlbumPhotoKey, number | string>
@@ -165,6 +121,8 @@ async function seed() {
     await upsertLocalized(payload, 'projets', { slug: { equals: item.slug } }, { ...shared, ...local(item) }, local(enItem))
   }
 
+  await seedOrganigramme(payload, dirname)
+
   const heroImages = HERO_ORDER.map((k) => media[k] as number)
   await payload.updateGlobal({ slug: 'diaporama', data: { images: heroImages }, context: SEED_CONTEXT })
   await payload.updateGlobal({ slug: 'reglages', data: { facebookUrl: FACEBOOK_URL, ...fr.reglages }, locale: 'fr', context: SEED_CONTEXT })
@@ -172,8 +130,8 @@ async function seed() {
 
   await seedAdmin(payload)
 
-  const count = async (collection: 'pages' | 'albums' | 'actualites' | 'projets' | 'medias') => (await payload.count({ collection })).totalDocs
-  console.log(`Seed terminé : pages=${await count('pages')} albums=${await count('albums')} actualites=${await count('actualites')} projets=${await count('projets')} medias=${await count('medias')}`)
+  const count = async (collection: 'pages' | 'albums' | 'actualites' | 'projets' | 'medias' | 'postes') => (await payload.count({ collection })).totalDocs
+  console.log(`Seed terminé : pages=${await count('pages')} albums=${await count('albums')} actualites=${await count('actualites')} projets=${await count('projets')} postes=${await count('postes')} medias=${await count('medias')}`)
 }
 
 await seed()

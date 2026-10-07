@@ -58,8 +58,14 @@ Les formulaires d'adhésion et de contact sont actifs. Chaque envoi est enregist
 - **Indicateurs :** page d'accueil de l'admin, avec des valeurs réelles uniquement (« Indisponible » en cas d'erreur de lecture). La carte « Messages non traités » compte les messages dont la case « Traité » n'est pas cochée, avec un lien vers la liste filtrée.
   Les compteurs reflètent l'état publié, c'est-à-dire ce que voit le visiteur (une actualité archivée n'est jamais comptée comme publiée). Le lien « Sans texte alternatif » liste les photos non provisoires dont le texte est absent ou vide ; le compte inclut aussi les textes blancs ou contenant `[...]`, qu'un filtre d'URL ne peut pas isoler (rappelé en infobulle sur la carte).
 - **Messages reçus** (*Formulaires*) : demandes d'adhésion et messages de contact, non traités en premier. Les données envoyées sont en lecture seule ; seules la case « Traité » et les notes internes se modifient. Si l'e-mail est en échec ou non configuré, le bouton « Renvoyer l'e-mail » refait l'envoi (une fois le SMTP et l'adresse réglés).
+- **Organigramme** (*Contenus > Organigramme*) : un poste a un intitulé et une mission (FR et EN), un rattachement (« Rattaché à », vide pour le sommet), un ordre parmi les postes de même niveau, et éventuellement un titulaire (nom, portrait, courte biographie).
+  - Les postes suivent le circuit brouillon et publication. « Aperçu » montre la page Organisation avec les brouillons.
+  - Un rattachement à soi-même, à un de ses subordonnés ou à un poste supprimé est refusé.
+  - Un poste qui a des postes rattachés ne peut pas être supprimé : rattacher d’abord ses postes ailleurs.
+  - Sans poste publié, la page affiche « Organigramme en cours de validation ».
+  - **Contenu de départ :** le seed crée 10 postes **en brouillon**. Seule la Présidente (Laurence Ndong) est réelle. Les postes 2 à 10 portent des noms et des portraits **fictifs**, générés par IA et marqués « provisoire ». Ils sont à remplacer ou à supprimer avant toute publication. Relancer le seed ne réécrit jamais un poste existant.
 - **Base de données :** ne pas utiliser `npm run payload -- migrate:reset` : bug de Payload 3.90, qui lance d'abord le `down` de la migration initiale et échoue. En développement, utiliser `migrate:down` (retour arrière d'un lot) ou `migrate:fresh` (base reconstruite).
-- **Seed :** `npm run seed` écrase les modifications faites dans l'admin sur les contenus qu'il fournit (actualités, albums, pages, réglages). Ne pas le relancer sur une base dont le contenu a été édité à la main.
+- **Seed :** `npm run seed` écrase les modifications faites dans l'admin sur les contenus qu'il fournit (actualités, albums, pages, réglages ; l’organigramme fait exception : ses postes existants ne sont jamais réécrits). Ne pas le relancer sur une base dont le contenu a été édité à la main.
 
 ## Envoi des e-mails
 

@@ -20,7 +20,11 @@ test.describe('tableau de bord des indicateurs', { tag: '@desktop' }, () => {
     await loginAdmin(page)
     await page.locator('.kpi-dashboard').getByRole('link', { name: /Provisoires à remplacer/ }).click()
     await expect(page).toHaveURL(/\/admin\/collections\/medias/)
+    // Les portraits provisoires de l’organigramme remplissent la première page : on cherche par nom dans la liste filtrée.
+    const filtre = page.url()
+    await page.goto(`${filtre}${filtre.includes('?') ? '&' : '?'}search=forest`)
     await expect(page.getByRole('link', { name: /^forest.*\.jpg/ }).first()).toBeVisible() // le seed suffixe les noms de fichier
+    await page.goto(`${filtre}${filtre.includes('?') ? '&' : '?'}search=banner`)
     await expect(page.getByRole('link', { name: /^banner.*\.jpg/ })).toHaveCount(0)
   })
 })
