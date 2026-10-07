@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { Actualites } from '@/collections/Actualites'
+import { Messages } from '@/collections/Messages'
 import { Pages } from '@/collections/Pages'
 import { Projets } from '@/collections/Projets'
 import { Users } from '@/collections/Users'
@@ -40,5 +41,19 @@ describe('compte admin unique', () => {
     expect(await del(req({ id: 1 }, 1))).toBe(false)
     expect(await del(req({ id: 1 }, 2))).toBe(true)
     expect(await del(req(null, 2))).toBe(false)
+  })
+})
+
+describe('messages reçus', () => {
+  it('lecture, modification et suppression réservées à l’admin ; création toujours refusée par l’API', () => {
+    const { read, create, update, delete: del } = Messages.access!
+    expect(read!(anonymous)).toBe(false)
+    expect(read!(admin)).toBe(true)
+    expect(create!(anonymous)).toBe(false)
+    expect(create!(admin)).toBe(false)
+    expect(update!(anonymous)).toBe(false)
+    expect(update!(admin)).toBe(true)
+    expect(del!(anonymous)).toBe(false)
+    expect(del!(admin)).toBe(true)
   })
 })

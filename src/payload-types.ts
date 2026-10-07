@@ -72,6 +72,7 @@ export interface Config {
     projets: Projet;
     medias: Media;
     albums: Album;
+    messages: Message;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -85,6 +86,7 @@ export interface Config {
     projets: ProjetsSelect<false> | ProjetsSelect<true>;
     medias: MediasSelect<false> | MediasSelect<true>;
     albums: AlbumsSelect<false> | AlbumsSelect<true>;
+    messages: MessagesSelect<false> | MessagesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -339,6 +341,40 @@ export interface Projet {
   createdAt: string;
 }
 /**
+ * Demandes d’adhésion et messages de contact envoyés depuis le site. Lecture réservée à l’admin.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "messages".
+ */
+export interface Message {
+  id: number;
+  reference: string;
+  type: 'adhesion' | 'contact';
+  nom?: string | null;
+  donnees:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  locale?: ('fr' | 'en') | null;
+  noticeVersion?: string | null;
+  cleIdempotence: string;
+  emailEtat: 'envoye' | 'echec' | 'non_configure';
+  emailErreur?: string | null;
+  emailEnvoyeLe?: string | null;
+  traite?: boolean | null;
+  /**
+   * Visibles uniquement dans l’admin.
+   */
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
@@ -407,6 +443,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'albums';
         value: number | Album;
+      } | null)
+    | ({
+        relationTo: 'messages';
+        value: number | Message;
       } | null)
     | ({
         relationTo: 'users';
@@ -610,6 +650,26 @@ export interface AlbumsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "messages_select".
+ */
+export interface MessagesSelect<T extends boolean = true> {
+  reference?: T;
+  type?: T;
+  nom?: T;
+  donnees?: T;
+  locale?: T;
+  noticeVersion?: T;
+  cleIdempotence?: T;
+  emailEtat?: T;
+  emailErreur?: T;
+  emailEnvoyeLe?: T;
+  traite?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
@@ -680,6 +740,14 @@ export interface Reglage {
   facebookUrl: string;
   location?: string | null;
   footerTagline?: string | null;
+  /**
+   * Laisser vide pour ne pas envoyer d’e-mail : les demandes restent dans « Messages reçus ». L’envoi exige aussi le SMTP (voir README).
+   */
+  emailAdhesions?: string | null;
+  /**
+   * Laisser vide pour ne pas envoyer d’e-mail : les messages restent dans « Messages reçus ». L’envoi exige aussi le SMTP (voir README).
+   */
+  emailContact?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -704,6 +772,8 @@ export interface ReglagesSelect<T extends boolean = true> {
   facebookUrl?: T;
   location?: T;
   footerTagline?: T;
+  emailAdhesions?: T;
+  emailContact?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

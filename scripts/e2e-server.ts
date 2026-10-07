@@ -1,6 +1,7 @@
 import { spawn, spawnSync, type ChildProcess } from 'node:child_process'
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
+import { EMAIL_CAPTURE_DIR } from '../tests/e2e/email-capture'
 import { startDatabase } from './lib/embedded-db'
 import { ADMIN_EMAIL, ADMIN_PASSWORD } from '../tests/e2e/admin-credentials'
 
@@ -16,6 +17,9 @@ const E2E_ENV = {
   SEED_ADMIN_EMAIL: ADMIN_EMAIL,
   SEED_ADMIN_PASSWORD: ADMIN_PASSWORD,
   PREVIEW_SECRET: 'e2e-apercu',
+  // Faux transport : aucun e-mail réel, même si le .env contient un SMTP.
+  EMAIL_CAPTURE_DIR: path.resolve(EMAIL_CAPTURE_DIR),
+  SMTP_HOST: '',
 }
 
 const run = (command: string) =>
@@ -83,6 +87,7 @@ async function loginOnce(): Promise<void> {
  */
 export default async function globalSetup(): Promise<() => Promise<void>> {
   stopDatabaseWithPgCtl()
+  rmSync(path.resolve(EMAIL_CAPTURE_DIR), { recursive: true, force: true })
   const pg = await startDatabase({ port: E2E_DB_PORT, dataDir: E2E_DATA_DIR })
   let server: ChildProcess | undefined
   const teardown = async () => {

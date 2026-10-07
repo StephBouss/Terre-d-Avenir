@@ -60,6 +60,17 @@ Au lot 1, les formulaires (adhésion, contact) sont affichés mais désactivés 
 - **Base de données :** ne pas utiliser `npm run payload -- migrate:reset` : bug de Payload 3.90, qui lance d'abord le `down` de la migration initiale et échoue. En développement, utiliser `migrate:down` (retour arrière d'un lot) ou `migrate:fresh` (base reconstruite).
 - **Seed :** `npm run seed` écrase les modifications faites dans l'admin sur les contenus qu'il fournit (actualités, albums, pages, réglages). Ne pas le relancer sur une base dont le contenu a été édité à la main.
 
+## Envoi des e-mails
+
+Les formulaires d'adhésion et de contact sont toujours enregistrés dans *Formulaires > Messages reçus*. Un e-mail de notification part en plus si deux conditions sont réunies :
+
+1. **SMTP configuré** : `SMTP_HOST`, `SMTP_PORT` (587 par défaut ; 465 active TLS), `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM` (« Nom <adresse> » ou une adresse seule), dans `.env` ou dans l'environnement Docker. Ne jamais commiter de valeur réelle.
+2. **Adresse de réception** renseignée dans *Site > Réglages du site > Formulaires* (une adresse pour les adhésions, une pour le contact).
+
+Sinon, l'état e-mail du message vaut « Non configuré » et le site fonctionne normalement. Le même SMTP sert au « mot de passe oublié » de l'admin.
+
+En e2e, `EMAIL_CAPTURE_DIR` remplace le SMTP : les e-mails sont écrits en JSON dans `.data/e2e-emails`, rien n'est envoyé.
+
 ## Langues
 
 Le français et l'anglais sont actifs. Pour ajouter une langue, l'ajouter à `LOCALES` (`src/lib/i18n/config.ts`), créer son dictionnaire, puis lancer `npm run migrate:create` et `npm run migrate`.

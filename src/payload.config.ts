@@ -8,11 +8,13 @@ import sharp from 'sharp'
 import { Actualites } from './collections/Actualites'
 import { Medias } from './collections/Medias'
 import { Albums } from './collections/Albums'
+import { Messages } from './collections/Messages'
 import { Pages } from './collections/Pages'
 import { Projets } from './collections/Projets'
 import { Users } from './collections/Users'
 import { Diaporama } from './globals/Diaporama'
 import { Reglages } from './globals/Reglages'
+import { emailAdapter } from './lib/email/adaptateur'
 import { DEFAULT_LOCALE, LOCALES, NATIVE_NAMES } from './lib/i18n/config'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -24,7 +26,7 @@ export default buildConfig({
     components: { beforeDashboard: ['/components/admin/KpiDashboard'] },
   },
   i18n: { supportedLanguages: { fr }, fallbackLanguage: 'fr' },
-  collections: [Pages, Actualites, Projets, Medias, Albums, Users],
+  collections: [Pages, Actualites, Projets, Medias, Albums, Messages, Users],
   globals: [Reglages, Diaporama],
   localization: {
     locales: LOCALES.map((code) => ({ code, label: NATIVE_NAMES[code] })),
@@ -32,6 +34,7 @@ export default buildConfig({
     fallback: false,
   },
   editor: lexicalEditor(),
+  email: emailAdapter(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: postgresAdapter({
