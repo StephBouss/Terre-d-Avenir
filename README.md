@@ -48,6 +48,13 @@ Tout se modifie dans `/admin`. Un champ vide ou contenant `[...]` est masqué su
 
 Au lot 1, les formulaires (adhésion, contact) sont affichés mais désactivés : aucune donnée personnelle n'est collectée.
 
+## Administration
+
+- **Admin :** `/admin`, en français.
+- **Actualités :** « Enregistrer le brouillon » ne publie pas ; « Publier » met en ligne. « Archivée » retire l'actualité du site sans la supprimer. « Aperçu » montre un brouillon aux admins connectés et nécessite `PREVIEW_SECRET`.
+- **Images :** *Diaporama d'accueil* pour le Hero de l'accueil ; « Image d'en-tête » dans chaque page ; *Médiathèque* : cocher « Afficher dans la médiathèque » et régler l'ordre.
+- **Indicateurs :** page d'accueil de l'admin, avec des valeurs réelles uniquement (« Indisponible » en cas d'erreur de lecture). Les cartes adhésions et transactions s'activeront avec les lots 2 et 4.
+
 ## Langues
 
 Le français et l'anglais sont actifs. Pour ajouter une langue, l'ajouter à `LOCALES` (`src/lib/i18n/config.ts`), créer son dictionnaire, puis lancer `npm run migrate:create` et `npm run migrate`.

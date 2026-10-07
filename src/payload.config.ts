@@ -20,6 +20,7 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
+    components: { beforeDashboard: ['/components/admin/KpiDashboard'] },
   },
   i18n: { supportedLanguages: { fr }, fallbackLanguage: 'fr' },
   collections: [Pages, Actualites, Projets, Medias, Users],
