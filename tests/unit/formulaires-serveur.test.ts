@@ -71,6 +71,28 @@ describe('limite de débit', () => {
   })
 })
 
+describe('limite de débit : réservation', () => {
+  it('reserve occupe un créneau tout de suite ; annule le libère', () => {
+    const l = new LimiteurDebit(2, 600_000)
+    expect(l.reserve('ip', 0)).toBe(true)
+    expect(l.reserve('ip', 1)).toBe(true)
+    expect(l.reserve('ip', 2)).toBe(false)
+    l.annule('ip', 1)
+    expect(l.reserve('ip', 3)).toBe(true)
+  })
+  it('purge au plus une fois par fenêtre', () => {
+    const l = new LimiteurDebit(5, 1000)
+    l.reserve('a', 0)
+    l.reserve('b', 1)
+    expect(l.taille).toBe(2)
+    l.reserve('c', 1500) // a et b expirés : première purge de la fenêtre
+    expect(l.taille).toBe(1)
+    l.reserve('d', 1600)
+    l.reserve('e', 1700)
+    expect(l.taille).toBe(3)
+  })
+})
+
 describe('référence', () => {
   it('ADH-XXXXXX ou CT-XXXXXX, sans caractère ambigu', () => {
     for (let i = 0; i < 50; i++) {
@@ -155,6 +177,57 @@ describe('e-mail de notification', () => {
     const f = fauxPayload({ destination: 'recu@exemple.org', echecEmail: true })
     f.messages.push({ ...(message as unknown as Doc) })
     expect(await notifierMessage(f.payload, message)).toEqual({ emailEtat: 'echec', emailErreur: 'SMTP indisponible', emailEnvoyeLe: null })
+  })
+})
+
+describe('traitement d’un envoi : correctifs de revue', () => {
+  const REQUETE = { status: 400, corps: { ok: false, erreur: 'requete' } }
+  const AUTRE_CLE = '3b241101-e2bb-4255-8caf-4136c566a963'
+  it('champs inconnus : 400 requete, rien d’enregistré', async () => {
+    const { payload, messages } = fauxPayload()
+    expect(await traiterEnvoi(entree(payload, { ...CONTACT, role: 'admin' }))).toEqual(REQUETE)
+    expect(await traiterEnvoi(entree(payload, { ...CONTACT, notice: true }))).toEqual(REQUETE)
+    expect(messages).toHaveLength(0)
+  })
+  it('rafale : 12 appels concurrents avec des clés différentes, 5 passent', async () => {
+    const { payload, messages } = fauxPayload()
+    const limiteur = new LimiteurDebit(5, 600_000)
+    const cles = Array.from({ length: 12 }, (_, i) => `3b241101-e2bb-4255-8caf-4136c566a9${String(i).padStart(2, '0')}`)
+    const sorties = await Promise.all(cles.map((cle) => traiterEnvoi(entree(payload, { ...CONTACT, cle }, { limiteur }))))
+    expect(sorties.filter((s) => s.status === 200)).toHaveLength(5)
+    expect(sorties.filter((s) => s.status === 429)).toHaveLength(7)
+    expect(messages).toHaveLength(5)
+  })
+  it('validation en échec ou clé déjà connue : aucun créneau consommé', async () => {
+    const { payload } = fauxPayload()
+    const limiteur = new LimiteurDebit(1, 600_000)
+    expect((await traiterEnvoi(entree(payload, { ...CONTACT, nom: '' }, { limiteur }))).status).toBe(400)
+    expect((await traiterEnvoi(entree(payload, CONTACT, { limiteur }))).status).toBe(200)
+    expect((await traiterEnvoi(entree(payload, CONTACT, { limiteur }))).status).toBe(200) // même clé : pas de créneau
+    expect((await traiterEnvoi(entree(payload, { ...CONTACT, cle: AUTRE_CLE }, { limiteur }))).status).toBe(429)
+  })
+  it('même clé en simultané : un seul créneau consommé', async () => {
+    const { payload, messages } = fauxPayload()
+    const limiteur = new LimiteurDebit(2, 600_000)
+    await Promise.all([traiterEnvoi(entree(payload, CONTACT, { limiteur })), traiterEnvoi(entree(payload, CONTACT, { limiteur }))])
+    expect(messages).toHaveLength(1)
+    expect((await traiterEnvoi(entree(payload, { ...CONTACT, cle: AUTRE_CLE }, { limiteur }))).status).toBe(200)
+  })
+})
+
+describe('mise à jour de l’état après envoi', () => {
+  it('première mise à jour en échec : journalisée, retentée, état « envoyé » conservé, un seul e-mail', async () => {
+    vi.stubEnv('SMTP_HOST', 'smtp.exemple.org')
+    const { payload, brut, messages, emails } = fauxPayload({ destination: 'bureau@exemple.org' })
+    const message = { id: 1, reference: 'CT-ABCDEF', type: 'contact', donnees: { nom: 'x' }, locale: 'fr', createdAt: '2026-10-07T08:00:00.000Z' }
+    messages.push({ ...message, emailEtat: 'echec', emailErreur: 'Envoi non terminé.' })
+    brut.update.mockRejectedValueOnce(new Error('base occupée'))
+    const etat = await notifierMessage(payload, message as unknown as Message)
+    expect(etat.emailEtat).toBe('envoye')
+    expect(emails).toHaveLength(1)
+    expect(brut.update).toHaveBeenCalledTimes(2)
+    expect(brut.logger.error).toHaveBeenCalled()
+    expect(messages[0].emailEtat).toBe('envoye')
   })
 })
 

@@ -34,6 +34,17 @@ export function composerEmail(message: MessageEmail, base: string): { subject: s
   }
 }
 
+/** Enregistre l’état sur le message ; en cas d’échec (l’e-mail est peut-être déjà parti), journalise et retente une fois. */
+async function enregistrerEtat(payload: Payload, message: Message, etat: EtatEmail): Promise<void> {
+  const mettreAJour = () => payload.update({ collection: 'messages', id: message.id, data: etat, depth: 0, overrideAccess: true })
+  try {
+    await mettreAJour()
+  } catch (error) {
+    payload.logger.error({ err: error }, `État de l’e-mail non enregistré pour ${message.reference} (${etat.emailEtat}), nouvel essai`)
+    await mettreAJour()
+  }
+}
+
 /** Envoie la notification si le transport et l’adresse de réception sont configurés, puis enregistre l’état sur le message. */
 export async function notifierMessage(payload: Payload, message: Message): Promise<EtatEmail> {
   const reglages = await payload.findGlobal({ slug: 'reglages', depth: 0, overrideAccess: true })
@@ -49,6 +60,6 @@ export async function notifierMessage(payload: Payload, message: Message): Promi
       etat = { emailEtat: 'echec', emailErreur: (error instanceof Error ? error.message : String(error)).slice(0, 500), emailEnvoyeLe: null }
     }
   }
-  await payload.update({ collection: 'messages', id: message.id, data: etat, depth: 0, overrideAccess: true })
+  await enregistrerEtat(payload, message, etat)
   return etat
 }

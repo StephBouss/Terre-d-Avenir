@@ -9,6 +9,7 @@ export class LimiteurDebit {
   private readonly envois = new Map<string, number[]>()
   private readonly limite: number
   private readonly fenetreMs: number
+  private dernierePurge = 0
 
   constructor(limite = LIMITE_ENVOIS, fenetreMs = FENETRE_MS) {
     this.limite = limite
@@ -22,13 +23,42 @@ export class LimiteurDebit {
     return liste
   }
 
+  /** Nombre de clés suivies. */
+  get taille(): number {
+    return this.envois.size
+  }
+
   autorise(cle: string, maintenant: number): boolean {
     return this.recents(cle, maintenant).length < this.limite
   }
 
   enregistre(cle: string, maintenant: number): void {
     this.envois.set(cle, [...this.recents(cle, maintenant), maintenant])
-    if (this.envois.size > 10_000) for (const k of [...this.envois.keys()]) this.recents(k, maintenant)
+    this.purger(maintenant)
+  }
+
+  /** Vérifie la limite et occupe un créneau dans la foulée, de façon synchrone : des requêtes concurrentes ne peuvent pas la dépasser. */
+  reserve(cle: string, maintenant: number): boolean {
+    if (!this.autorise(cle, maintenant)) return false
+    this.enregistre(cle, maintenant)
+    return true
+  }
+
+  /** Libère un créneau réservé par `reserve` (validation refusée, clé déjà connue, enregistrement impossible). */
+  annule(cle: string, maintenant: number): void {
+    const liste = this.recents(cle, maintenant)
+    const i = liste.lastIndexOf(maintenant)
+    if (i < 0) return
+    liste.splice(i, 1)
+    if (liste.length > 0) this.envois.set(cle, liste)
+    else this.envois.delete(cle)
+  }
+
+  /** Balaie les clés expirées, au plus une fois par fenêtre. */
+  private purger(maintenant: number): void {
+    if (maintenant - this.dernierePurge < this.fenetreMs) return
+    this.dernierePurge = maintenant
+    for (const k of [...this.envois.keys()]) this.recents(k, maintenant)
   }
 }
 

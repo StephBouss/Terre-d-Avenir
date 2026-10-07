@@ -16,6 +16,11 @@ export const LIMITES = { nom: 80, prenoms: 80, prenom: 80, email: 254, ville: 10
 
 export type ChampAdhesion = 'nom' | 'prenoms' | 'telephone' | 'email' | 'pays' | 'ville' | 'interets' | 'motivation' | 'notice'
 export type ChampContact = 'nom' | 'prenom' | 'email' | 'telephone' | 'organisation' | 'message'
+/** Champs acceptés dans le corps, hors `cle` et `siteWeb` (pot de miel) : tout autre champ est refusé. */
+export const CHAMPS_AUTORISES: Record<TypeFormulaire, readonly string[]> = {
+  adhesion: ['nom', 'prenoms', 'telephone', 'email', 'pays', 'ville', 'interets', 'motivation', 'notice'],
+  contact: ['nom', 'prenom', 'email', 'telephone', 'organisation', 'message'],
+}
 export type Erreurs<C extends string> = Partial<Record<C, CodeErreur>>
 export type Resultat<D, C extends string> = { ok: true; donnees: D } | { ok: false; erreurs: Erreurs<C> }
 
@@ -38,7 +43,7 @@ export type ReponseFormulaire =
 
 export const CLE_IDEMPOTENCE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const EMAIL = /^[^\s@,<>"();:\\]+@[^\s@]+\.[^\s@]+$/
 const TELEPHONE = /^\+[1-9]\d{6,14}$/
 
 /** Longueur en caractères visibles (un émoji ou un idéogramme compte pour un). */

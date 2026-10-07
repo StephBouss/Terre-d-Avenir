@@ -39,9 +39,10 @@ test.describe('traitement des formulaires (API)', { tag: '@desktop' }, () => {
   })
 
   test('langue déduite de la page d’origine, jamais du corps', async ({ request }) => {
-    const en = await (await envoyerFormulaire(request, 'contact', { ...CONTACT, locale: 'fr' }, { referer: 'http://localhost:3100/en/contact' })).json()
+    const en = await (await envoyerFormulaire(request, 'contact', CONTACT, { referer: 'http://localhost:3100/en/contact' })).json()
     expect((await lireMessage(request, token, en.reference))?.locale).toBe('en')
-    const sans = await (await envoyerFormulaire(request, 'contact', { ...CONTACT, locale: 'en' })).json()
+    expect((await envoyerFormulaire(request, 'contact', { ...CONTACT, locale: 'en' })).status()).toBe(400) // le corps n’a pas de champ locale
+    const sans = await (await envoyerFormulaire(request, 'contact', CONTACT)).json()
     expect((await lireMessage(request, token, sans.reference))?.locale).toBe('fr')
   })
 
@@ -81,5 +82,24 @@ test.describe('traitement des formulaires (API)', { tag: '@desktop' }, () => {
   test('requête mal formée : 415 sans JSON, 400 sans clé', async ({ request }) => {
     expect((await request.post('/api/formulaires/contact', { headers: { 'Content-Type': 'text/plain' }, data: 'nom=x' })).status()).toBe(415)
     expect((await request.post('/api/formulaires/contact', { data: CONTACT })).status()).toBe(400)
+  })
+
+  test('type de contenu strict : « text/plain;application/json » donne 415', async ({ request }) => {
+    const res = await request.post('/api/formulaires/contact', { headers: { 'Content-Type': 'text/plain;application/json' }, data: JSON.stringify({ cle: randomUUID(), ...CONTACT }) })
+    expect(res.status()).toBe(415)
+  })
+
+  test('corps trop grand : 413, rien d’enregistré', async ({ request }) => {
+    const res = await request.post('/api/formulaires/contact', {
+      headers: { 'Content-Type': 'application/json', 'X-Forwarded-For': ipAleatoire() },
+      data: JSON.stringify({ cle: randomUUID(), ...CONTACT, message: 'x'.repeat(30_000) }),
+    })
+    expect(res.status()).toBe(413)
+  })
+
+  test('champ inconnu : 400 requête', async ({ request }) => {
+    const res = await envoyerFormulaire(request, 'contact', { ...CONTACT, role: 'admin' })
+    expect(res.status()).toBe(400)
+    expect(await res.json()).toEqual({ ok: false, erreur: 'requete' })
   })
 })

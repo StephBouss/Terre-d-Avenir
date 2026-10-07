@@ -55,6 +55,12 @@ describe('validation du contact', () => {
   it('nom, e-mail et message requis ; téléphone vérifié s’il est donné', () => {
     expect(validerContact({ telephone: '06' })).toEqual({ ok: false, erreurs: { nom: 'requis', email: 'requis', telephone: 'telephone', message: 'requis' } })
   })
+  it('partie locale de l’e-mail : caractères interdits refusés', () => {
+    for (const email of ['a,b@x.fr', 'a<b@x.fr', 'a"b@x.fr', 'a(b)@x.fr', 'a;b@x.fr', 'a:b@x.fr', 'a\\b@x.fr', 'a>b@x.fr']) {
+      expect(validerContact({ ...CONTACT, email })).toEqual({ ok: false, erreurs: { email: 'email' } })
+    }
+    expect(validerContact({ ...CONTACT, email: 'a.b+c@x.fr' }).ok).toBe(true)
+  })
   it('message de 2 000 caractères maximum', () => {
     expect(validerContact({ ...CONTACT, message: 'm'.repeat(2001) })).toEqual({ ok: false, erreurs: { message: 'tropLong' } })
   })
@@ -68,7 +74,8 @@ describe('pays', () => {
     expect(nomPays('DE', 'fr')).toBe('Allemagne')
     expect(nomPays('DE', 'en')).toBe('Germany')
     const fr = optionsPays('fr')
-    expect(fr[0]).toEqual({ code: 'AF', nom: 'Afghanistan' })
+    const collateur = new Intl.Collator('fr')
+    expect(fr.map((p) => p.nom)).toEqual([...fr.map((p) => p.nom)].sort(collateur.compare))
     expect(fr.find((p) => p.code === 'GA')?.nom).toBe('Gabon')
   })
 })

@@ -5,6 +5,7 @@ import { notifierMessage } from './email'
 import type { LimiteurDebit } from './limite'
 import { genererReference } from './reference'
 import {
+  CHAMPS_AUTORISES,
   CLE_IDEMPOTENCE,
   NOTICE_VERSION,
   validerAdhesion,
@@ -80,17 +81,31 @@ export async function traiterEnvoi({ type, corps, ip, locale, payload, limiteur,
 
   if (typeof brut.siteWeb === 'string' && brut.siteWeb.trim() !== '') return succes(genererReference(type))
 
+  const autorises = new Set<string>(['cle', 'siteWeb', ...CHAMPS_AUTORISES[type]])
+  if (Object.keys(brut).some((k) => !autorises.has(k))) return REQUETE
+
   const existant = await messageParCle(payload, cle)
   if (existant) return existant.type === type ? succes(existant.reference) : REQUETE
 
-  if (!limiteur.autorise(ip, maintenant)) return { status: 429, corps: { ok: false, erreur: 'limite' } }
+  // Créneau réservé tout de suite (aucun await entre le contrôle et la réservation), rendu si l’envoi n’est pas enregistré.
+  if (!limiteur.reserve(ip, maintenant)) return { status: 429, corps: { ok: false, erreur: 'limite' } }
 
   const resultat = type === 'adhesion' ? validerAdhesion(brut) : validerContact(brut)
-  if (!resultat.ok) return { status: 400, corps: { ok: false, erreur: 'validation', champs: resultat.erreurs } }
+  if (!resultat.ok) {
+    limiteur.annule(ip, maintenant)
+    return { status: 400, corps: { ok: false, erreur: 'validation', champs: resultat.erreurs } }
+  }
 
-  const { message, nouveau } = await enregistrer(payload, type, cle, resultat.donnees, locale)
-  if (nouveau) {
-    limiteur.enregistre(ip, maintenant)
+  let enregistre: { message: Message; nouveau: boolean }
+  try {
+    enregistre = await enregistrer(payload, type, cle, resultat.donnees, locale)
+  } catch (error) {
+    limiteur.annule(ip, maintenant)
+    throw error
+  }
+  const { message, nouveau } = enregistre
+  if (!nouveau) limiteur.annule(ip, maintenant)
+  else {
     try {
       await notifierMessage(payload, message)
     } catch (error) {
