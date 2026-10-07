@@ -1,20 +1,22 @@
-import { expect, type APIRequestContext, type Page } from '@playwright/test'
-import { ADMIN_EMAIL, ADMIN_PASSWORD } from './admin-credentials'
+import { readFileSync } from 'node:fs'
+import { expect, type APIRequestContext, type BrowserContext, type Page } from '@playwright/test'
 
-/** Connexion à l'admin Payload par l'interface. */
+/** Fichier écrit par le globalSetup (un seul login API, partagé : voir scripts/e2e-server.ts). */
+const ADMIN_STATE_FILE = '.data/e2e-admin-state.json'
+
+/** Connecte la page à l'admin avec la session partagée (cookie du storageState), sans refaire de login. */
 export async function loginAdmin(page: Page): Promise<void> {
-  await page.goto('/admin/login')
-  await page.locator('input[name="email"]').fill(ADMIN_EMAIL)
-  await page.locator('input[name="password"]').fill(ADMIN_PASSWORD)
-  await page.locator('form button[type="submit"]').click()
+  const state = JSON.parse(readFileSync(ADMIN_STATE_FILE, 'utf8')) as { cookies: Parameters<BrowserContext['addCookies']>[0] }
+  await page.context().addCookies(state.cookies)
+  await page.goto('/admin')
   await expect(page).toHaveURL(/\/admin(\/)?$/)
 }
 
-/** Jeton JWT pour l'API REST de Payload (en-tête Authorization: JWT <token>). */
-export async function adminToken(request: APIRequestContext): Promise<string> {
-  const res = await request.post('/api/users/login', { data: { email: ADMIN_EMAIL, password: ADMIN_PASSWORD } })
-  expect(res.ok()).toBe(true)
-  return (await res.json()).token as string
+/** Jeton JWT partagé pour l'API REST de Payload (en-tête Authorization: JWT <token>), obtenu par le globalSetup. */
+export async function adminToken(_request?: APIRequestContext): Promise<string> {
+  const token = process.env.E2E_ADMIN_TOKEN
+  if (!token) throw new Error('E2E_ADMIN_TOKEN absent : le globalSetup n’a pas ouvert de session admin')
+  return token
 }
 
 /** Supprime d'éventuelles actualités de test restées d'une exécution interrompue (la base e2e est persistante). */
@@ -22,7 +24,7 @@ export async function purgeActualites(request: APIRequestContext, token: string,
   const headers = { Authorization: `JWT ${token}` }
   for (const slug of slugs) {
     const res = await request.get(`/api/actualites?draft=true&limit=10&where[slug][equals]=${encodeURIComponent(slug)}`, { headers })
-    if (!res.ok()) continue
+    expect(res.ok(), `purge ${slug} : ${res.status()} ${await res.text()}`).toBe(true)
     for (const doc of (await res.json()).docs as { id: string | number }[]) {
       await request.delete(`/api/actualites/${doc.id}`, { headers })
     }

@@ -4,8 +4,7 @@ import { adminToken, purgeActualites } from './admin-helpers'
 const DRAFT = { slug: 'e2e-brouillon', title: 'E2E brouillon invisible' }
 const ARCHIVED = { slug: 'e2e-archivee', title: 'E2E archivée invisible' }
 
-// Retries : deux connexions admin simultanées (workers parallèles) peuvent invalider un jeton (course sur les sessions Payload).
-test.describe.configure({ mode: 'serial', retries: 2 })
+test.describe.configure({ mode: 'serial' })
 
 test.describe('états des actualités', () => {
   test.skip(({ isMobile }) => isMobile, 'données partagées : desktop uniquement')

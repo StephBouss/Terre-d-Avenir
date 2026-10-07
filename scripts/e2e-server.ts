@@ -1,10 +1,12 @@
 import { spawn, spawnSync, type ChildProcess } from 'node:child_process'
-import { existsSync } from 'node:fs'
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { startDatabase } from './lib/embedded-db'
 import { ADMIN_EMAIL, ADMIN_PASSWORD } from '../tests/e2e/admin-credentials'
 
 const SERVER_URL = 'http://localhost:3100/fr'
+// Session admin partagée : un seul login API (Payload réécrit le tableau `sessions` entier, deux logins simultanés se marchent dessus).
+const ADMIN_STATE_FILE = '.data/e2e-admin-state.json'
 // Base dédiée aux tests : ne touche jamais à la base de développement (5433, .data/postgres).
 const E2E_DB_PORT = 5434
 const E2E_DATA_DIR = '.data/postgres-e2e'
@@ -54,6 +56,24 @@ async function waitForServer(server: ChildProcess, timeoutMs = 120_000): Promise
   throw new Error(`Le serveur ne répond pas sur ${SERVER_URL}`)
 }
 
+/** Un unique login admin : jeton exporté aux workers (E2E_ADMIN_TOKEN) et storageState Playwright avec le cookie `payload-token`. */
+async function loginOnce(): Promise<void> {
+  const res = await fetch('http://localhost:3100/api/users/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: ADMIN_EMAIL, password: ADMIN_PASSWORD }),
+  })
+  if (!res.ok) throw new Error(`Connexion admin e2e impossible (${res.status}) : ${await res.text()}`)
+  const { token } = (await res.json()) as { token: string }
+  process.env.E2E_ADMIN_TOKEN = token
+  mkdirSync(path.dirname(ADMIN_STATE_FILE), { recursive: true })
+  const state = {
+    cookies: [{ name: 'payload-token', value: token, domain: 'localhost', path: '/', expires: -1, httpOnly: true, secure: false, sameSite: 'Lax' }],
+    origins: [],
+  }
+  writeFileSync(ADMIN_STATE_FILE, JSON.stringify(state))
+}
+
 /**
  * Setup global Playwright : base embarquée dédiée (5434), migrations, seed, puis `next start` sur 3100.
  * Le teardown arrête d’abord le serveur, puis la base, pour ne laisser ni erreur de connexion ni processus orphelin.
@@ -71,6 +91,7 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
     await run('npm run seed')
     server = spawn('npx next start -p 3100', { shell: true, stdio: 'inherit', env: E2E_ENV })
     await waitForServer(server)
+    await loginOnce()
   } catch (error) {
     await teardown()
     throw error

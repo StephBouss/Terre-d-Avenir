@@ -3,8 +3,7 @@ import { adminToken, loginAdmin, purgeActualites } from './admin-helpers'
 
 const DRAFT = { slug: 'e2e-apercu', title: 'E2E aperçu brouillon' }
 
-// Retries : deux connexions admin simultanées (workers parallèles) peuvent invalider un jeton (course sur les sessions Payload).
-test.describe.configure({ mode: 'serial', retries: 2 })
+test.describe.configure({ mode: 'serial' })
 
 test.describe('aperçu des brouillons', () => {
   test.skip(({ isMobile }) => isMobile, 'desktop uniquement')

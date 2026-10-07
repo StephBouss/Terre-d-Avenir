@@ -29,7 +29,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const actualite = await getActualite(slug, locale, preview)
   if (!actualite) return {}
   const image = typeof actualite.image === 'object' ? actualite.image?.url : undefined
-  return pageMetadata({ locale, path: `/actualites/${slug}`, title: `${actualite.title} — ${SITE_NAME}`, description: actualite.excerpt, image })
+  const metadata = pageMetadata({ locale, path: `/actualites/${slug}`, title: `${actualite.title} — ${SITE_NAME}`, description: actualite.excerpt, image })
+  return preview ? { ...metadata, robots: { index: false, follow: false } } : metadata
 }
 
 export default async function ArticlePage({ params }: Props) {
