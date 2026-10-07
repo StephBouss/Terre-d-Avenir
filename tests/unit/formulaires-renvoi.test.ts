@@ -41,4 +41,30 @@ describe('renvoi de l’e-mail d’un message', () => {
     expect(await res.json()).toEqual({ emailEtat: 'non_configure', emailErreur: null, emailEnvoyeLe: null })
     expect(update).toHaveBeenCalledTimes(1)
   })
+  it('409 « Envoi déjà en cours. » si un renvoi du même message est en cours, puis le verrou est libéré', async () => {
+    vi.stubEnv('SMTP_HOST', 'smtp.exemple.org')
+    vi.stubEnv('SMTP_FROM', 'site@exemple.org')
+    const { req } = requete({ id: 1 }, { ...MESSAGE, emailEtat: 'echec' })
+    const payload = (req as unknown as { payload: { findGlobal: ReturnType<typeof vi.fn>; sendEmail: ReturnType<typeof vi.fn> } }).payload
+    payload.findGlobal.mockResolvedValue({ emailContact: 'bureau@exemple.org', emailAdhesions: 'bureau@exemple.org' })
+    let finir: () => void = () => {}
+    payload.sendEmail.mockImplementation(() => new Promise<void>((resolve) => (finir = resolve)))
+    const premier = renvoyerEmail(req)
+    await vi.waitFor(() => expect(payload.sendEmail).toHaveBeenCalled())
+    const second = await renvoyerEmail(req)
+    expect(second.status).toBe(409)
+    expect(await second.json()).toEqual({ message: 'Envoi déjà en cours.' })
+    finir()
+    expect((await premier).status).toBe(200)
+    payload.sendEmail.mockResolvedValue(undefined)
+    expect((await renvoyerEmail(req)).status).toBe(200)
+  })
+  it('le verrou est libéré même si l’envoi échoue', async () => {
+    const { req, update } = requete({ id: 1 }, { ...MESSAGE, emailEtat: 'echec' })
+    update.mockRejectedValue(new Error('base indisponible'))
+    ;(req as unknown as { payload: { logger: unknown } }).payload.logger = { error: vi.fn() }
+    await expect(renvoyerEmail(req)).rejects.toThrow()
+    const { notificationsEnCours } = await import('@/lib/formulaires/verrou')
+    expect(notificationsEnCours.size).toBe(0)
+  })
 })

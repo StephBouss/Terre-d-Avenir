@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button, toast, useConfig, useDocumentInfo, useFormFields } from '@payloadcms/ui'
+import { ETATS_RENVOYABLES } from '../../lib/formulaires/etats'
 
 /** Bouton de la vue d’édition d’un message : visible seulement si l’e-mail est en échec ou non configuré. */
 export default function RenvoyerEmail() {
@@ -13,7 +14,7 @@ export default function RenvoyerEmail() {
   const [enCours, setEnCours] = useState(false)
   const [fait, setFait] = useState(false)
 
-  if (!id || fait || (etat !== 'echec' && etat !== 'non_configure')) return null
+  if (!id || fait || !(ETATS_RENVOYABLES as readonly string[]).includes(etat ?? '')) return null
 
   async function renvoyer() {
     setEnCours(true)

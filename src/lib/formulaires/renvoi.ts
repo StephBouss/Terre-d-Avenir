@@ -1,7 +1,7 @@
 import type { PayloadHandler } from 'payload'
 import { notifierMessage } from './email'
-
-export const ETATS_RENVOYABLES = ['echec', 'non_configure'] as const
+import { ETATS_RENVOYABLES } from './etats'
+import { notificationsEnCours } from './verrou'
 
 /** POST /api/messages/:id/renvoyer — admin connecté uniquement ; refait la notification d’un message en échec ou non configuré. */
 export const renvoyerEmail: PayloadHandler = async (req) => {
@@ -12,5 +12,13 @@ export const renvoyerEmail: PayloadHandler = async (req) => {
   if (!(ETATS_RENVOYABLES as readonly string[]).includes(message.emailEtat)) {
     return Response.json({ message: 'L’e-mail de ce message a déjà été envoyé.' }, { status: 409 })
   }
-  return Response.json(await notifierMessage(req.payload, message))
+  // Un double clic ne doit pas envoyer deux e-mails : un seul renvoi à la fois par message.
+  const cle = String(message.id)
+  if (notificationsEnCours.has(cle)) return Response.json({ message: 'Envoi déjà en cours.' }, { status: 409 })
+  notificationsEnCours.add(cle)
+  try {
+    return Response.json(await notifierMessage(req.payload, message))
+  } finally {
+    notificationsEnCours.delete(cle)
+  }
 }
