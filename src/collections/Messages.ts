@@ -80,7 +80,7 @@ export const Messages: CollectionConfig = {
       admin: { ...fige, position: 'sidebar', date: { pickerAppearance: 'dayAndTime' } },
       access: nonModifiable,
     },
-    { name: 'traite', label: 'Traité', type: 'checkbox', defaultValue: false, admin: { position: 'sidebar' } },
+    { name: 'traite', label: 'Traité', type: 'checkbox', defaultValue: false, admin: { position: 'sidebar', components: { Cell: '/components/admin/CelluleTraite' } } },
     { name: 'notes', label: 'Notes internes', type: 'textarea', admin: { description: 'Visibles uniquement dans l’admin.' } },
   ],
 }

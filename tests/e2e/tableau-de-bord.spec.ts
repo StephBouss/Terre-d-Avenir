@@ -8,8 +8,15 @@ test.describe('tableau de bord des indicateurs', { tag: '@desktop' }, () => {
   test('valeurs réelles et situation datée', async ({ page }) => {
     await loginAdmin(page)
     const board = page.locator('.kpi-dashboard')
-    await expect(board.getByRole('heading', { name: 'Indicateurs' })).toBeVisible()
+    await expect(board.getByRole('heading', { name: 'Tableau de bord' })).toBeVisible()
     await expect(board.getByText(/Situation au .* \(heure de Libreville\)/)).toBeVisible()
+    // Grands chiffres visibles d’emblée, chacun menant à sa liste.
+    for (const [cle, label] of [['messages', 'Messages à traiter'], ['actualites', 'Actualités publiées'], ['photos', 'Photos'], ['alertes', 'Photos provisoires']]) {
+      const chiffre = board.locator(`[data-kpi-chiffre="${cle}"]`)
+      await expect(chiffre).toBeInViewport()
+      await expect(chiffre.locator('.kpi-chiffre-label')).toHaveText(label)
+      await expect(chiffre.locator('.kpi-chiffre-nombre')).toHaveText(/^\d+$/)
+    }
     // Seed : 6 actualités publiées. Regex tolérante : d'autres specs créent des actualités en parallèle (nettoyées en afterAll).
     await expect(board.getByRole('link', { name: /Publiées\s*([6-9]|\d{2})/ })).toBeVisible()
     await expect(board.getByText('Aucune source configurée')).toHaveCount(0)

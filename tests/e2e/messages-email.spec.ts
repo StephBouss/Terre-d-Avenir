@@ -88,5 +88,9 @@ test.describe('notification e-mail des messages', { tag: '@desktop' }, () => {
     const traite = lignes.findIndex((t) => t.includes(refs.sansAdresse))
     expect(nonTraite).toBeGreaterThanOrEqual(0)
     expect(traite).toBeGreaterThan(nonTraite)
+    // Pastilles de couleur : ambre « À traiter », verte « Traité ».
+    const ligne = (ref: string) => page.locator('table tbody tr').filter({ hasText: ref })
+    await expect(ligne(refs.avecAdresse).locator('[data-traite="non"]')).toHaveText('À traiter')
+    await expect(ligne(refs.sansAdresse).locator('[data-traite="oui"]')).toHaveText('Traité')
   })
 })

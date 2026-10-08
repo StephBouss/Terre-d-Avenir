@@ -1,5 +1,6 @@
 import type { ServerProps } from 'payload'
 import Link from 'next/link'
+import type { ReactNode } from 'react'
 import { formatSituation, type KpiState } from '@/lib/kpi/compute'
 import { loadKpis } from '@/lib/kpi/load'
 import { type Compte, type Module, peutLire } from '@/lib/permissions'
@@ -22,6 +23,32 @@ function Row({ label, state, href, title }: { label: string; state: KpiState; hr
   )
 }
 
+const positif = (state: KpiState) => state.kind === 'value' && state.value > 0
+
+const ICONES: Record<string, ReactNode> = {
+  messages: <path d="M4 6h16v12H4z M4 7l8 6 8-6" />,
+  actualites: <path d="M5 5h11v14H5z M16 9h3v8a2 2 0 0 1-2 2 M8 9h5 M8 12h5 M8 15h3" />,
+  photos: <path d="M4 6h16v12H4z M4 15l4-4 4 4 3-3 5 5 M15 9.5h.01" />,
+  alertes: <path d="M12 4l9 16H3z M12 10v4 M12 17h.01" />,
+}
+
+/** Grand chiffre lisible au premier coup d’œil ; « alerte » le colore en ambre tant qu’il reste quelque chose à faire. */
+function Chiffre({ icone, label, aide, state, href, alerte = false }: { icone: string; label: string; aide: string; state: KpiState; href: string; alerte?: boolean }) {
+  const ton = alerte ? (positif(state) ? 'kpi-chiffre--alerte' : 'kpi-chiffre--ok') : ''
+  return (
+    <Link href={href} className={`kpi-chiffre ${ton}`} data-kpi-chiffre={icone}>
+      <span className="kpi-chiffre-icone" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          {ICONES[icone]}
+        </svg>
+      </span>
+      <span className="kpi-chiffre-nombre">{state.kind === 'value' ? state.value : '—'}</span>
+      <span className="kpi-chiffre-label">{label}</span>
+      <span className="kpi-chiffre-aide">{aide}</span>
+    </Link>
+  )
+}
+
 // Filtre « alt vide » : NULL ou chaîne vide (Payload enregistre l'un ou l'autre selon la saisie). Un alt blanc ou contenant [...] ne s'exprime pas en URL.
 const SANS_ALT = 'where[and][0][provisoire][not_equals]=true&where[and][1][or][0][alt][exists]=false&where[and][1][or][1][alt][equals]='
 const NON_TRAITES = 'where[traite][not_equals]=true'
@@ -34,12 +61,43 @@ export default async function KpiDashboard({ payload, user }: ServerProps) {
   const voit = (m: Module) => peutLire(user as Compte, m)
   const k = await loadKpis(payload)
   const LIST = `${payload.config.routes.admin}/collections`
+  const nom = (user as { nom?: string | null }).nom
   return (
     <section className="kpi-dashboard" aria-labelledby="kpi-title">
-      <header className="kpi-header">
-        <h2 id="kpi-title">Indicateurs</h2>
-        <p>Situation au {formatSituation(new Date())} (heure de Libreville)</p>
+      <header className="kpi-banniere">
+        <span className="kpi-banniere-surtitre">Terre d’Avenir KOMO-KANGO</span>
+        <h2 id="kpi-title">Tableau de bord</h2>
+        <p>
+          {nom ? `Bonjour ${nom}. ` : ''}Situation au {formatSituation(new Date())} (heure de Libreville)
+        </p>
       </header>
+
+      <div className="kpi-chiffres">
+        {voit('messages') && (
+          <Chiffre icone="messages" label="Messages à traiter" aide="Adhésions et contacts non traités" state={k.messages.total} href={`${LIST}/messages?${NON_TRAITES}`} alerte />
+        )}
+        {voit('actualites') && (
+          <Chiffre
+            icone="actualites"
+            label="Actualités publiées"
+            aide="Visibles sur le site"
+            state={k.actualites.publiees}
+            href={`${LIST}/actualites?where[_status][equals]=published&where[archivee][not_equals]=true`}
+          />
+        )}
+        {voit('mediatheque') && <Chiffre icone="photos" label="Photos" aide="Dans la bibliothèque de médias" state={k.medias.total} href={`${LIST}/medias`} />}
+        {voit('mediatheque') && (
+          <Chiffre
+            icone="alertes"
+            label="Photos provisoires"
+            aide="À remplacer par des photos définitives"
+            state={k.medias.provisoires}
+            href={`${LIST}/medias?where[provisoire][equals]=true`}
+            alerte
+          />
+        )}
+      </div>
+
       <div className="kpi-grid">
         {voit('messages') && (
           <article className="kpi-card">
