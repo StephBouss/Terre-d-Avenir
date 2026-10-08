@@ -8,6 +8,7 @@ import * as migration_20261007_013109_albums from './20261007_013109_albums';
 import * as migration_20261007_201535_messages from './20261007_201535_messages';
 import * as migration_20261007_201633_reglages_emails from './20261007_201633_reglages_emails';
 import * as migration_20261007_211837_postes from './20261007_211837_postes';
+import * as migration_20261008_035701_diaporama_textes from './20261008_035701_diaporama_textes';
 
 export const migrations = [
   {
@@ -58,6 +59,11 @@ export const migrations = [
   {
     up: migration_20261007_211837_postes.up,
     down: migration_20261007_211837_postes.down,
-    name: '20261007_211837_postes'
+    name: '20261007_211837_postes',
+  },
+  {
+    up: migration_20261008_035701_diaporama_textes.up,
+    down: migration_20261008_035701_diaporama_textes.down,
+    name: '20261008_035701_diaporama_textes'
   },
 ];

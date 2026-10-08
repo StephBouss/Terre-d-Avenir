@@ -34,7 +34,14 @@ export default async function AlbumPage({ params }: Props) {
   const dict = getDictionary(locale)
   return (
     <>
-      <MediathequeHero eyebrow={dict.nav.mediatheque} title={album.title} intro={album.dateLabel} image={album.cover ?? album.photos?.[0]} />
+      <MediathequeHero
+        eyebrow={dict.nav.mediatheque}
+        title={album.title}
+        intro={album.dateLabel}
+        image={album.cover ?? album.photos?.[0]}
+        locale={locale}
+        back={{ href: '/mediatheque', label: dict.albums.back }}
+      />
       <section className="bg-background py-16">
         <div className="max-w-[1280px] mx-auto px-6 flex flex-col gap-10">
           <Paragraphs text={album.description} />

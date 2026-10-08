@@ -1,5 +1,6 @@
 import { Reveal } from '@/components/motion/Reveal'
 import { Cta } from '@/components/ui/Cta'
+import HeroBack, { type HeroBackLink } from '@/components/ui/HeroBack'
 import { MediaImage } from '@/components/ui/MediaImage'
 import type { Locale } from '@/lib/i18n/config'
 import { isPlaceholder } from '@/lib/text'
@@ -13,9 +14,10 @@ type Props = {
   dateLabel?: string | null
   source?: { label?: string | null; url?: string | null } | null
   newTabLabel: string
+  back?: HeroBackLink
 }
 
-export default function ArticleHero({ locale, image, category, title, dateLabel, source, newTabLabel }: Props) {
+export default function ArticleHero({ locale, image, category, title, dateLabel, source, newTabLabel, back }: Props) {
   const showSource = !!source && !isPlaceholder(source.url) && !isPlaceholder(source.label)
   return (
     <section className="article-hero relative min-h-[460px] w-full md:min-h-[560px]" style={{ background: '#003E2A' }}>
@@ -23,8 +25,13 @@ export default function ArticleHero({ locale, image, category, title, dateLabel,
         <MediaImage media={image} fill decorative eager sizes="100vw" className="w-full h-full object-cover" />
       </div>
       <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(0,62,42,0.3) 0%, rgba(0,62,42,0.8) 100%)' }} />
-      <div className="relative z-10 flex min-h-[460px] flex-col justify-end p-6 md:min-h-[560px] md:p-12">
-        <Reveal className="max-w-4xl">
+      <div className="relative z-10 flex min-h-[460px] flex-col items-center justify-end p-6 md:min-h-[560px] md:p-12">
+        <Reveal className="max-w-4xl text-center">
+          {back && (
+            <div>
+              <HeroBack locale={locale} {...back} />
+            </div>
+          )}
           {!isPlaceholder(category) && (
             <span
               className="text-xs font-bold font-body uppercase"
@@ -36,7 +43,7 @@ export default function ArticleHero({ locale, image, category, title, dateLabel,
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-foreground font-headings mb-4" style={{ lineHeight: 1.15 }}>
             {title}
           </h1>
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-primary-foreground">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-primary-foreground">
             {!isPlaceholder(dateLabel) && (
               <span className="text-base font-body" style={{ opacity: 0.8 }}>
                 {dateLabel}

@@ -1,6 +1,5 @@
 import { Reveal } from '@/components/motion/Reveal'
 import { EmphasisText } from '@/components/ui/EmphasisText'
-import Icon from '@/components/ui/Icon'
 import { MediaImage } from '@/components/ui/MediaImage'
 import { isPlaceholder } from '@/lib/text'
 import type { Media } from '@/payload-types'
@@ -15,8 +14,8 @@ export default function ActualitesHero({ eyebrow, title, intro, image }: Props) 
       </div>
       <div className="absolute inset-0 z-[1]" style={{ background: 'linear-gradient(105deg, #003E2Aea 28%, #003E2Acc 52%, #003E2A99 100%)' }} />
       <div className="relative z-10 max-w-[1280px] mx-auto px-6 h-full w-full">
-        <div className="flex min-h-[360px] items-center justify-between gap-8 md:min-h-[420px] md:gap-16">
-          <Reveal className="max-w-[620px] flex-auto">
+        <div className="flex min-h-[360px] items-center justify-center md:min-h-[420px]">
+          <Reveal className="max-w-[720px] text-center">
             {!isPlaceholder(eyebrow) && (
               <span
                 className="text-xs font-bold font-body uppercase"
@@ -29,14 +28,11 @@ export default function ActualitesHero({ eyebrow, title, intro, image }: Props) 
               <EmphasisText text={title} />
             </h1>
             {!isPlaceholder(intro) && (
-              <p className="text-lg text-primary-foreground font-body" style={{ opacity: 0.9, lineHeight: 1.65, maxWidth: 500 }}>
+              <p className="text-lg text-primary-foreground font-body mx-auto" style={{ opacity: 0.9, lineHeight: 1.65, maxWidth: 560 }}>
                 {intro}
               </p>
             )}
           </Reveal>
-          <div className="hidden flex-shrink-0 md:block" aria-hidden="true">
-            <Icon i="bookmark" size={64} style={{ color: '#E6BF58', opacity: 0.15 }} />
-          </div>
         </div>
       </div>
     </section>

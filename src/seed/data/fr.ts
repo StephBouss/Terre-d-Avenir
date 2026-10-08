@@ -37,6 +37,17 @@ const INTRO_ACCUEIL =
 const DEMARCHE_TEXTE = 'Retrouvez le mot de la présidente, les informations de transparence et les possibilités de participation.'
 
 export const fr: LocaleContent = {
+  diaporama: [
+    { titre: 'Du Komo-Kango au monde, *faisons grandir* la solidarité.', texte: INTRO_ACCUEIL },
+    {
+      titre: 'La jeunesse, *force vive* du Komo-Kango.',
+      texte: 'Tournois sportifs, rencontres et projets éducatifs : Terre d’Avenir soutient les initiatives qui rassemblent les jeunes et leur ouvrent des perspectives.',
+    },
+    {
+      titre: 'Ensemble, *agissons* au plus près des populations.',
+      texte: 'Écoute, rencontres et actions de terrain : avec les habitants, les ressortissants et nos partenaires, nous construisons des réponses concrètes aux besoins locaux.',
+    },
+  ],
   reglages: {
     location: 'Komo-Kango, Gabon',
     footerTagline: 'Terre d’Avenir KOMO-KANGO — Une ONG ancrée au Gabon, ouverte aux échanges et aux coopérations.',

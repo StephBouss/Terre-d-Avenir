@@ -1,3 +1,4 @@
+import type { Diapositive } from '@/lib/diaporama'
 import type { Locale } from '@/lib/i18n/config'
 import type { Section } from '@/lib/sections'
 import { isPlaceholder } from '@/lib/text'
@@ -7,12 +8,12 @@ import { EmphasisText } from '@/components/ui/EmphasisText'
 import { MediaImage } from '@/components/ui/MediaImage'
 import HeroPauseButton from './HeroPauseButton'
 
-type Props = { locale: Locale; title: string; intro?: string | null; section?: Section; images: Media[]; newTabLabel: string; pauseLabel: string; playLabel: string }
+type Props = { locale: Locale; slides: Diapositive[]; section?: Section; images: Media[]; newTabLabel: string; pauseLabel: string; playLabel: string }
 
 const BLOBS = ['hero-photo-1', 'hero-photo-2', 'hero-photo-3']
 
 /** Diaporama en CSS (voir globals.css) ; seul le bouton de pause (WCAG 2.2.2) est un composant client. */
-export default function HeroSlider({ locale, title, intro, section, images, newTabLabel, pauseLabel, playLabel }: Props) {
+export default function HeroSlider({ locale, slides, section, images, newTabLabel, pauseLabel, playLabel }: Props) {
   const ctas = (section?.ctas ?? []).filter((c) => !isPlaceholder(c.label) && !isPlaceholder(c.href))
   const photo = (index: number) => (images.length > 0 ? images[index % images.length] : undefined)
   return (
@@ -28,7 +29,7 @@ export default function HeroSlider({ locale, title, intro, section, images, newT
       <HeroPauseButton pauseLabel={pauseLabel} playLabel={playLabel} />
 
       <div className="hero-nav" aria-hidden="true">
-        <div className="hero-nav-dot active" />
+        <div className="hero-nav-dot" />
         <div className="hero-nav-dot" />
         <div className="hero-nav-dot" />
       </div>
@@ -47,15 +48,25 @@ export default function HeroSlider({ locale, title, intro, section, images, newT
               </div>
             )}
 
-            <h1 className="hero-line-2 font-headings font-bold text-primary-foreground mb-5" style={{ fontSize: 52, lineHeight: 1.1 }}>
-              <EmphasisText text={title} />
-            </h1>
-
-            {!isPlaceholder(intro) && (
-              <p className="hero-line-3 font-body text-lg text-primary-foreground mb-8" style={{ opacity: 0.82, lineHeight: 1.65, maxWidth: 500, textAlign: 'justify' }}>
-                {intro}
-              </p>
-            )}
+            {/* Un texte par image, empilés et fondus au même rythme que les images (voir .hero-texte dans globals.css). */}
+            <div className={`hero-textes mb-8${slides.length === 1 ? ' hero-textes-fixe' : ''}`}>
+              {slides.map((slide, i) => {
+                const doublon = i > 0 && slide.titre === slides[0].titre
+                const Titre = i === 0 ? 'h1' : 'p'
+                return (
+                  <div key={i} className="hero-texte" data-diapositive={i + 1} aria-hidden={doublon || undefined}>
+                    <Titre className="hero-titre font-headings font-bold text-primary-foreground mb-5" style={{ fontSize: 52, lineHeight: 1.1 }}>
+                      <EmphasisText text={slide.titre} />
+                    </Titre>
+                    {!isPlaceholder(slide.texte) && (
+                      <p className="font-body text-lg text-primary-foreground" style={{ opacity: 0.82, lineHeight: 1.65, maxWidth: 500, textAlign: 'justify' }}>
+                        {slide.texte}
+                      </p>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
 
             {ctas.length > 0 && (
               <div className="hero-line-4 flex gap-4 flex-wrap">

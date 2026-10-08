@@ -296,7 +296,7 @@ img {
 
 /* Pause demandée par le visiteur (WCAG 2.2.2) : fige le diaporama, sa barre et le collage.
    L'apparition du texte (hero-copy-in) n'est pas figée, pour qu'il ne reste jamais à demi transparent. */
-.hero-paused :is(.hero-slide, .hero-progress, .photo-inner) {
+.hero-paused :is(.hero-slide, .hero-progress, .photo-inner, .hero-texte, .hero-nav-dot) {
   animation-play-state: paused !important;
 }
 
@@ -324,12 +324,39 @@ img {
   border: 1px solid rgba(255, 255, 255, 0.72);
   border-radius: 999px;
   background: transparent;
+  animation: hero-dot 18s infinite;
 }
 
-.hero-nav-dot.active {
-  height: 26px;
-  border-color: #e6bf58;
-  background: #e6bf58;
+.hero-nav-dot:nth-child(2) {
+  animation-delay: 6s;
+}
+
+.hero-nav-dot:nth-child(3) {
+  animation-delay: 12s;
+}
+
+/* Textes du Hero : un par image, superposés dans la même cellule et fondus au rythme des images (18 s, 6 s chacune). */
+.hero-textes {
+  display: grid;
+}
+
+.hero-texte {
+  grid-area: 1 / 1;
+  opacity: 0;
+  animation: hero-texte 18s infinite;
+}
+
+.hero-texte:nth-child(2) {
+  animation-delay: 6s;
+}
+
+.hero-texte:nth-child(3) {
+  animation-delay: 12s;
+}
+
+.hero-textes-fixe .hero-texte {
+  opacity: 1;
+  animation: hero-copy-in 700ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
 }
 
 .hero-collage {
@@ -429,6 +456,17 @@ img {
   34%, 100% { opacity: 0; transform: scale(1); }
 }
 
+@keyframes hero-texte {
+  0% { opacity: 0; transform: translateY(18px); }
+  5%, 28% { opacity: 1; transform: translateY(0); }
+  32%, 100% { opacity: 0; transform: translateY(-10px); }
+}
+
+@keyframes hero-dot {
+  0%, 31% { height: 26px; border-color: #e6bf58; background: #e6bf58; }
+  34%, 100% { height: 7px; border-color: rgba(255, 255, 255, 0.72); background: transparent; }
+}
+
 @keyframes hero-progress {
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }
@@ -454,8 +492,15 @@ img {
   }
 
   .hero-slide:first-child,
-  .photo-inner:first-child {
+  .photo-inner:first-child,
+  .hero-texte:first-child {
     opacity: 1;
+  }
+
+  .hero-nav-dot:first-child {
+    height: 26px;
+    border-color: #e6bf58;
+    background: #e6bf58;
   }
 
   .hero-pause {
@@ -533,7 +578,7 @@ img {
     padding-bottom: 64px;
   }
 
-  .hero-content h1 {
+  .hero-content .hero-titre {
     font-size: clamp(2.35rem, 12vw, 3.2rem) !important;
   }
 

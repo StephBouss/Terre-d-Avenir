@@ -30,6 +30,17 @@ const INTRO_ACCUEIL =
 const DEMARCHE_TEXTE = 'Read the President’s message, our transparency information and the ways you can take part.'
 
 export const en: LocaleContent = {
+  diaporama: [
+    { titre: 'From Komo-Kango to the world, *let’s grow* solidarity.', texte: INTRO_ACCUEIL },
+    {
+      titre: 'Young people, the *driving force* of Komo-Kango.',
+      texte: 'Sports tournaments, gatherings and educational projects: Terre d’Avenir supports initiatives that bring young people together and open up new prospects for them.',
+    },
+    {
+      titre: 'Together, let’s *take action* close to communities.',
+      texte: 'Listening, meetings and action on the ground: with residents, people from the region living elsewhere and our partners, we build concrete responses to local needs.',
+    },
+  ],
   reglages: {
     location: 'Komo-Kango, Gabon',
     footerTagline: 'Terre d’Avenir KOMO-KANGO — An NGO rooted in Gabon, open to exchanges and cooperation.',

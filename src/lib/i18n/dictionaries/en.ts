@@ -53,6 +53,7 @@ export const en: Dictionary = {
     otherNews: 'More news',
     otherProjects: 'Other initiatives',
     backToList: 'Back to the list',
+    backToNews: 'Back to news',
     error: 'Something went wrong. Please try again in a moment.',
     retry: 'Try again',
   },

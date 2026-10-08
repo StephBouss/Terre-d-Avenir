@@ -51,6 +51,7 @@ export const fr = {
     otherNews: 'Autres actualités',
     otherProjects: 'Autres initiatives',
     backToList: 'Retour à la liste',
+    backToNews: 'Retour aux actualités',
     error: 'Une erreur est survenue. Réessayez dans un instant.',
     retry: 'Réessayer',
   },

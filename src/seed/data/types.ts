@@ -43,4 +43,6 @@ export type SeedProjet = {
   source: SeedSource
 }
 export type SeedReglages = { location: string; footerTagline: string }
-export type LocaleContent = { pages: SeedPage[]; albums: SeedAlbum[]; actualites: SeedActualite[]; projets: SeedProjet[]; reglages: SeedReglages }
+/** Texte d’une diapositive du diaporama d’accueil (dans l’ordre des images). */
+export type SeedDiapositive = { titre: string; texte: string }
+export type LocaleContent = { pages: SeedPage[]; albums: SeedAlbum[]; actualites: SeedActualite[]; projets: SeedProjet[]; reglages: SeedReglages; diaporama: SeedDiapositive[] }

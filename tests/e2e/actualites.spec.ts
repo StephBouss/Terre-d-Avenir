@@ -16,6 +16,17 @@ test('article FR avec sa source', async ({ page }) => {
   await expect(page.getByText('8 août 2026').first()).toBeVisible()
   await expect(page.getByText('Le contexte')).toHaveCount(0)
   await expect(page.getByRole('link', { name: /Sur Facebook/ }).first()).toHaveAttribute('href', /facebook\.com/)
+  // Retour à la liste : en haut du bandeau et en bas de l’article.
+  await expect(page.getByRole('link', { name: 'Retour aux actualités' })).toHaveCount(2)
+  await page.locator('[data-retour]').click()
+  await expect(page).toHaveURL(/\/fr\/actualites$/)
+})
+
+test('bandeaux des pages intérieures centrés', async ({ page }) => {
+  for (const url of ['/fr/actualites', '/fr/mediatheque', '/fr/ong', '/fr/contact', '/fr/actualites/tournoi-komo-kango-terre-davenir']) {
+    await page.goto(url)
+    await expect(page.getByRole('heading', { level: 1 })).toHaveCSS('text-align', 'center')
+  }
 })
 
 test('article EN et slug inconnu', async ({ page }) => {

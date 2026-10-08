@@ -58,6 +58,7 @@ export default async function ArticlePage({ params }: Props) {
         dateLabel={actualite.dateLabel}
         source={actualite.source}
         newTabLabel={dict.common.newTab}
+        back={{ href: '/actualites', label: dict.common.backToNews }}
       />
       <ArticleBody
         lead={actualite.excerpt}
@@ -67,13 +68,14 @@ export default async function ArticlePage({ params }: Props) {
         newTabLabel={dict.common.newTab}
         share={{ url: siteUrl() + localizedHref(locale, `/actualites/${slug}`), labels: { newTab: dict.common.newTab, share: dict.common.share, copyLink: dict.common.copyLink, linkCopied: dict.common.linkCopied } }}
       />
-      {isPublishedAlbum(actualite.album) && !isPlaceholder(actualite.album.title) && (
-        <div className="bg-background pb-12">
-          <div className="max-w-4xl mx-auto px-6">
+      <div className="bg-background pb-12">
+        <div className="max-w-4xl mx-auto px-6 flex flex-wrap gap-4">
+          <Cta locale={locale} href="/actualites" label={dict.common.backToNews} variant="outline" back newTabLabel={dict.common.newTab} />
+          {isPublishedAlbum(actualite.album) && !isPlaceholder(actualite.album.title) && (
             <Cta locale={locale} href={`/mediatheque/albums/${actualite.album.slug}`} label={dict.albums.viewAlbum} newTabLabel={dict.common.newTab} />
-          </div>
+          )}
         </div>
-      )}
+      </div>
       {others.length > 0 && (
         <section className="bg-background py-20">
           <div className="max-w-[1280px] mx-auto px-6 flex flex-col gap-10">

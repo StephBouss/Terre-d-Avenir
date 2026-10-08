@@ -13,7 +13,7 @@ export default function PageHero({ eyebrow, title, intro, image }: Props) {
         <MediaImage media={image} fill decorative eager sizes="100vw" className="w-full h-full object-cover" />
       </div>
       <div className="absolute inset-0 z-[1]" style={{ background: 'linear-gradient(105deg, #003E2Ae8 30%, #003E2Acc 55%, #003E2A99 100%)' }} />
-      <Reveal className="relative z-10 max-w-[1280px] mx-auto px-6">
+      <Reveal className="relative z-10 max-w-[1280px] mx-auto px-6 text-center">
         {!isPlaceholder(eyebrow) && (
           <span
             className="text-xs font-bold font-body uppercase"
@@ -26,7 +26,7 @@ export default function PageHero({ eyebrow, title, intro, image }: Props) {
           <EmphasisText text={title} />
         </h1>
         {!isPlaceholder(intro) && (
-          <p className="text-lg text-primary-foreground" style={{ opacity: 0.88, maxWidth: 640 }}>
+          <p className="text-lg text-primary-foreground mx-auto" style={{ opacity: 0.88, maxWidth: 640 }}>
             {intro}
           </p>
         )}

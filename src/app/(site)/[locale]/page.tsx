@@ -8,6 +8,7 @@ import ParticiperSection from '@/components/home/ParticiperSection'
 import ThemesSection from '@/components/home/ThemesSection'
 import CtaBand from '@/components/ui/CtaBand'
 import { getActualites, getDiaporama, getPage, getProjets } from '@/lib/content'
+import { diapositives } from '@/lib/diaporama'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { metadataFor, resolveLocale, type LocaleParams } from '@/lib/page'
 import { getSection } from '@/lib/sections'
@@ -17,7 +18,7 @@ export const generateMetadata = metadataFor('accueil', '/')
 export default async function HomePage({ params }: LocaleParams) {
   const locale = await resolveLocale(params)
   const dict = getDictionary(locale)
-  const [page, projets, actualites, images] = await Promise.all([
+  const [page, projets, actualites, { images, textes }] = await Promise.all([
     getPage('accueil', locale),
     getProjets(locale),
     getActualites(locale),
@@ -30,7 +31,15 @@ export default async function HomePage({ params }: LocaleParams) {
 
   return (
     <>
-      <HeroSlider locale={locale} title={page.h1 ?? ''} intro={page.intro} section={section('hero')} images={images} newTabLabel={newTab} pauseLabel={dict.hero.pause} playLabel={dict.hero.play} />
+      <HeroSlider
+        locale={locale}
+        slides={diapositives(textes, { titre: page.h1 ?? '', texte: page.intro })}
+        section={section('hero')}
+        images={images}
+        newTabLabel={newTab}
+        pauseLabel={dict.hero.pause}
+        playLabel={dict.hero.play}
+      />
       <MissionStrip items={section('hero')?.items ?? []} />
       <AncrageSection locale={locale} section={section('ancrage')} image={images[2]} linkLabel={dict.nav.ong} newTabLabel={newTab} />
       <MotTeaser locale={locale} section={section('mot')} newTabLabel={newTab} />

@@ -816,6 +816,16 @@ export interface Diaporama {
    * Les 3 premières images défilent en fond du Hero (la 3e sert aussi à la section Ancrage) ; les suivantes alimentent le collage de droite. Glisser pour réordonner.
    */
   images: (number | Media)[];
+  /**
+   * Le 1er texte s’affiche avec la 1re image, le 2e avec la 2e, le 3e avec la 3e. Entourer un mot d’astérisques (*mot*) le met en couleur. Diapositive sans texte : le titre et l’introduction de la page Accueil sont utilisés.
+   */
+  textes?:
+    | {
+        titre: string;
+        texte?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -839,6 +849,13 @@ export interface ReglagesSelect<T extends boolean = true> {
  */
 export interface DiaporamaSelect<T extends boolean = true> {
   images?: T;
+  textes?:
+    | T
+    | {
+        titre?: T;
+        texte?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
