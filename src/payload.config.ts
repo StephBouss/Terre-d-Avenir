@@ -24,7 +24,11 @@ export default buildConfig({
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
-    components: { beforeDashboard: ['/components/admin/KpiDashboard'] },
+    components: {
+      beforeDashboard: ['/components/admin/KpiDashboard'],
+      // Après chaque validation : page suivante (liste ou tableau de bord) avec un bandeau de confirmation.
+      providers: ['/components/admin/RedirectionApresEnregistrement'],
+    },
   },
   i18n: { supportedLanguages: { fr }, fallbackLanguage: 'fr' },
   collections: [Pages, Actualites, Projets, Postes, Medias, Albums, Messages, Users],

@@ -1,0 +1,78 @@
+/* Bandeau de confirmation affiché sur la page suivante après un enregistrement (couleurs de la charte). */
+.ta-confirmation {
+  position: fixed;
+  top: 4.25rem;
+  right: 1.5rem;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: min(420px, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
+  padding: 0.85rem 1rem 0.85rem 0.9rem;
+  border-radius: 12px;
+  color: #fff;
+  background: linear-gradient(120deg, #003e2a 0%, #005c38 100%);
+  border: 1px solid rgba(230, 191, 88, 0.6);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.3);
+  animation: ta-confirmation-entree 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@keyframes ta-confirmation-entree {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+.ta-confirmation-icone {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  font-weight: 800;
+  color: #17372c;
+  background: #e6bf58;
+}
+
+.ta-confirmation-texte {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.9rem;
+}
+
+.ta-confirmation-texte strong {
+  font-size: 1rem;
+}
+
+.ta-confirmation-texte span {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ta-confirmation-fermer {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+}
+
+.ta-confirmation-fermer:hover,
+.ta-confirmation-fermer:focus-visible {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ta-confirmation {
+    animation: none;
+  }
+}
