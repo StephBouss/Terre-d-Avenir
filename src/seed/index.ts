@@ -6,7 +6,7 @@ import type { PageSlug } from '../collections/Pages'
 import { en } from './data/en'
 import { FACEBOOK_URL, fr } from './data/fr'
 import { ALBUM_PHOTO_SETS } from './data/photos'
-import type { SeedAlbumPhotoKey, SeedImageKey } from './data/types'
+import type { SeedAlbumPhotoKey, SeedImageKey, SeedSection } from './data/types'
 import { seedTextesDiaporama } from './diaporama'
 import { upsertMedia } from './media'
 import { seedOrganigramme } from './organigramme'
@@ -114,10 +114,12 @@ async function seed() {
   const payload = await getPayload({ config })
   const media = await seedMedia(payload)
 
+  // Photo de section : la clé du seed devient l’identifiant du média.
+  const sectionsAvecImages = (sections: SeedSection[]) => sections.map((sec) => ({ ...sec, image: sec.image ? media[sec.image] : null }))
   for (const page of fr.pages) {
     const enPage = en.pages.find((p) => p.slug === page.slug)!
-    const { slug, ...frData } = page
-    const enData: Record<string, unknown> = { ...enPage }
+    const { slug, ...frData } = { ...page, sections: sectionsAvecImages(page.sections) }
+    const enData: Record<string, unknown> = { ...enPage, sections: sectionsAvecImages(enPage.sections) }
     delete enData.slug
     await upsertLocalized(payload, 'pages', { slug: { equals: slug } }, { slug, ...frData, heroImage: PAGE_HERO[slug as PageSlug] ? media[PAGE_HERO[slug as PageSlug]!] : null }, enData)
   }

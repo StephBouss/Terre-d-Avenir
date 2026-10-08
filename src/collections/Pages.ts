@@ -65,6 +65,13 @@ export const Pages: CollectionConfig = {
         { name: 'heading', label: 'Titre', type: 'text' },
         { name: 'body', label: 'Texte', type: 'textarea', admin: { description: `Paragraphes séparés par une ligne vide. ${EMPTY_HINT}` } },
         {
+          name: 'image',
+          label: 'Photo à côté du texte',
+          type: 'upload',
+          relationTo: 'medias',
+          admin: { description: 'Facultative : affichée à droite du texte (au-dessous sur mobile) dans les sections de texte des pages intérieures.' },
+        },
+        {
           name: 'items',
           label: 'Éléments',
           type: 'array',

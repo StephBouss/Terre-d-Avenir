@@ -182,6 +182,10 @@ export interface Page {
          * Paragraphes séparés par une ligne vide. Laisser vide tant que le texte n’est pas validé : un champ vide est masqué sur le site.
          */
         body?: string | null;
+        /**
+         * Facultative : affichée à droite du texte (au-dessous sur mobile) dans les sections de texte des pages intérieures.
+         */
+        image?: (number | null) | Media;
         items?:
           | {
               title?: string | null;
@@ -571,6 +575,7 @@ export interface PagesSelect<T extends boolean = true> {
         eyebrow?: T;
         heading?: T;
         body?: T;
+        image?: T;
         items?:
           | T
           | {

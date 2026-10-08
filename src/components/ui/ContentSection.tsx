@@ -5,27 +5,45 @@ import type { Locale } from '@/lib/i18n/config'
 import type { Section } from '@/lib/sections'
 import { isPlaceholder } from '@/lib/text'
 import { CtaList } from './Cta'
+import { MediaImage } from './MediaImage'
 import { Paragraphs } from './Paragraphs'
 import SectionHeader from './SectionHeader'
 
 type Props = { locale: Locale; section?: Section; tone?: 'white' | 'light'; id?: string; newTabLabel: string; children?: ReactNode }
 
-/** Section générique des pages composées : titre, texte, éléments, boutons. */
+/** Section générique des pages composées : titre, texte (avec une photo à droite si elle est renseignée), éléments, boutons. */
 export default function ContentSection({ locale, section, tone = 'white', id, newTabLabel, children }: Props) {
   if (!section) return null
   const items = (section.items ?? []).filter((item) => !isPlaceholder(item.title) || !isPlaceholder(item.text))
+  const image = section.image && typeof section.image === 'object' && section.image.url ? section.image : null
+  const texte = (
+    <>
+      {!isPlaceholder(section.heading) && (
+        <Reveal>
+          <SectionHeader overline={isPlaceholder(section.eyebrow) ? undefined : section.eyebrow} title={section.heading!} />
+        </Reveal>
+      )}
+      {section.body && (
+        <Reveal className="max-w-[760px]">
+          <Paragraphs text={section.body} />
+        </Reveal>
+      )}
+    </>
+  )
   return (
     <section id={id} className={`py-20 ${tone === 'white' ? 'bg-background' : ''}`} style={tone === 'light' ? { background: '#F7F8F4' } : undefined}>
       <div className="max-w-[1280px] mx-auto px-6 flex flex-col gap-8">
-        {!isPlaceholder(section.heading) && (
-          <Reveal>
-            <SectionHeader overline={isPlaceholder(section.eyebrow) ? undefined : section.eyebrow} title={section.heading!} />
-          </Reveal>
-        )}
-        {section.body && (
-          <Reveal className="max-w-[760px]">
-            <Paragraphs text={section.body} />
-          </Reveal>
+        {image ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            <div className="flex flex-col gap-8">{texte}</div>
+            <Reveal delay={120}>
+              <figure data-section-image className="relative rounded-lg overflow-hidden" style={{ aspectRatio: '4 / 3' }}>
+                <MediaImage media={image} fill sizes="(min-width: 1024px) 600px, 100vw" className="object-cover" />
+              </figure>
+            </Reveal>
+          </div>
+        ) : (
+          texte
         )}
         {items.length > 0 && (
           <RevealGroup className="grid grid-cols-1 md:grid-cols-2 gap-6">

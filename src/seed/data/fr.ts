@@ -119,7 +119,7 @@ export const fr: LocaleContent = {
       intro: INTRO_ACCUEIL,
       sections: [
         { key: 'reperes', items: REPERES },
-        ANCRAGE,
+        { ...ANCRAGE, image: 'rencontre-3' },
         {
           key: 'engagements',
           heading: 'Des engagements à découvrir',

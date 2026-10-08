@@ -21,6 +21,16 @@ for (const [path, image] of EXPECTED) {
   })
 }
 
+test('page L’ONG : photo à côté du texte « Notre ancrage », en FR et en EN', async ({ page }) => {
+  for (const lg of ['fr', 'en']) {
+    await page.goto(`/${lg}/ong`)
+    const photo = page.locator('[data-section-image] img')
+    await expect(photo).toHaveCount(1)
+    await expect(photo).toHaveAttribute('src', /rencontre-populations-2026-08-3-photo/)
+    await expect(photo).not.toHaveAttribute('alt', '')
+  }
+})
+
 test('l’admin propose « Image d’en-tête » sur une page', async ({ page, isMobile }) => {
   test.skip(isMobile, 'admin desktop')
   const { loginAdmin } = await import('./admin-helpers')
