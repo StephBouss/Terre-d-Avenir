@@ -796,6 +796,10 @@ export interface Reglage {
   location?: string | null;
   footerTagline?: string | null;
   /**
+   * Affiché avec le mot de la présidente (page dédiée et accueil). Sans portrait, un guillemet décoratif le remplace. Le portrait de l’organigramme se règle dans la fiche du poste.
+   */
+  portraitPresidente?: (number | null) | Media;
+  /**
    * Laisser vide pour ne pas envoyer d’e-mail : les demandes restent dans « Messages reçus ». L’envoi exige aussi le SMTP (voir README).
    */
   emailAdhesions?: string | null;
@@ -837,6 +841,7 @@ export interface ReglagesSelect<T extends boolean = true> {
   facebookUrl?: T;
   location?: T;
   footerTagline?: T;
+  portraitPresidente?: T;
   emailAdhesions?: T;
   emailContact?: T;
   updatedAt?: T;

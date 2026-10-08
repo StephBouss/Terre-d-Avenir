@@ -1,21 +1,22 @@
 import { Reveal } from '@/components/motion/Reveal'
 import { Cta } from '@/components/ui/Cta'
 import GoldDivider from '@/components/ui/GoldDivider'
-import QuoteMark from '@/components/ui/QuoteMark'
+import PortraitPresidente from '@/components/ui/PortraitPresidente'
 import type { Locale } from '@/lib/i18n/config'
 import type { Section } from '@/lib/sections'
 import { isPlaceholder } from '@/lib/text'
+import type { Media } from '@/payload-types'
 
-type Props = { locale: Locale; section?: Section; newTabLabel: string }
+type Props = { locale: Locale; section?: Section; portrait?: Media | number | null; newTabLabel: string }
 
-export default function MotTeaser({ locale, section, newTabLabel }: Props) {
+export default function MotTeaser({ locale, section, portrait, newTabLabel }: Props) {
   if (!section || isPlaceholder(section.body)) return null
   const cta = section.ctas?.[0]
   return (
     <section className="py-24" id="mot-presidente" style={{ background: '#F7F8F4' }}>
       <div className="max-w-[1280px] mx-auto px-6 grid grid-cols-2 gap-20 items-center">
         <Reveal className="flex justify-center order-last">
-          <QuoteMark />
+          <PortraitPresidente portrait={portrait} />
         </Reveal>
 
         <div className="flex flex-col gap-5">

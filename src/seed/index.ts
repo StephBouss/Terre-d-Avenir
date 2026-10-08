@@ -10,6 +10,7 @@ import type { SeedAlbumPhotoKey, SeedImageKey } from './data/types'
 import { seedTextesDiaporama } from './diaporama'
 import { upsertMedia } from './media'
 import { seedOrganigramme } from './organigramme'
+import { seedPortraitPresidente } from './presidente'
 import { SEED_CONTEXT, upsertLocalized } from './upsert'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -127,7 +128,13 @@ async function seed() {
   const heroImages = HERO_ORDER.map((k) => media[k] as number)
   await payload.updateGlobal({ slug: 'diaporama', data: { images: heroImages }, context: SEED_CONTEXT })
   await seedTextesDiaporama(payload)
-  await payload.updateGlobal({ slug: 'reglages', data: { facebookUrl: FACEBOOK_URL, ...fr.reglages }, locale: 'fr', context: SEED_CONTEXT })
+  const portraitPresidente = await seedPortraitPresidente(payload, dirname)
+  await payload.updateGlobal({
+    slug: 'reglages',
+    data: { facebookUrl: FACEBOOK_URL, ...fr.reglages, portraitPresidente: portraitPresidente as number },
+    locale: 'fr',
+    context: SEED_CONTEXT,
+  })
   await payload.updateGlobal({ slug: 'reglages', data: { ...en.reglages }, locale: 'en', context: SEED_CONTEXT })
 
   await seedAdmin(payload)

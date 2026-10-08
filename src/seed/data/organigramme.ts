@@ -23,7 +23,7 @@ export const PORTRAITS: Record<'reel' | 'ia', SeedPortrait> = {
     credit: 'Terre d’Avenir KOMO-KANGO',
     provisoire: false,
     droitsConfirmes: true,
-    source: 'Recadrage de la photo 3 de l’album « rencontre-populations-2026-08 » (19 août 2026)',
+    source: 'Recadrage du portrait officiel de la Présidente transmis par l’association (8 octobre 2026)',
     alt: { fr: 'Portrait de la Présidente', en: 'Portrait of the President' },
   },
   ia: {

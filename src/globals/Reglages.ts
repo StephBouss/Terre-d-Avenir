@@ -13,6 +13,13 @@ export const Reglages: GlobalConfig = {
     { name: 'location', label: 'Localisation affichée', type: 'text', localized: true },
     { name: 'footerTagline', label: 'Texte du pied de page', type: 'textarea', localized: true },
     {
+      name: 'portraitPresidente',
+      label: 'Portrait de la Présidente',
+      type: 'upload',
+      relationTo: 'medias',
+      admin: { description: 'Affiché avec le mot de la présidente (page dédiée et accueil). Sans portrait, un guillemet décoratif le remplace. Le portrait de l’organigramme se règle dans la fiche du poste.' },
+    },
+    {
       type: 'collapsible',
       label: 'Formulaires : adresses de réception',
       admin: { initCollapsed: false },

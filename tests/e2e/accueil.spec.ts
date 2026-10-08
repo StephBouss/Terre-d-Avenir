@@ -32,6 +32,13 @@ test('accueil FR : les 3 repères de la bande de mission sont visibles', async (
   }
 })
 
+test('portrait de la Présidente : accueil et page du mot', async ({ page }) => {
+  for (const url of ['/fr', '/fr/mot-de-la-presidente']) {
+    await page.goto(url)
+    await expect(page.locator('[data-portrait-presidente] img')).toHaveAttribute('alt', 'Laurence Ndong, Présidente de Terre d’Avenir KOMO-KANGO')
+  }
+})
+
 test('accueil FR : le bouton de pause fige le diaporama (WCAG 2.2.2)', async ({ page }) => {
   await page.goto('/fr')
   const slide = page.locator('.hero-slide').first()
