@@ -1,12 +1,13 @@
 import type { GlobalConfig } from 'payload'
+import { accesGlobal, masquerSansAcces } from '../access/modules'
 import { revalidateGlobal } from '../hooks/revalidate'
 
 export const Reglages: GlobalConfig = {
   slug: 'reglages',
   typescript: { interface: 'Reglage' },
   label: 'Réglages du site',
-  admin: { group: 'Site' },
-  access: { read: ({ req }) => Boolean(req.user) },
+  admin: { group: 'Site', hidden: masquerSansAcces('reglages') },
+  access: accesGlobal('reglages'),
   hooks: { afterChange: [revalidateGlobal] },
   fields: [
     { name: 'facebookUrl', label: 'Page Facebook', type: 'text', required: true },

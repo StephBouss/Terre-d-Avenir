@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { accesCollection, masquerSansAcces } from '../access/modules'
 import { revalidateCollection, revalidateCollectionDelete } from '../hooks/revalidate'
 
 export const PAGE_SLUGS = [
@@ -24,8 +25,8 @@ export const Pages: CollectionConfig = {
   slug: 'pages',
   typescript: { interface: 'Page' },
   labels: { singular: 'Page', plural: 'Pages' },
-  admin: { useAsTitle: 'slug', group: 'Contenus', defaultColumns: ['slug', 'h1', 'updatedAt'] },
-  access: { read: ({ req }) => Boolean(req.user) },
+  admin: { hidden: masquerSansAcces('pages'), useAsTitle: 'slug', group: 'Contenus', defaultColumns: ['slug', 'h1', 'updatedAt'] },
+  access: accesCollection('pages'),
   hooks: { afterChange: [revalidateCollection], afterDelete: [revalidateCollectionDelete] },
   fields: [
     {

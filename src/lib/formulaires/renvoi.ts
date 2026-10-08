@@ -1,11 +1,12 @@
 import type { PayloadHandler } from 'payload'
+import { type Compte, peutModifier } from '../permissions'
 import { notifierMessage } from './email'
 import { ETATS_RENVOYABLES } from './etats'
 import { notificationsEnCours } from './verrou'
 
-/** POST /api/messages/:id/renvoyer — admin connecté uniquement ; refait la notification d’un message en échec ou non configuré. */
+/** POST /api/messages/:id/renvoyer — compte autorisé à modifier les messages ; refait la notification d’un message en échec ou non configuré. */
 export const renvoyerEmail: PayloadHandler = async (req) => {
-  if (!req.user) return Response.json({ message: 'Connexion requise.' }, { status: 403 })
+  if (!peutModifier(req.user as Compte | null, 'messages')) return Response.json({ message: 'Accès refusé.' }, { status: 403 })
   const id = String(req.routeParams?.id ?? '')
   const message = await req.payload.findByID({ collection: 'messages', id, depth: 0, disableErrors: true, overrideAccess: true })
   if (!message) return Response.json({ message: 'Message introuvable.' }, { status: 404 })

@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { lireModule, masquerSansAcces, modifierModule } from '../access/modules'
 import { renvoyerEmail } from '../lib/formulaires/renvoi'
 
 /** Champs remplis par le traitement du formulaire : visibles mais jamais modifiables depuis l’admin ou l’API REST. */
@@ -10,22 +11,23 @@ export const Messages: CollectionConfig = {
   typescript: { interface: 'Message' },
   labels: { singular: 'Message reçu', plural: 'Messages reçus' },
   admin: {
+    hidden: masquerSansAcces('messages'),
     useAsTitle: 'reference',
     group: 'Formulaires',
     defaultColumns: ['reference', 'type', 'nom', 'emailEtat', 'traite', 'createdAt'],
     listSearchableFields: ['reference', 'nom'],
     components: { edit: { beforeDocumentControls: ['/components/admin/RenvoyerEmail'] } },
-    description: 'Demandes d’adhésion et messages de contact envoyés depuis le site. Lecture réservée à l’admin.',
+    description: 'Demandes d’adhésion et messages de contact envoyés depuis le site. Accès réservé à l’administrateur et aux comptes autorisés.',
   },
   // Non traités d’abord (false < true), puis les plus récents.
   defaultSort: ['traite', '-createdAt'],
   endpoints: [{ path: '/:id/renvoyer', method: 'post', handler: renvoyerEmail }],
   access: {
-    read: ({ req }) => Boolean(req.user),
+    read: lireModule('messages'),
     // Création uniquement par l’API locale du traitement de formulaire (overrideAccess), jamais par REST ou GraphQL.
     create: () => false,
-    update: ({ req }) => Boolean(req.user),
-    delete: ({ req }) => Boolean(req.user),
+    update: modifierModule('messages'),
+    delete: modifierModule('messages'),
   },
   fields: [
     { name: 'reference', label: 'Référence', type: 'text', required: true, unique: true, index: true, admin: fige, access: nonModifiable },

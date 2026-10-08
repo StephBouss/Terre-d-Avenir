@@ -2,6 +2,7 @@ import type { ServerProps } from 'payload'
 import Link from 'next/link'
 import { formatSituation, type KpiState } from '@/lib/kpi/compute'
 import { loadKpis } from '@/lib/kpi/load'
+import { type Compte, type Module, peutLire } from '@/lib/permissions'
 import './kpi-dashboard.css'
 
 function Value({ state }: { state: KpiState }) {
@@ -29,6 +30,8 @@ const SANS_ALT_NOTE = 'Le compte inclut aussi les textes alternatifs blancs ou c
 
 export default async function KpiDashboard({ payload, user }: ServerProps) {
   if (!user) return null
+  // Chaque compte ne voit que les indicateurs des modules auxquels il a accès.
+  const voit = (m: Module) => peutLire(user as Compte, m)
   const k = await loadKpis(payload)
   const LIST = `${payload.config.routes.admin}/collections`
   return (
@@ -38,58 +41,68 @@ export default async function KpiDashboard({ payload, user }: ServerProps) {
         <p>Situation au {formatSituation(new Date())} (heure de Libreville)</p>
       </header>
       <div className="kpi-grid">
-        <article className="kpi-card">
-          <h3>Messages non traités</h3>
-          <p className="kpi-muted kpi-help">Formulaires reçus, case « Traité » non cochée</p>
-          <ul>
-            <Row label="Total" state={k.messages.total} href={`${LIST}/messages?${NON_TRAITES}`} />
-            <Row label="Adhésions" state={k.messages.adhesion} href={`${LIST}/messages?${NON_TRAITES}&where[type][equals]=adhesion`} />
-            <Row label="Contact" state={k.messages.contact} href={`${LIST}/messages?${NON_TRAITES}&where[type][equals]=contact`} />
-            <Row label="E-mails en échec" state={k.messages.emailsEchec} href={`${LIST}/messages?${EMAIL_ECHEC}`} />
-          </ul>
-        </article>
-        <article className="kpi-card">
-          <h3>Actualités</h3>
-          <p className="kpi-muted kpi-help">État visible sur le site</p>
-          <ul>
-            <Row label="Publiées" state={k.actualites.publiees} href={`${LIST}/actualites?where[_status][equals]=published&where[archivee][not_equals]=true`} />
-            <Row label="Brouillons" state={k.actualites.brouillons} href={`${LIST}/actualites?where[_status][equals]=draft&where[archivee][not_equals]=true`} />
-            <Row label="Archivées" state={k.actualites.archivees} href={`${LIST}/actualites?where[archivee][equals]=true`} />
-          </ul>
-        </article>
-        <article className="kpi-card">
-          <h3>Pages et projets</h3>
-          <ul>
-            <Row label="Pages" state={k.pages} href={`${LIST}/pages`} />
-            <Row label="Projets" state={k.projets} href={`${LIST}/projets`} />
-            <li className="kpi-traductions">
-              <div className="kpi-row">
-                <span>Traductions anglaises à revoir</span>
-                <Value state={k.traductions.total} />
-              </div>
-              <ul className="kpi-sub">
-                <Row label="Actualités" state={k.traductions.actualites} href={`${LIST}/actualites?locale=en`} />
-                <Row label="Pages" state={k.traductions.pages} href={`${LIST}/pages?locale=en`} />
-                <Row label="Projets" state={k.traductions.projets} href={`${LIST}/projets?locale=en`} />
-              </ul>
-            </li>
-          </ul>
-        </article>
-        <article className="kpi-card">
-          <h3>Photos</h3>
-          <ul>
-            <Row label="Total" state={k.medias.total} href={`${LIST}/medias`} />
-            <Row label="Dans la médiathèque" state={k.medias.galerie} href={`${LIST}/medias?where[galerie][equals]=true`} />
-          </ul>
-        </article>
-        <article className="kpi-card kpi-alert">
-          <h3>Alertes photos</h3>
-          <ul>
-            <Row label="Provisoires à remplacer" state={k.medias.provisoires} href={`${LIST}/medias?where[provisoire][equals]=true`} />
-            <Row label="Sans texte alternatif" state={k.medias.sansAlt} href={`${LIST}/medias?${SANS_ALT}`} title={SANS_ALT_NOTE} />
-            <Row label="Droits non confirmés" state={k.medias.droitsNonConfirmes} href={`${LIST}/medias?where[droitsConfirmes][not_equals]=true`} />
-          </ul>
-        </article>
+        {voit('messages') && (
+          <article className="kpi-card">
+            <h3>Messages non traités</h3>
+            <p className="kpi-muted kpi-help">Formulaires reçus, case « Traité » non cochée</p>
+            <ul>
+              <Row label="Total" state={k.messages.total} href={`${LIST}/messages?${NON_TRAITES}`} />
+              <Row label="Adhésions" state={k.messages.adhesion} href={`${LIST}/messages?${NON_TRAITES}&where[type][equals]=adhesion`} />
+              <Row label="Contact" state={k.messages.contact} href={`${LIST}/messages?${NON_TRAITES}&where[type][equals]=contact`} />
+              <Row label="E-mails en échec" state={k.messages.emailsEchec} href={`${LIST}/messages?${EMAIL_ECHEC}`} />
+            </ul>
+          </article>
+        )}
+        {voit('actualites') && (
+          <article className="kpi-card">
+            <h3>Actualités</h3>
+            <p className="kpi-muted kpi-help">État visible sur le site</p>
+            <ul>
+              <Row label="Publiées" state={k.actualites.publiees} href={`${LIST}/actualites?where[_status][equals]=published&where[archivee][not_equals]=true`} />
+              <Row label="Brouillons" state={k.actualites.brouillons} href={`${LIST}/actualites?where[_status][equals]=draft&where[archivee][not_equals]=true`} />
+              <Row label="Archivées" state={k.actualites.archivees} href={`${LIST}/actualites?where[archivee][equals]=true`} />
+            </ul>
+          </article>
+        )}
+        {(voit('pages') || voit('projets')) && (
+          <article className="kpi-card">
+            <h3>Pages et projets</h3>
+            <ul>
+              <Row label="Pages" state={k.pages} href={`${LIST}/pages`} />
+              <Row label="Projets" state={k.projets} href={`${LIST}/projets`} />
+              <li className="kpi-traductions">
+                <div className="kpi-row">
+                  <span>Traductions anglaises à revoir</span>
+                  <Value state={k.traductions.total} />
+                </div>
+                <ul className="kpi-sub">
+                  <Row label="Actualités" state={k.traductions.actualites} href={`${LIST}/actualites?locale=en`} />
+                  <Row label="Pages" state={k.traductions.pages} href={`${LIST}/pages?locale=en`} />
+                  <Row label="Projets" state={k.traductions.projets} href={`${LIST}/projets?locale=en`} />
+                </ul>
+              </li>
+            </ul>
+          </article>
+        )}
+        {voit('mediatheque') && (
+          <article className="kpi-card">
+            <h3>Photos</h3>
+            <ul>
+              <Row label="Total" state={k.medias.total} href={`${LIST}/medias`} />
+              <Row label="Dans la médiathèque" state={k.medias.galerie} href={`${LIST}/medias?where[galerie][equals]=true`} />
+            </ul>
+          </article>
+        )}
+        {voit('mediatheque') && (
+          <article className="kpi-card kpi-alert">
+            <h3>Alertes photos</h3>
+            <ul>
+              <Row label="Provisoires à remplacer" state={k.medias.provisoires} href={`${LIST}/medias?where[provisoire][equals]=true`} />
+              <Row label="Sans texte alternatif" state={k.medias.sansAlt} href={`${LIST}/medias?${SANS_ALT}`} title={SANS_ALT_NOTE} />
+              <Row label="Droits non confirmés" state={k.medias.droitsNonConfirmes} href={`${LIST}/medias?where[droitsConfirmes][not_equals]=true`} />
+            </ul>
+          </article>
+        )}
       </div>
     </section>
   )

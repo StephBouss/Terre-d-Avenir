@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { accesCollection, masquerSansAcces } from '../access/modules'
 import { revalidateCollection, revalidateCollectionDelete } from '../hooks/revalidate'
 
 export const PROJET_ICONS = ['graduation-cap', 'heart-pulse', 'trophy', 'handshake'] as const
@@ -7,8 +8,8 @@ export const Projets: CollectionConfig = {
   slug: 'projets',
   typescript: { interface: 'Projet' },
   labels: { singular: 'Projet', plural: 'Projets & actions' },
-  admin: { useAsTitle: 'theme', group: 'Contenus', defaultColumns: ['theme', 'title', 'order'] },
-  access: { read: ({ req }) => Boolean(req.user) },
+  admin: { hidden: masquerSansAcces('projets'), useAsTitle: 'theme', group: 'Contenus', defaultColumns: ['theme', 'title', 'order'] },
+  access: accesCollection('projets'),
   hooks: { afterChange: [revalidateCollection], afterDelete: [revalidateCollectionDelete] },
   defaultSort: 'order',
   fields: [

@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { accesCollection, masquerSansAcces } from '../access/modules'
 import { bloquerSuppressionParent, restaurerErreurValidation, validerRattachement } from '../hooks/postes'
 import { revalidateCollection, revalidateCollectionDelete } from '../hooks/revalidate'
 import { PUBLISHED_POSTE } from '../lib/organigramme'
@@ -10,6 +11,7 @@ export const Postes: CollectionConfig = {
   typescript: { interface: 'Poste' },
   labels: { singular: 'Poste', plural: 'Organigramme' },
   admin: {
+    hidden: masquerSansAcces('organigramme'),
     useAsTitle: 'intitule',
     group: 'Contenus',
     defaultColumns: ['intitule', 'personneNom', 'parent', 'ordre', '_status'],
@@ -19,7 +21,7 @@ export const Postes: CollectionConfig = {
       process.env.PREVIEW_SECRET ? previewUrl(siteUrl(), `/${locale === 'en' ? 'en' : 'fr'}/organisation`, process.env.PREVIEW_SECRET) : null,
   },
   versions: { drafts: true, maxPerDoc: 20 },
-  access: { read: ({ req }) => (req.user ? true : PUBLISHED_POSTE) },
+  access: accesCollection('organigramme', PUBLISHED_POSTE),
   hooks: {
     beforeValidate: [validerRattachement],
     beforeDelete: [bloquerSuppressionParent],

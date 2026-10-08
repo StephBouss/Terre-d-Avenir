@@ -375,7 +375,7 @@ export interface Poste {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Demandes d’adhésion et messages de contact envoyés depuis le site. Lecture réservée à l’admin.
+ * Demandes d’adhésion et messages de contact envoyés depuis le site. Accès réservé à l’administrateur et aux comptes autorisés.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "messages".
@@ -409,11 +409,31 @@ export interface Message {
   createdAt: string;
 }
 /**
+ * L’administrateur principal peut créer jusqu’à 2 comptes supplémentaires et choisir, module par module, ce que chacun peut voir ou modifier.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
   id: number;
+  nom?: string | null;
+  /**
+   * Choisir un rôle type pré-remplit les accès ci-dessous, qui restent modifiables. « Administrateur principal » est réservé au premier compte.
+   */
+  role: 'administrateur' | 'redaction' | 'mediatheque' | 'secretariat' | 'personnalise';
+  /**
+   * Aucun accès : le module n’apparaît pas. Lecture seule : consultation sans modification. Modification : création, modification, publication et suppression.
+   */
+  acces?: {
+    actualites: 'aucun' | 'lecture' | 'modification';
+    mediatheque: 'aucun' | 'lecture' | 'modification';
+    diaporama: 'aucun' | 'lecture' | 'modification';
+    pages: 'aucun' | 'lecture' | 'modification';
+    projets: 'aucun' | 'lecture' | 'modification';
+    organigramme: 'aucun' | 'lecture' | 'modification';
+    messages: 'aucun' | 'lecture' | 'modification';
+    reglages: 'aucun' | 'lecture' | 'modification';
+  };
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -728,6 +748,20 @@ export interface MessagesSelect<T extends boolean = true> {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  nom?: T;
+  role?: T;
+  acces?:
+    | T
+    | {
+        actualites?: T;
+        mediatheque?: T;
+        diaporama?: T;
+        pages?: T;
+        projets?: T;
+        organigramme?: T;
+        messages?: T;
+        reglages?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   email?: T;

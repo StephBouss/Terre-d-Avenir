@@ -1,12 +1,13 @@
 import type { GlobalConfig } from 'payload'
+import { accesGlobal, masquerSansAcces } from '../access/modules'
 import { revalidateGlobal } from '../hooks/revalidate'
 
 export const Diaporama: GlobalConfig = {
   slug: 'diaporama',
   typescript: { interface: 'Diaporama' },
   label: 'Diaporama d’accueil',
-  admin: { group: 'Images' },
-  access: { read: ({ req }) => Boolean(req.user) },
+  admin: { group: 'Images', hidden: masquerSansAcces('diaporama') },
+  access: accesGlobal('diaporama'),
   hooks: { afterChange: [revalidateGlobal] },
   fields: [
     {

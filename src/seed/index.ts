@@ -84,8 +84,14 @@ async function seedAdmin(payload: Payload) {
     console.warn('SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD absents : aucun compte admin créé.')
     return
   }
-  const found = await payload.find({ collection: 'users', where: { email: { equals: email } }, limit: 1 })
-  if (!found.docs[0]) await payload.create({ collection: 'users', data: { email, password } })
+  // Le compte SEED_ADMIN_EMAIL est l’administrateur principal : tout autre administrateur (ex. compte repris
+  // d’une ancienne base) redevient un compte limité sans accès, à régler ensuite depuis l’admin.
+  const context = { ...SEED_CONTEXT, designerAdministrateur: true }
+  const autres = await payload.find({ collection: 'users', where: { and: [{ role: { equals: 'administrateur' } }, { email: { not_equals: email } }] }, depth: 0, limit: 10 })
+  for (const u of autres.docs) await payload.update({ collection: 'users', id: u.id, data: { role: 'personnalise' }, context })
+  const found = await payload.find({ collection: 'users', where: { email: { equals: email } }, limit: 1, depth: 0 })
+  if (!found.docs[0]) await payload.create({ collection: 'users', data: { email, password, nom: 'Administrateur', role: 'administrateur' }, context })
+  else if (found.docs[0].role !== 'administrateur') await payload.update({ collection: 'users', id: found.docs[0].id, data: { role: 'administrateur' }, context })
 }
 
 async function seed() {

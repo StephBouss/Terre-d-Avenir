@@ -10,6 +10,7 @@ import * as migration_20261007_201633_reglages_emails from './20261007_201633_re
 import * as migration_20261007_211837_postes from './20261007_211837_postes';
 import * as migration_20261008_035701_diaporama_textes from './20261008_035701_diaporama_textes';
 import * as migration_20261008_041655_portrait_presidente from './20261008_041655_portrait_presidente';
+import * as migration_20261008_042248_comptes_roles from './20261008_042248_comptes_roles';
 
 export const migrations = [
   {
@@ -70,6 +71,11 @@ export const migrations = [
   {
     up: migration_20261008_041655_portrait_presidente.up,
     down: migration_20261008_041655_portrait_presidente.down,
-    name: '20261008_041655_portrait_presidente'
+    name: '20261008_041655_portrait_presidente',
+  },
+  {
+    up: migration_20261008_042248_comptes_roles.up,
+    down: migration_20261008_042248_comptes_roles.down,
+    name: '20261008_042248_comptes_roles'
   },
 ];
