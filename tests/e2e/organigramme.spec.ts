@@ -8,7 +8,8 @@ const BROUILLON = 'E2E poste brouillon'
 
 test.describe.configure({ mode: 'serial' })
 
-// Seule spec qui publie des postes : elle peut affirmer l’état exact de la page (le seed ne crée que des brouillons).
+// Seule spec qui publie des postes « e2e- » ; les 10 postes du seed sont publiés aussi : on ne lit que les siens.
+// L’état « aucun poste publié » est couvert par le test unitaire du composant.
 test.describe('organigramme public', { tag: '@desktop' }, () => {
   test.skip(({ isMobile }) => isMobile, 'données partagées : desktop uniquement')
   let headers: Entetes
@@ -22,16 +23,12 @@ test.describe('organigramme public', { tag: '@desktop' }, () => {
     await purgerPostes(request, headers, PREFIXE)
   })
 
-  test('aucun poste publié : message « en cours de validation » ; brouillon invisible partout', async ({ page, request }) => {
-    // L’écriture déclenche aussi la revalidation : la page pré-rendue au build (base de dev) est remplacée.
+  test('un brouillon reste invisible partout', async ({ page, request }) => {
     await creerPoste(request, headers, { cle: `${PREFIXE}brouillon`, intitule: BROUILLON, ordre: 0 }, 'draft')
-    await expect(async () => {
-      await page.goto('/fr/organisation')
-      await expect(page.getByText('Organigramme en cours de validation.')).toBeVisible({ timeout: 2_000 })
-    }).toPass({ timeout: 20_000 })
+    await page.goto('/fr/organisation')
     await expect(page.getByText(BROUILLON)).toHaveCount(0)
     await page.goto('/en/organisation')
-    await expect(page.getByText('Organisation chart being finalised.')).toBeVisible()
+    await expect(page.getByText(BROUILLON)).toHaveCount(0)
     const publics: { intitule?: string }[] = (await (await request.get('/api/postes?limit=100')).json()).docs
     expect(publics.map((d) => d.intitule)).not.toContain(BROUILLON)
     expect(await (await request.get('/sitemap.xml')).text()).not.toContain(PREFIXE)
@@ -46,8 +43,14 @@ test.describe('organigramme public', { tag: '@desktop' }, () => {
       await page.goto('/fr/organisation')
       await expect(page.locator('[data-vue="liste"]').getByText('E2E Sous-poste')).toHaveCount(1, { timeout: 2_000 })
     }).toPass({ timeout: 20_000 })
+    const miens = Object.values(ids).map(String)
     const lire = (vue: string) =>
-      page.locator(`[data-vue="${vue}"] [data-poste]`).evaluateAll((els) => els.map((e) => `${e.getAttribute('data-poste')}<${e.getAttribute('data-parent')}`))
+      page
+        .locator(`[data-vue="${vue}"] [data-poste]`)
+        .evaluateAll(
+          (els, miens) => els.filter((e) => miens.includes(e.getAttribute('data-poste') ?? '')).map((e) => `${e.getAttribute('data-poste')}<${e.getAttribute('data-parent')}`),
+          miens,
+        )
     const liste = await lire('liste')
     expect(liste).toEqual([`${ids.racine}<`, `${ids.premier}<${ids.racine}`, `${ids.second}<${ids.racine}`, `${ids.sousPoste}<${ids.second}`])
     expect(await lire('arbre')).toEqual(liste)

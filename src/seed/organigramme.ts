@@ -5,7 +5,7 @@ import { upsertMedia } from './media'
 import { SEED_CONTEXT } from './upsert'
 
 /**
- * Crée les postes de départ en brouillon, parents d’abord. Un poste déjà présent (même `cle`) n’est jamais réécrit :
+ * Crée les postes de départ publiés (affichés sur le site depuis le 2026-10-08), parents d’abord. Un poste déjà présent (même `cle`) n’est jamais réécrit :
  * le seed n’écrase pas une saisie réelle de l’admin. Les portraits (médias) sont mis à jour comme les autres médias du seed.
  */
 export async function seedOrganigramme(payload: Payload, dossierSeed: string): Promise<void> {
@@ -35,7 +35,6 @@ export async function seedOrganigramme(payload: Payload, dossierSeed: string): P
     const doc = await payload.create({
       collection: 'postes',
       locale: 'fr',
-      draft: true,
       context: SEED_CONTEXT,
       data: {
         cle: poste.cle,
@@ -45,14 +44,13 @@ export async function seedOrganigramme(payload: Payload, dossierSeed: string): P
         ordre: poste.ordre,
         personneNom: poste.nom,
         personnePhoto: photo as number,
-        _status: 'draft',
+        _status: 'published',
       },
     })
     await payload.update({
       collection: 'postes',
       id: doc.id,
       locale: 'en',
-      draft: true,
       context: SEED_CONTEXT,
       data: { intitule: poste.intitule.en, mission: poste.mission.en },
     })

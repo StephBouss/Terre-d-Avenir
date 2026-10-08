@@ -91,7 +91,8 @@ export default function Organigramme({ titre, noeuds, labels }: Props) {
           <p className="text-lg text-muted-foreground">{labels.vide}</p>
         ) : (
           <>
-            <div data-vue="arbre" aria-hidden="true" className="hidden xl:block overflow-x-auto pb-2">
+            {/* tabIndex -1 : un conteneur qui défile devient focalisable dans Chrome ; le schéma décoratif doit rester hors du parcours clavier. */}
+            <div data-vue="arbre" aria-hidden="true" tabIndex={-1} className="hidden xl:block overflow-x-auto pb-2">
               <ul className="org-arbre">
                 <BrancheArbre noeuds={noeuds} />
               </ul>
