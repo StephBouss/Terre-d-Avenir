@@ -7,8 +7,8 @@
   [data-reveal],
   [data-reveal-group] > * {
     transition:
-      opacity 600ms var(--ease-out-soft),
-      transform 600ms var(--ease-out-soft);
+      opacity 800ms var(--ease-out-soft),
+      transform 800ms var(--ease-out-soft);
   }
   [data-reveal] {
     transition-delay: var(--reveal-delay, 0ms);
@@ -16,7 +16,7 @@
   [data-reveal]:not(.is-visible),
   [data-reveal-group]:not(.is-visible) > * {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(32px);
   }
 }
 [data-reveal-group] > *:nth-child(2) { transition-delay: 80ms; }
@@ -26,13 +26,34 @@
 [data-reveal-group] > *:nth-child(6) { transition-delay: 400ms; }
 [data-reveal-group] > *:nth-child(n + 7) { transition-delay: 480ms; }
 
-/* Transition de page (template.tsx) */
+/* Transition de page (template.tsx, rejoué à chaque navigation). `backwards` et non `both` : une fois terminée,
+   l’animation ne laisse aucun transform, qui casserait les éléments fixes ou collants de la page. */
 .page-enter {
-  animation: page-enter 200ms ease-out both;
+  animation: page-enter 550ms var(--ease-out-soft) backwards;
 }
 @keyframes page-enter {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Entrée des bandeaux de page : l’image recule doucement, puis surtitre, titre et texte montent l’un après l’autre. */
+.hero-entree-fond {
+  animation: hero-entree-fond 1600ms var(--ease-out-soft) backwards;
+}
+.hero-entree-texte > * {
+  animation: hero-entree-texte 900ms var(--ease-out-soft) backwards;
+}
+.hero-entree-texte > :nth-child(1) { animation-delay: 150ms; }
+.hero-entree-texte > :nth-child(2) { animation-delay: 280ms; }
+.hero-entree-texte > :nth-child(3) { animation-delay: 410ms; }
+.hero-entree-texte > :nth-child(n + 4) { animation-delay: 540ms; }
+@keyframes hero-entree-fond {
+  from { transform: scale(1.12); opacity: 0; }
+  to { transform: none; }
+}
+@keyframes hero-entree-texte {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: none; }
 }
 
 /* Cartes */
@@ -98,6 +119,8 @@
     transition: none !important;
   }
   .page-enter,
+  .hero-entree-fond,
+  .hero-entree-texte > *,
   .lightbox[open],
   .lightbox::backdrop { animation: none; }
   .card-lift,

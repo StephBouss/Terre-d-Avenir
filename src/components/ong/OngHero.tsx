@@ -1,4 +1,3 @@
-import { Reveal } from '@/components/motion/Reveal'
 import { EmphasisText } from '@/components/ui/EmphasisText'
 import { MediaImage } from '@/components/ui/MediaImage'
 import { isPlaceholder } from '@/lib/text'
@@ -9,11 +8,11 @@ type Props = { eyebrow: string; title: string; intro?: string | null; image?: Me
 export default function OngHero({ eyebrow, title, intro, image }: Props) {
   return (
     <section className="relative py-24 overflow-hidden" style={{ background: '#003E2A', minHeight: 480 }}>
-      <div className="absolute inset-0 z-0" style={{ opacity: 0.45 }}>
+      <div className="absolute inset-0 z-0 hero-entree-fond" style={{ opacity: 0.45 }}>
         <MediaImage media={image} fill decorative eager sizes="100vw" className="w-full h-full object-cover" />
       </div>
       <div className="absolute inset-0 z-[1]" style={{ background: 'linear-gradient(105deg, #003E2Ae8 30%, #003E2Acc 55%, #003E2A99 100%)' }} />
-      <Reveal className="relative z-10 max-w-[1280px] mx-auto px-6 text-center">
+      <div className="relative z-10 max-w-[1280px] mx-auto px-6 text-center hero-entree-texte">
         {!isPlaceholder(eyebrow) && (
           <span
             className="text-xs font-bold font-body uppercase"
@@ -30,7 +29,7 @@ export default function OngHero({ eyebrow, title, intro, image }: Props) {
             {intro}
           </p>
         )}
-      </Reveal>
+      </div>
     </section>
   )
 }

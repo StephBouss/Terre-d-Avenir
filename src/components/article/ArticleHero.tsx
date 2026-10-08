@@ -1,4 +1,3 @@
-import { Reveal } from '@/components/motion/Reveal'
 import { Cta } from '@/components/ui/Cta'
 import HeroBack, { type HeroBackLink } from '@/components/ui/HeroBack'
 import { MediaImage } from '@/components/ui/MediaImage'
@@ -20,13 +19,13 @@ type Props = {
 export default function ArticleHero({ locale, image, category, title, dateLabel, source, newTabLabel, back }: Props) {
   const showSource = !!source && !isPlaceholder(source.url) && !isPlaceholder(source.label)
   return (
-    <section className="article-hero relative min-h-[460px] w-full md:min-h-[560px]" style={{ background: '#003E2A' }}>
-      <div className="absolute inset-0">
+    <section className="article-hero relative overflow-hidden min-h-[460px] w-full md:min-h-[560px]" style={{ background: '#003E2A' }}>
+      <div className="absolute inset-0 hero-entree-fond">
         <MediaImage media={image} fill decorative eager sizes="100vw" className="w-full h-full object-cover" />
       </div>
       <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, rgba(0,62,42,0.3) 0%, rgba(0,62,42,0.8) 100%)' }} />
       <div className="relative z-10 flex min-h-[460px] flex-col items-center justify-end p-6 md:min-h-[560px] md:p-12">
-        <Reveal className="max-w-4xl text-center">
+        <div className="max-w-4xl text-center hero-entree-texte">
           {back && (
             <div>
               <HeroBack locale={locale} {...back} />
@@ -51,7 +50,7 @@ export default function ArticleHero({ locale, image, category, title, dateLabel,
             )}
             {showSource && <Cta locale={locale} variant="gold" href={source!.url!} label={source!.label!} newTabLabel={newTabLabel} />}
           </div>
-        </Reveal>
+        </div>
       </div>
     </section>
   )
