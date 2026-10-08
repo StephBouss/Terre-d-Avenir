@@ -33,7 +33,7 @@ export default function ArticleHero({ locale, image, category, title, dateLabel,
           )}
           {!isPlaceholder(category) && (
             <span
-              className="text-xs font-bold font-body uppercase"
+              className="text-xs font-bold font-body uppercase badge-anime"
               style={{ letterSpacing: '0.14em', color: '#E6BF58', background: 'rgba(230,191,88,0.14)', border: '1px solid rgba(230,191,88,0.4)', borderRadius: 4, padding: '4px 12px', display: 'inline-block', marginBottom: 16 }}
             >
               {category}

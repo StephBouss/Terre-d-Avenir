@@ -56,6 +56,39 @@
   to { opacity: 1; transform: none; }
 }
 
+/* Surtitre jaune des bandeaux (hors accueil) : reflet qui balaie et halo qui respire, en continu.
+   Portés par ::before et ::after pour ne pas remplacer l’animation d’entrée du surtitre lui-même. */
+.badge-anime {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.badge-anime::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  animation: badge-halo 3.2s ease-in-out infinite;
+}
+.badge-anime::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 240, 190, 0.6) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: badge-reflet 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes badge-reflet {
+  0%, 55% { transform: translateX(-120%); }
+  85%, 100% { transform: translateX(120%); }
+}
+@keyframes badge-halo {
+  0%, 100% { background: rgba(230, 191, 88, 0); }
+  50% { background: rgba(230, 191, 88, 0.22); }
+}
+
 /* Cartes */
 .card-lift {
   transition:
@@ -118,6 +151,8 @@
     transform: none !important;
     transition: none !important;
   }
+  .badge-anime::before,
+  .badge-anime::after,
   .page-enter,
   .hero-entree-fond,
   .hero-entree-texte > *,
