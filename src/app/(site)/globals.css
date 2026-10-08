@@ -625,6 +625,16 @@ img {
     display: none;
   }
 
+  /* Galeries photo : deux vignettes par ligne même sur smartphone (une seule allongeait trop la page). */
+  .galerie-grille.grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  /* Nombre impair de repères : le dernier occupe toute la ligne au lieu d'une demi-case isolée. */
+  .mission-strip > div:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
   .py-24 {
     padding-top: 4rem !important;
     padding-bottom: 4rem !important;
@@ -659,6 +669,13 @@ img {
 
   .footer-bottom p {
     text-align: left;
+  }
+
+  /* Titre de section et lien « Tout voir » : l'un sous l'autre (côte à côte, le lien sortait de l'écran). */
+  .section-heading-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
   }
 }
 
@@ -873,7 +890,7 @@ img {
 }
 
 .kango-galerie-lieu {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
