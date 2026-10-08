@@ -166,6 +166,8 @@ export const fr: LocaleContent = {
             { label: 'Découvrir notre organisation', href: '/organisation' },
           ],
         },
+        // Signature demandée par l’utilisateur le 2026-10-08.
+        { key: 'signature', heading: 'Laurence Ndong', body: 'Présidente de Terre d’Avenir KOMO-KANGO' },
       ],
     },
 

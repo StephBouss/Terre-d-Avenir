@@ -159,6 +159,7 @@ export const en: LocaleContent = {
             { label: 'Discover our organization', href: '/organisation' },
           ],
         },
+        { key: 'signature', heading: 'Laurence Ndong', body: 'President of Terre d’Avenir KOMO-KANGO' },
       ],
     },
 
