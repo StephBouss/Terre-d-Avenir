@@ -12,7 +12,7 @@ test.describe('diaporama d’accueil', { tag: '@desktop' }, () => {
 
   test('le Hero de l’accueil affiche les images du diaporama', async ({ page }) => {
     await page.goto('/fr')
-    await expect(page.locator('.hero-slide img').first()).toHaveAttribute('src', /forest/)
+    await expect(page.locator('.hero-slide img').first()).toHaveAttribute('src', /kafele-nianame-4-photo/)
   })
 
   test('un texte par image, qui change avec elle', async ({ page }) => {

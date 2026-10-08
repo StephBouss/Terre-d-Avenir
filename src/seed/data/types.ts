@@ -35,7 +35,7 @@ export type SeedProjet = {
   slug: string
   order: number
   icon: (typeof PROJET_ICONS)[number]
-  image?: SeedImageKey
+  image?: SeedImageKey | SeedAlbumPhotoKey
   theme: string
   title: string
   summary: string

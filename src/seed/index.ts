@@ -15,21 +15,21 @@ import { SEED_CONTEXT, upsertLocalized } from './upsert'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// Image d'en-tête de chaque page (correspondance du lot 1 conservée ; l'accueil utilise le diaporama).
+// Image d'en-tête de chaque page : photos réelles des albums (2026-10-08) ; l'accueil utilise le diaporama.
 const PAGE_HERO: Partial<Record<PageSlug, SeedImageKey | SeedAlbumPhotoKey>> = {
-  ong: 'community',
-  'mot-de-la-presidente': 'forest',
-  organisation: 'solidarity',
-  projets: 'education',
-  actualites: 'forest',
-  adhesion: 'youth',
-  mediatheque: 'sport',
+  ong: 'kafele-4',
+  'mot-de-la-presidente': 'bacheliers-9',
+  organisation: 'rencontre-1',
+  projets: 'kafele-6',
+  actualites: 'bacheliers-3',
+  adhesion: 'bacheliers-7',
+  mediatheque: 'tournoi-3',
   'decouvrir-kango': 'kango-1',
-  partenariats: 'solidarity',
-  transparence: 'community',
-  contact: 'forest',
-  confidentialite: 'forest',
-  'mentions-legales': 'forest',
+  partenariats: 'kafele-3',
+  transparence: 'kafele-2',
+  contact: 'rencontre-2',
+  confidentialite: 'tournoi-6',
+  'mentions-legales': 'kafele-5',
 }
 
 const IMAGES: Record<SeedImageKey, { altFr: string; altEn: string; provisoire: boolean; galerie: boolean; credit: string }> = {
@@ -49,7 +49,22 @@ const IMAGES: Record<SeedImageKey, { altFr: string; altEn: string; provisoire: b
   solidarity: { altFr: '', altEn: '', provisoire: true, galerie: false, credit: 'Unsplash (image provisoire)' },
 }
 
-const HERO_ORDER: SeedImageKey[] = ['forest', 'youth', 'community', 'education', 'sport', 'health', 'solidarity', 'banner']
+// Diaporama : 3 fonds (un par texte de diapositive ; le 3e illustre aussi la section Ancrage), puis le collage.
+// Photos réelles des albums de l’association (demande du 2026-10-08), à la place des images provisoires.
+const HERO_ORDER: (SeedImageKey | SeedAlbumPhotoKey)[] = [
+  'kafele-4',
+  'bacheliers-3',
+  'rencontre-2',
+  'tournoi-3',
+  'bacheliers-10',
+  'rencontre-5',
+  'kafele-3',
+  'tournoi-5',
+  'bacheliers-9',
+  'rencontre-4',
+  'kafele-6',
+  'tournoi-2',
+]
 
 async function seedMedia(payload: Payload): Promise<Record<SeedImageKey | SeedAlbumPhotoKey, number | string>> {
   const ids = {} as Record<SeedImageKey | SeedAlbumPhotoKey, number | string>

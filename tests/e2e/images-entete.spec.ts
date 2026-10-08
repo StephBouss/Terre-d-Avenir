@@ -1,17 +1,17 @@
 import { expect, test } from '@playwright/test'
 
-// L'image d'en-tête vient du champ propre à chaque page (seed : correspondance du lot 1 conservée).
+// L'image d'en-tête vient du champ propre à chaque page (seed : photos réelles des albums, 2026-10-08).
 const EXPECTED: [string, RegExp][] = [
-  ['/fr/ong', /community/],
-  ['/fr/organisation', /solidarity/],
-  ['/fr/projets', /education/],
-  ['/fr/adhesion', /youth/],
-  ['/fr/mediatheque', /sport/],
-  ['/fr/contact', /forest/],
-  ['/fr/actualites', /forest/],
-  ['/fr/mot-de-la-presidente', /forest/],
-  ['/fr/partenariats', /solidarity/],
-  ['/fr/transparence', /community/],
+  ['/fr/ong', /kafele-nianame-4-photo/],
+  ['/fr/organisation', /rencontre-populations-2026-08-1-photo/],
+  ['/fr/projets', /kafele-nianame-6-photo/],
+  ['/fr/adhesion', /hommage-bacheliers-2026-08-7-photo/],
+  ['/fr/mediatheque', /tournoi-football-2026-08-3-photo/],
+  ['/fr/contact', /rencontre-populations-2026-08-2-photo/],
+  ['/fr/actualites', /hommage-bacheliers-2026-08-3-photo/],
+  ['/fr/mot-de-la-presidente', /hommage-bacheliers-2026-08-9-photo/],
+  ['/fr/partenariats', /kafele-nianame-3-photo/],
+  ['/fr/transparence', /kafele-nianame-2-photo/],
 ]
 
 for (const [path, image] of EXPECTED) {
