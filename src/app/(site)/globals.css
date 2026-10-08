@@ -508,7 +508,8 @@ img {
   }
 }
 
-@media (max-width: 1100px) {
+/* Menu complet sur une ligne à partir de 1280 px (8 entrées) ; en dessous, menu mobile. */
+@media (max-width: 1279px) {
   .desktop-navigation,
   .desktop-actions {
     display: none;
@@ -517,7 +518,9 @@ img {
   .mobile-menu-button {
     display: inline-flex;
   }
+}
 
+@media (max-width: 1100px) {
   .hero-collage {
     width: 350px;
     transform: scale(0.86);
@@ -765,4 +768,25 @@ img {
 .org-arbre li:only-child::before,
 .org-arbre li:only-child::after {
   display: none;
+}
+
+/* Accueil — mosaïque « Découvrir Kango » : une grande photo, deux petites, toutes au format 3:2 des photos. */
+.kango-mosaique {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.kango-mosaique-grande,
+.kango-mosaique-petite {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+  border-radius: 8px;
+  border: 2px solid rgba(230, 191, 88, 0.55);
+  background: #315c46;
+}
+
+.kango-mosaique-grande {
+  grid-column: 1 / -1;
 }

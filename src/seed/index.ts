@@ -16,7 +16,7 @@ import { SEED_CONTEXT, upsertLocalized } from './upsert'
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // Image d'en-tête de chaque page (correspondance du lot 1 conservée ; l'accueil utilise le diaporama).
-const PAGE_HERO: Partial<Record<PageSlug, SeedImageKey>> = {
+const PAGE_HERO: Partial<Record<PageSlug, SeedImageKey | SeedAlbumPhotoKey>> = {
   ong: 'community',
   'mot-de-la-presidente': 'forest',
   organisation: 'solidarity',
@@ -24,6 +24,7 @@ const PAGE_HERO: Partial<Record<PageSlug, SeedImageKey>> = {
   actualites: 'forest',
   adhesion: 'youth',
   mediatheque: 'sport',
+  'decouvrir-kango': 'kango-1',
   partenariats: 'solidarity',
   transparence: 'community',
   contact: 'forest',

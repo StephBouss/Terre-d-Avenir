@@ -7,6 +7,7 @@ export const fr = {
     projets: 'Projets & actions',
     actualites: 'Actualités',
     mediatheque: 'Médiathèque',
+    kango: 'Découvrir Kango',
     contact: 'Contact',
     adhesion: 'Adhésion',
     partenariats: 'Partenariats',

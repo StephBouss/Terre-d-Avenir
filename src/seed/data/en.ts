@@ -29,6 +29,11 @@ const INTRO_ACCUEIL =
 
 const DEMARCHE_TEXTE = 'Read the President’s message, our transparency information and the ways you can take part.'
 
+// Découvrir Kango (docs/superpowers/plans/2026-10-08-contenu-kango.md), texte validé le 2026-10-08.
+const KANGO_TITRE = 'Discover Kango, heart of Komo-Kango'
+const KANGO_TEXTE =
+  'The main town of the Komo-Kango department, in Gabon’s Estuaire province, Kango stretches along the Komo River, between forest and water. Along the river, through its neighbourhoods and gathering places, the town invites you to discover it and meet its people.'
+
 export const en: LocaleContent = {
   diaporama: [
     { titre: 'From Komo-Kango to the world, *let’s grow* solidarity.', texte: INTRO_ACCUEIL },
@@ -65,6 +70,13 @@ export const en: LocaleContent = {
           ],
         },
         ANCRAGE,
+        {
+          key: 'kango',
+          eyebrow: 'Tourism',
+          heading: KANGO_TITRE,
+          body: KANGO_TEXTE,
+          ctas: [{ label: 'Discover Kango', href: '/decouvrir-kango' }],
+        },
         {
           key: 'mot',
           heading: 'A message from the President',
@@ -303,6 +315,25 @@ export const en: LocaleContent = {
     },
 
     {
+      slug: 'decouvrir-kango',
+      seoTitle: 'Discover Kango — Terre d’Avenir KOMO-KANGO',
+      metaDescription: 'Kango, the main town of Komo-Kango on the Komo River: discover the town in pictures with Terre d’Avenir KOMO-KANGO.',
+      h1: 'Discover *Kango*, heart of Komo-Kango',
+      intro: KANGO_TEXTE,
+      sections: [
+        { key: 'galerie', heading: 'Kango in pictures' },
+        {
+          key: 'fin',
+          heading: 'Keep exploring',
+          ctas: [
+            { label: 'See the photo album', href: '/mediatheque/albums/kango' },
+            { label: 'Join us', href: '/adhesion' },
+          ],
+        },
+      ],
+    },
+
+    {
       slug: 'partenariats',
       seoTitle: 'Partnerships — Terre d’Avenir KOMO-KANGO',
       metaDescription:
@@ -503,6 +534,15 @@ export const en: LocaleContent = {
       title: "Close to the people of Kango",
       dateLabel: "19 August 2026",
       description: "Mrs Laurence Ndong meeting the people of Komo-Kango, published on 19 August 2026.",
+    },
+    {
+      slug: "kango",
+      order: 3,
+      cover: "kango-1",
+      photos: ["kango-1", "kango-2", "kango-3", "kango-4", "kango-5"],
+      title: "Kango, heart of Komo-Kango",
+      dateLabel: "Komo-Kango, Gabon",
+      description: KANGO_TEXTE,
     },
   ],
 

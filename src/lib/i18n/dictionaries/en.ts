@@ -9,6 +9,7 @@ export const en: Dictionary = {
     projets: 'Projects & activities',
     actualites: 'News',
     mediatheque: 'Media library',
+    kango: 'Discover Kango',
     contact: 'Contact',
     adhesion: 'Membership',
     partenariats: 'Partnerships',

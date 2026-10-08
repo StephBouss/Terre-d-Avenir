@@ -11,6 +11,7 @@ export const PAGE_SLUGS = [
   'actualites',
   'adhesion',
   'mediatheque',
+  'decouvrir-kango',
   'partenariats',
   'transparence',
   'contact',

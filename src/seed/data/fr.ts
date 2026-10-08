@@ -36,6 +36,11 @@ const INTRO_ACCUEIL =
 
 const DEMARCHE_TEXTE = 'Retrouvez le mot de la présidente, les informations de transparence et les possibilités de participation.'
 
+// Découvrir Kango (docs/superpowers/plans/2026-10-08-contenu-kango.md), texte validé le 2026-10-08.
+const KANGO_TITRE = 'Découvrir Kango, cœur du Komo-Kango'
+const KANGO_TEXTE =
+  'Chef-lieu du département du Komo-Kango, dans la province de l’Estuaire, Kango s’étend au bord du fleuve Komo, entre forêt et eau. Au fil du fleuve, de ses quartiers et de ses lieux de rassemblement, la ville invite à la découverte et à la rencontre.'
+
 export const fr: LocaleContent = {
   diaporama: [
     { titre: 'Du Komo-Kango au monde, *faisons grandir* la solidarité.', texte: INTRO_ACCUEIL },
@@ -72,6 +77,13 @@ export const fr: LocaleContent = {
           ],
         },
         ANCRAGE,
+        {
+          key: 'kango',
+          eyebrow: 'Tourisme',
+          heading: KANGO_TITRE,
+          body: KANGO_TEXTE,
+          ctas: [{ label: 'Découvrir Kango', href: '/decouvrir-kango' }],
+        },
         {
           key: 'mot',
           heading: 'Le mot de la présidente',
@@ -311,6 +323,25 @@ export const fr: LocaleContent = {
     },
 
     {
+      slug: 'decouvrir-kango',
+      seoTitle: 'Découvrir Kango — Terre d’Avenir KOMO-KANGO',
+      metaDescription: 'Kango, chef-lieu du Komo-Kango au bord du fleuve Komo : découvrez la ville en images avec Terre d’Avenir KOMO-KANGO.',
+      h1: 'Découvrir *Kango*, cœur du Komo-Kango',
+      intro: KANGO_TEXTE,
+      sections: [
+        { key: 'galerie', heading: 'Kango en images' },
+        {
+          key: 'fin',
+          heading: 'Prolonger la découverte',
+          ctas: [
+            { label: 'Voir l’album photo', href: '/mediatheque/albums/kango' },
+            { label: 'Adhérer', href: '/adhesion' },
+          ],
+        },
+      ],
+    },
+
+    {
       slug: 'partenariats',
       seoTitle: 'Partenariats — Terre d’Avenir KOMO-KANGO',
       metaDescription:
@@ -513,6 +544,16 @@ export const fr: LocaleContent = {
       title: "Au plus près des Kangolaises et des Kangolais",
       dateLabel: "19 août 2026",
       description: "Rencontre de Madame Laurence Ndong avec les populations du Komo-Kango, publiée le 19 août 2026.",
+    },
+    {
+      // Album de présentation (tourisme), après les événements ; photos d’illustration à remplacer.
+      slug: "kango",
+      order: 3,
+      cover: "kango-1",
+      photos: ["kango-1", "kango-2", "kango-3", "kango-4", "kango-5"],
+      title: "Kango, cœur du Komo-Kango",
+      dateLabel: "Komo-Kango, Gabon",
+      description: KANGO_TEXTE,
     },
   ],
 

@@ -7,6 +7,7 @@ export const STATIC_PATHS = [
   '/actualites',
   '/adhesion',
   '/mediatheque',
+  '/decouvrir-kango',
   '/partenariats',
   '/transparence',
   '/contact',
@@ -21,6 +22,7 @@ export type NavKey =
   | 'projets'
   | 'actualites'
   | 'mediatheque'
+  | 'kango'
   | 'contact'
   | 'adhesion'
   | 'partenariats'
@@ -35,6 +37,7 @@ export const NAV_ITEMS: { key: NavKey; href: string }[] = [
   { key: 'projets', href: '/projets' },
   { key: 'actualites', href: '/actualites' },
   { key: 'mediatheque', href: '/mediatheque' },
+  { key: 'kango', href: '/decouvrir-kango' },
   { key: 'contact', href: '/contact' },
 ]
 

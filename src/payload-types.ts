@@ -150,6 +150,7 @@ export interface Page {
     | 'actualites'
     | 'adhesion'
     | 'mediatheque'
+    | 'decouvrir-kango'
     | 'partenariats'
     | 'transparence'
     | 'contact'

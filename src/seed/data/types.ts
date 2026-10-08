@@ -2,7 +2,7 @@ import type { PageSlug } from '@/collections/Pages'
 import type { PROJET_ICONS } from '@/collections/Projets'
 
 export type SeedImageKey = 'banner' | 'forest' | 'youth' | 'education' | 'sport' | 'health' | 'community' | 'solidarity'
-export type SeedAlbumPhotoKey = `${'kafele' | 'tournoi' | 'rencontre'}-${number}`
+export type SeedAlbumPhotoKey = `${'kafele' | 'tournoi' | 'rencontre' | 'kango'}-${number}`
 export type SeedCta = { label: string; href: string }
 export type SeedItem = { title?: string; text?: string }
 export type SeedSection = { key: string; eyebrow?: string; heading?: string; body?: string; items?: SeedItem[]; ctas?: SeedCta[] }

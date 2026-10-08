@@ -5,7 +5,7 @@ export type AlbumPhotoSet = {
   albumSlug: string
   /** Dossier sous src/seed/images/albums/. */
   dir: string
-  common: { credit: string; source: string; datePrise: string; droitsConfirmes: boolean; droitsNote: string; provisoire: boolean; galerie: boolean }
+  common: { credit: string; source: string; datePrise?: string; droitsConfirmes: boolean; droitsNote: string; provisoire: boolean; galerie: boolean }
   lieu: { fr: string; en: string }
   photos: { key: SeedAlbumPhotoKey; file: string; altFr: string; altEn: string }[]
 }
@@ -74,6 +74,27 @@ export const ALBUM_PHOTO_SETS: AlbumPhotoSet[] = [
       { key: "rencontre-3", file: "photo-3.jpg", altFr: "Une discussion animée avec des participants attentifs", altEn: "A lively discussion with attentive participants" },
       { key: "rencontre-4", file: "photo-4.jpg", altFr: "Moment d’écoute au sein d’un groupe de participants", altEn: "A moment of listening within a group of participants" },
       { key: "rencontre-5", file: "photo-5.jpg", altFr: "Une accolade chaleureuse entre deux participantes", altEn: "A warm embrace between two participants" },
+    ],
+  },
+  {
+    // Photos publiques d’illustration (docs/superpowers/plans/2026-10-08-contenu-kango.md) : provisoires, à remplacer.
+    albumSlug: "kango",
+    dir: "kango",
+    common: {
+      credit: "Photo publique d’illustration (à remplacer)",
+      source: "Photos publiques transmises par l’association le 8 octobre 2026 ; logo « Gabon Développement » retiré par recadrage",
+      droitsConfirmes: false,
+      droitsNote: "Photos publiques utilisées pour illustrer la page Découvrir Kango ; droits non confirmés, à remplacer par des photos de l’association.",
+      provisoire: true,
+      galerie: false,
+    },
+    lieu: { fr: "Kango, Komo-Kango", en: "Kango, Komo-Kango" },
+    photos: [
+      { key: "kango-1", file: "photo-1.jpg", altFr: "Vue sur Kango, la forêt et le fleuve Komo", altEn: "View over Kango, the forest and the Komo River" },
+      { key: "kango-2", file: "photo-2.jpg", altFr: "Maisons neuves au toit rouge, à Kango", altEn: "New red-roofed houses in Kango" },
+      { key: "kango-3", file: "photo-3.jpg", altFr: "Vue aérienne d’un quartier de Kango, entre route et forêt", altEn: "Aerial view of a Kango neighbourhood, between road and forest" },
+      { key: "kango-4", file: "photo-4.jpg", altFr: "Église aux murs jaunes sur les hauteurs de Kango", altEn: "Yellow-walled church on the heights of Kango" },
+      { key: "kango-5", file: "photo-5.jpg", altFr: "Pont sur le fleuve Komo, vu depuis une embarcation", altEn: "Bridge over the Komo River, seen from a boat" },
     ],
   },
 ]

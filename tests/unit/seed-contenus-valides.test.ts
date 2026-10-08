@@ -123,11 +123,12 @@ describe('ordre du seed', () => {
       'assemblee-generale-decembre-2025': 5,
     })
   })
-  it('albums : Kafélé 0, tournoi 1, rencontre 2', () => {
+  it('albums : Kafélé 0, tournoi 1, rencontre 2, puis Kango (présentation, après les événements)', () => {
     expect(fr.albums.map((a) => [a.slug, a.order])).toEqual([
       ['kafele-nianame-2026-09', 0],
       ['tournoi-football-2026-08', 1],
       ['rencontre-populations-2026-08', 2],
+      ['kango', 3],
     ])
   })
 })
