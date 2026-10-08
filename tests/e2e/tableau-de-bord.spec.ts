@@ -24,6 +24,18 @@ test.describe('tableau de bord des indicateurs', { tag: '@desktop' }, () => {
     await expect(board.getByText(/Sauvegardes/)).toHaveCount(0)
   })
 
+  test('bandeau : comptes, création, mon compte et déconnexion', async ({ page }) => {
+    await loginAdmin(page)
+    const actions = page.getByRole('navigation', { name: 'Compte et utilisateurs' })
+    await expect(actions.getByRole('link', { name: /^Gérer les comptes \d \/ 3$/ })).toHaveAttribute('href', '/admin/collections/users')
+    await expect(actions.getByRole('link', { name: 'Mon compte' })).toHaveAttribute('href', '/admin/account')
+    // La déconnexion n’est pas cliquée : elle fermerait la session partagée par les autres specs.
+    await expect(actions.getByRole('link', { name: 'Se déconnecter' })).toHaveAttribute('href', '/admin/logout')
+    const creer = actions.getByRole('link', { name: '+ Créer un compte' })
+    // Absent seulement quand les 3 comptes existent déjà.
+    if (await creer.count()) await expect(creer).toHaveAttribute('href', '/admin/collections/users/create')
+  })
+
   test('une carte mène à la liste filtrée', async ({ page }) => {
     await loginAdmin(page)
     await page.locator('.kpi-dashboard').getByRole('link', { name: /Provisoires à remplacer/ }).click()

@@ -79,6 +79,68 @@ html[data-theme='dark'] .dashboard {
   color: rgba(255, 255, 255, 0.82);
 }
 
+/* Actions du bandeau : comptes, mon compte, déconnexion */
+.kpi-banniere-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+
+.kpi-bouton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.95rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.06);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.kpi-bouton:hover,
+.kpi-bouton:focus-visible {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: #fff;
+}
+
+.kpi-bouton:focus-visible {
+  outline: 2px solid var(--ta-or);
+  outline-offset: 2px;
+}
+
+.kpi-bouton--or {
+  color: var(--ta-encre-fixe, #17372c);
+  background: var(--ta-or);
+  border-color: var(--ta-or);
+}
+
+.kpi-bouton--or:hover,
+.kpi-bouton--or:focus-visible {
+  color: #17372c;
+  background: #f0cf7a;
+  border-color: #f0cf7a;
+}
+
+.kpi-bouton--sortie {
+  margin-left: auto;
+}
+
+.kpi-bouton-compteur {
+  font-size: 0.75rem;
+  padding: 1px 7px;
+  border-radius: 999px;
+  color: #17372c;
+  background: var(--ta-or);
+}
+
 /* Grands chiffres */
 .kpi-chiffres {
   display: grid;

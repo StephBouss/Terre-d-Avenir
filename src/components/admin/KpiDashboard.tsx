@@ -3,7 +3,7 @@ import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { formatSituation, type KpiState } from '@/lib/kpi/compute'
 import { loadKpis } from '@/lib/kpi/load'
-import { type Compte, type Module, peutLire } from '@/lib/permissions'
+import { type Compte, estAdministrateur, MAX_COMPTES, type Module, peutLire } from '@/lib/permissions'
 import './kpi-dashboard.css'
 
 function Value({ state }: { state: KpiState }) {
@@ -60,7 +60,12 @@ export default async function KpiDashboard({ payload, user }: ServerProps) {
   // Chaque compte ne voit que les indicateurs des modules auxquels il a accès.
   const voit = (m: Module) => peutLire(user as Compte, m)
   const k = await loadKpis(payload)
-  const LIST = `${payload.config.routes.admin}/collections`
+  const ADMIN = payload.config.routes.admin
+  const LIST = `${ADMIN}/collections`
+  const routes = payload.config.admin.routes
+  // Les comptes sont réservés à l’administrateur principal (3 comptes au plus, lui compris).
+  const admin = estAdministrateur(user as Compte)
+  const comptes = admin ? (await payload.count({ collection: 'users', overrideAccess: true })).totalDocs : 0
   const nom = (user as { nom?: string | null }).nom
   return (
     <section className="kpi-dashboard" aria-labelledby="kpi-title">
@@ -70,6 +75,27 @@ export default async function KpiDashboard({ payload, user }: ServerProps) {
         <p>
           {nom ? `Bonjour ${nom}. ` : ''}Situation au {formatSituation(new Date())} (heure de Libreville)
         </p>
+        <nav className="kpi-banniere-actions" aria-label="Compte et utilisateurs">
+          {admin && (
+            <Link href={`${LIST}/users`} className="kpi-bouton" data-action="comptes">
+              Gérer les comptes{' '}
+              <span className="kpi-bouton-compteur" title="Comptes existants / maximum">
+                {comptes} / {MAX_COMPTES}
+              </span>
+            </Link>
+          )}
+          {admin && comptes < MAX_COMPTES && (
+            <Link href={`${LIST}/users/create`} className="kpi-bouton kpi-bouton--or" data-action="creer-compte">
+              + Créer un compte
+            </Link>
+          )}
+          <Link href={`${ADMIN}${routes?.account ?? '/account'}`} className="kpi-bouton" data-action="mon-compte">
+            Mon compte
+          </Link>
+          <a href={`${ADMIN}${routes?.logout ?? '/logout'}`} className="kpi-bouton kpi-bouton--sortie" data-action="deconnexion">
+            Se déconnecter
+          </a>
+        </nav>
       </header>
 
       <div className="kpi-chiffres">
