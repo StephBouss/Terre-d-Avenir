@@ -7,9 +7,10 @@ import type { Section } from '@/lib/sections'
 import { isPlaceholder } from '@/lib/text'
 import type { Media } from '@/payload-types'
 
-type Props = { locale: Locale; section?: Section; portrait?: Media | number | null; newTabLabel: string }
+type Props = { locale: Locale; section?: Section; signature?: Section; portrait?: Media | number | null; newTabLabel: string }
 
-export default function MotTeaser({ locale, section, portrait, newTabLabel }: Props) {
+/** Mot de la présidente sur l’accueil ; la signature est celle de la page « Mot de la présidente » (section « signature »). */
+export default function MotTeaser({ locale, section, signature, portrait, newTabLabel }: Props) {
   if (!section || isPlaceholder(section.body)) return null
   const cta = section.ctas?.[0]
   return (
@@ -34,6 +35,16 @@ export default function MotTeaser({ locale, section, portrait, newTabLabel }: Pr
             <blockquote style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 22, lineHeight: 1.65, color: '#17372C', textAlign: 'justify' }}>{section.body}</blockquote>
           </Reveal>
           <GoldDivider />
+          {signature && !isPlaceholder(signature.heading) && (
+            <Reveal delay={120}>
+              <div data-signature className="flex flex-col gap-1">
+                <p className="text-2xl text-primary" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>
+                  {signature.heading}
+                </p>
+                {!isPlaceholder(signature.body) && <p className="text-sm font-semibold text-muted-foreground font-body">{signature.body}</p>}
+              </div>
+            </Reveal>
+          )}
           {cta && (
             <Reveal delay={160}>
               <Cta locale={locale} href={cta.href} label={cta.label} variant="primary" newTabLabel={newTabLabel} />

@@ -770,23 +770,245 @@ img {
   display: none;
 }
 
-/* Accueil — mosaïque « Découvrir Kango » : une grande photo, deux petites, toutes au format 3:2 des photos. */
-.kango-mosaique {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.kango-mosaique-grande,
-.kango-mosaique-petite {
+/* Accueil — galerie « Découvrir Kango » : la piste (doublée) défile en continu ; le survol suspend le défilement,
+   met la photo en avant et estompe les autres. */
+.kango-galerie {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 3 / 2;
-  border-radius: 8px;
-  border: 2px solid rgba(230, 191, 88, 0.55);
-  background: #315c46;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
 }
 
-.kango-mosaique-grande {
-  grid-column: 1 / -1;
+.kango-galerie-piste {
+  display: flex;
+  gap: 20px;
+  width: max-content;
+  padding: 16px 0 20px;
+  animation: kango-defile var(--kango-duree, 40s) linear infinite;
+}
+
+.kango-galerie:hover .kango-galerie-piste,
+.kango-galerie:focus-visible .kango-galerie-piste,
+.kango-pause .kango-galerie-piste {
+  animation-play-state: paused;
+}
+
+.kango-galerie:focus-visible {
+  outline: 2px solid #e6bf58;
+  outline-offset: -2px;
+}
+
+.kango-galerie-pause {
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #e6bf58;
+  border: 1.5px solid rgba(230, 191, 88, 0.6);
+  background: rgba(230, 191, 88, 0.08);
+  transition:
+    background 0.3s ease,
+    color 0.3s ease;
+}
+
+.kango-galerie-pause:hover {
+  background: #e6bf58;
+  color: #003e2a;
+}
+
+.kango-galerie-pause:focus-visible {
+  outline: 2px solid #e6bf58;
+  outline-offset: 3px;
+}
+
+/* Une période = la moitié de la piste, plus la moitié d'un intervalle (la piste compte un intervalle de moins que de cartes). */
+@keyframes kango-defile {
+  to {
+    transform: translateX(calc(-50% - 10px));
+  }
+}
+
+.kango-galerie-carte {
+  flex: none;
+  width: clamp(250px, 72vw, 400px);
+  transition:
+    transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1),
+    opacity 0.5s ease,
+    filter 0.5s ease;
+}
+
+.kango-galerie-figure {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  border: 2px solid rgba(230, 191, 88, 0.45);
+  background: #315c46;
+  transition:
+    border-color 0.5s ease,
+    box-shadow 0.5s ease;
+}
+
+.kango-galerie-image {
+  position: relative;
+  aspect-ratio: 4 / 3;
+}
+
+.kango-galerie-image img {
+  transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.kango-galerie-legende {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 40px 16px 14px;
+  background: linear-gradient(180deg, transparent, rgba(0, 32, 21, 0.88));
+  color: #fff;
+  transform: translateY(6px);
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.kango-galerie-lieu {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #e6bf58;
+}
+
+.kango-galerie-texte {
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.kango-galerie-texte::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 2px;
+  margin-top: 8px;
+  background: #e6bf58;
+  transition: width 0.5s ease;
+}
+
+.kango-galerie-piste:hover .kango-galerie-carte:not(:hover) {
+  opacity: 0.55;
+  filter: saturate(0.7);
+}
+
+.kango-galerie-carte:hover {
+  transform: translateY(-8px) scale(1.03);
+}
+
+.kango-galerie-carte:hover .kango-galerie-figure {
+  border-color: #e6bf58;
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.35),
+    0 0 0 4px rgba(230, 191, 88, 0.25);
+}
+
+.kango-galerie-carte:hover .kango-galerie-image img {
+  transform: scale(1.1);
+}
+
+.kango-galerie-carte:hover .kango-galerie-legende {
+  transform: translateY(0);
+}
+
+.kango-galerie-carte:hover .kango-galerie-texte::after {
+  width: 48px;
+}
+
+/* Mouvement réduit : pas de défilement automatique ; la galerie se parcourt à la main, sans la copie de la piste. */
+@media (prefers-reduced-motion: reduce) {
+  .kango-galerie {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .kango-galerie-piste {
+    animation: none;
+    padding-inline: 24px;
+  }
+  .kango-galerie-carte[data-copie],
+  .kango-galerie-pause {
+    display: none;
+  }
+  .kango-galerie-carte,
+  .kango-galerie-legende,
+  .kango-galerie-image img {
+    transition: none;
+  }
+  .kango-galerie-carte:hover {
+    transform: none;
+  }
+  .kango-galerie-carte:hover .kango-galerie-image img {
+    transform: none;
+  }
+}
+
+/* Portrait de la Présidente : au survol, le cadre se soulève, la photo s'agrandit, un reflet la traverse
+   et le médaillon pivote. */
+.portrait-presidente-cadre {
+  transition:
+    transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.5s ease;
+}
+
+.portrait-presidente-cadre img {
+  transition:
+    transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+    filter 0.9s ease;
+}
+
+.portrait-presidente-cadre::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+
+.portrait-presidente-medaillon {
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.portrait-presidente:hover .portrait-presidente-cadre {
+  transform: translateY(-6px);
+  box-shadow:
+    0 20px 40px rgba(0, 62, 42, 0.28),
+    0 0 0 5px rgba(230, 191, 88, 0.35);
+}
+
+.portrait-presidente:hover .portrait-presidente-cadre img {
+  transform: scale(1.06);
+  filter: saturate(1.1);
+}
+
+.portrait-presidente:hover .portrait-presidente-cadre::after {
+  transform: translateX(120%);
+  transition: transform 0.9s ease;
+}
+
+.portrait-presidente:hover .portrait-presidente-medaillon {
+  transform: rotate(-12deg) scale(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait-presidente-cadre,
+  .portrait-presidente-cadre img,
+  .portrait-presidente-medaillon {
+    transition: none;
+  }
+  .portrait-presidente:hover .portrait-presidente-cadre,
+  .portrait-presidente:hover .portrait-presidente-cadre img,
+  .portrait-presidente:hover .portrait-presidente-medaillon,
+  .portrait-presidente:hover .portrait-presidente-cadre::after {
+    transform: none;
+  }
 }

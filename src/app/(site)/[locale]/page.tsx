@@ -21,13 +21,14 @@ export const generateMetadata = metadataFor('accueil', '/')
 export default async function HomePage({ params }: LocaleParams) {
   const locale = await resolveLocale(params)
   const dict = getDictionary(locale)
-  const [page, projets, actualites, { images, textes }, reglages, kango] = await Promise.all([
+  const [page, projets, actualites, { images, textes }, reglages, kango, pageMot] = await Promise.all([
     getPage('accueil', locale),
     getProjets(locale),
     getActualites(locale),
     getDiaporama(locale),
     getReglages(locale).catch(() => null),
     getAlbum(KANGO_ALBUM, locale),
+    getPage('mot-de-la-presidente', locale),
   ])
   if (!page) notFound()
   const section = (key: string) => getSection(page, key)
@@ -47,8 +48,8 @@ export default async function HomePage({ params }: LocaleParams) {
       />
       <MissionStrip items={section('hero')?.items ?? []} />
       <AncrageSection locale={locale} section={section('ancrage')} image={images[2]} linkLabel={dict.nav.ong} newTabLabel={newTab} />
-      <KangoSection locale={locale} section={section('kango')} photos={(kango?.photos ?? []).filter((m): m is Media => typeof m === 'object' && m !== null)} newTabLabel={newTab} />
-      <MotTeaser locale={locale} section={section('mot')} portrait={reglages?.portraitPresidente} newTabLabel={newTab} />
+      <MotTeaser locale={locale} section={section('mot')} signature={getSection(pageMot, 'signature')} portrait={reglages?.portraitPresidente} newTabLabel={newTab} />
+      <KangoSection locale={locale} section={section('kango')} photos={(kango?.photos ?? []).filter((m): m is Media => typeof m === 'object' && m !== null)} newTabLabel={newTab} pauseLabel={dict.galerie.pause} playLabel={dict.galerie.play} galerieLabel={dict.galerie.label} />
       <ThemesSection locale={locale} section={section('engagements')} projets={projets} overline={dict.nav.projets} linkLabel={dict.common.learnMore} newTabLabel={newTab} />
       <NewsSection
         locale={locale}

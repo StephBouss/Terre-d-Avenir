@@ -39,6 +39,11 @@ export const en: Dictionary = {
     pause: 'Pause slideshow',
     play: 'Play slideshow',
   },
+  galerie: {
+    pause: 'Pause gallery',
+    play: 'Play gallery',
+    label: 'Kango photo gallery'
+  },
   preview: { banner: 'Preview — not published', exit: 'Exit preview' },
   common: {
     readArticle: 'Read the article',

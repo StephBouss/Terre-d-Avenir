@@ -37,6 +37,11 @@ export const fr = {
     pause: 'Mettre le diaporama en pause',
     play: 'Reprendre le diaporama',
   },
+  galerie: {
+    pause: 'Mettre la galerie en pause',
+    play: 'Reprendre le défilement de la galerie',
+    label: 'Galerie photo de Kango'
+  },
   preview: { banner: 'Aperçu — non publié', exit: 'Quitter l’aperçu' },
   common: {
     readArticle: 'Lire l’article',

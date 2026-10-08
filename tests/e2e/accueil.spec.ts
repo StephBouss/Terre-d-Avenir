@@ -39,6 +39,17 @@ test('portrait de la Présidente : accueil et page du mot', async ({ page }) => 
   }
 })
 
+test('accueil : le mot de la Présidente, signé, précède la bande Kango', async ({ page }) => {
+  await page.goto('/fr')
+  const signature = page.locator('#mot-presidente [data-signature]')
+  await expect(signature).toContainText('Laurence Ndong')
+  await expect(signature).toContainText('Présidente de Terre d’Avenir KOMO-KANGO')
+  const ordre = await page.evaluate(() => [...document.querySelectorAll('main section[id]')].map((s) => s.id))
+  expect(ordre.indexOf('mot-presidente')).toBeLessThan(ordre.indexOf('kango'))
+  await page.goto('/en')
+  await expect(page.locator('#mot-presidente [data-signature]')).toContainText('President of Terre d’Avenir KOMO-KANGO')
+})
+
 test('accueil FR : le bouton de pause fige le diaporama (WCAG 2.2.2)', async ({ page }) => {
   await page.goto('/fr')
   const slide = page.locator('.hero-slide').first()
