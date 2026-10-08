@@ -11,6 +11,7 @@ const PLANS = [
   { file: '2026-10-06-contenu-kafele-nianame.md', actualite: 'kafele-nianame-rehabilitation', album: 'kafele-nianame-2026-09', photos: 6 },
   { file: '2026-10-07-contenu-tournoi-football-finale.md', actualite: 'tournoi-football-finale-2026', album: 'tournoi-football-2026-08', photos: 6 },
   { file: '2026-10-07-contenu-rencontre-populations.md', actualite: 'rencontre-populations-komo-kango', album: 'rencontre-populations-2026-08', photos: 5 },
+  { file: '2026-10-08-contenu-hommage-bacheliers.md', actualite: 'hommage-bacheliers-komo-kango-2026', album: 'hommage-bacheliers-2026-08', photos: 11 },
 ]
 
 const rows = (section: string) =>
@@ -110,6 +111,7 @@ describe('ordre du seed', () => {
       'kafele-nianame-rehabilitation',
       'tournoi-football-finale-2026',
       'rencontre-populations-komo-kango',
+      'hommage-bacheliers-komo-kango-2026',
       'tournoi-komo-kango-terre-davenir',
       'un-jeune-un-permis',
       'assemblee-generale-decembre-2025',
@@ -118,17 +120,19 @@ describe('ordre du seed', () => {
       'kafele-nianame-rehabilitation': 0,
       'tournoi-football-finale-2026': 1,
       'rencontre-populations-komo-kango': 2,
-      'tournoi-komo-kango-terre-davenir': 3,
-      'un-jeune-un-permis': 4,
-      'assemblee-generale-decembre-2025': 5,
+      'hommage-bacheliers-komo-kango-2026': 3,
+      'tournoi-komo-kango-terre-davenir': 4,
+      'un-jeune-un-permis': 5,
+      'assemblee-generale-decembre-2025': 6,
     })
   })
-  it('albums : Kafélé 0, tournoi 1, rencontre 2, puis Kango (présentation, après les événements)', () => {
+  it('albums : Kafélé 0, tournoi 1, rencontre 2, bacheliers 3, puis Kango (présentation, après les événements)', () => {
     expect(fr.albums.map((a) => [a.slug, a.order])).toEqual([
       ['kafele-nianame-2026-09', 0],
       ['tournoi-football-2026-08', 1],
       ['rencontre-populations-2026-08', 2],
-      ['kango', 3],
+      ['hommage-bacheliers-2026-08', 3],
+      ['kango', 4],
     ])
   })
 })

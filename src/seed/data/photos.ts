@@ -77,6 +77,33 @@ export const ALBUM_PHOTO_SETS: AlbumPhotoSet[] = [
     ],
   },
   {
+    albumSlug: "hommage-bacheliers-2026-08",
+    dir: "hommage-bacheliers-2026-08",
+    common: {
+      credit: "Terre d’Avenir KOMO-KANGO",
+      source: "Page Facebook de l’association (publication du 15 août 2026)",
+      datePrise: "2026-08-15",
+      droitsConfirmes: true,
+      droitsNote: "Photos publiées par l’association sur sa page Facebook ; droits de diffusion confirmés par l’association le 8 octobre 2026.",
+      provisoire: false,
+      galerie: false,
+    },
+    lieu: { fr: "Komo-Kango", en: "Komo-Kango" },
+    photos: [
+      { key: "bacheliers-1", file: "photo-1.jpg", altFr: "Deux danseuses posent aux côtés d’une invitée souriante", altEn: "Two dancers pose beside a smiling guest" },
+      { key: "bacheliers-2", file: "photo-2.jpg", altFr: "Deux danseuses se produisent devant les invités", altEn: "Two dancers perform in front of the guests" },
+      { key: "bacheliers-3", file: "photo-3.jpg", altFr: "Les bacheliers en tee-shirt « BAC 2026 » rassemblés autour du gâteau de félicitations", altEn: "Graduates in “BAC 2026” T-shirts gathered around the congratulations cake" },
+      { key: "bacheliers-4", file: "photo-4.jpg", altFr: "Une bachelière et une invitée posent avec un bouquet", altEn: "A graduate and a guest pose with a bouquet" },
+      { key: "bacheliers-5", file: "photo-5.jpg", altFr: "Préparation du gâteau et de ses bougies", altEn: "Preparing the cake and its candles" },
+      { key: "bacheliers-6", file: "photo-6.jpg", altFr: "Prise de parole au micro pendant la cérémonie", altEn: "Speaking at the microphone during the ceremony" },
+      { key: "bacheliers-7", file: "photo-7.jpg", altFr: "Des bacheliers en tee-shirt « BAC 2026 » réunis sous la tente", altEn: "Graduates in “BAC 2026” T-shirts gathered under the tent" },
+      { key: "bacheliers-8", file: "photo-8.jpg", altFr: "Un bachelier danse sous les rires de ses camarades", altEn: "A graduate dances as friends laugh" },
+      { key: "bacheliers-9", file: "photo-9.jpg", altFr: "Arrivée devant le gâteau, entourée des bacheliers", altEn: "Arriving at the cake, surrounded by the graduates" },
+      { key: "bacheliers-10", file: "photo-10.jpg", altFr: "Quatre bacheliers distingués posent avec leur ordinateur portable", altEn: "Four award-winning graduates pose with their laptops" },
+      { key: "bacheliers-11", file: "photo-11.jpg", altFr: "Remise d’un cadeau à un bachelier", altEn: "A graduate receives a gift" },
+    ],
+  },
+  {
     // Photos publiques d’illustration (docs/superpowers/plans/2026-10-08-contenu-kango.md) : provisoires, à remplacer.
     albumSlug: "kango",
     dir: "kango",
