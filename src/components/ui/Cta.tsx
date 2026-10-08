@@ -17,7 +17,8 @@ const VARIANTS: Record<CtaVariant, { className: string; style?: CSSProperties; l
   primary: { className: `${BUTTON} bg-primary text-primary-foreground`, light: true },
   outline: { className: `${BUTTON} text-primary`, style: { border: '1.5px solid #005C38' }, light: false },
   'outline-light': { className: `${BUTTON} text-primary-foreground`, style: { border: '1.5px solid rgba(255,255,255,0.5)' }, light: true },
-  link: { className: 'text-sm font-bold text-primary inline-flex items-center gap-1', light: false },
+  // py-1.5 : lien texte assez haut pour le doigt (WCAG 2.5.8) sans changer son allure.
+  link: { className: 'text-sm font-bold text-primary inline-flex items-center gap-1 py-1.5', light: false },
 }
 
 type Props = {

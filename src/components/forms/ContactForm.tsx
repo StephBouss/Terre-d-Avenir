@@ -12,7 +12,8 @@ import { texteErreur } from './texte-erreur'
 import { useEnvoiFormulaire } from './useEnvoiFormulaire'
 
 const LABEL = 'block text-sm font-bold text-foreground mb-2'
-const FIELD = 'border border-border rounded-md px-4 py-3 bg-input text-foreground w-full aria-[invalid=true]:border-error'
+// text-base (16 px) : en dessous, Safari sur iPhone zoome la page à chaque saisie.
+const FIELD = 'border border-border rounded-md px-4 py-3 bg-input text-base text-foreground w-full aria-[invalid=true]:border-error'
 const HELP = 'mt-1.5 text-xs text-muted-foreground'
 
 const ID: Record<ChampContact, string> = { nom: 'ct-nom', prenom: 'ct-prenom', email: 'ct-email', telephone: 'ct-tel', organisation: 'ct-org', message: 'ct-message' }
@@ -91,7 +92,7 @@ export default function ContactForm({ locale, labels, commun, facebookUrl }: Pro
       {statut === 'erreur' && <p role="alert" className="text-sm font-semibold text-error">{labels.networkError}</p>}
       {statut === 'limite' && <p role="alert" className="text-sm font-semibold text-error">{commun.limite}</p>}
       <div>
-        <button type="submit" disabled={!pret || statut === 'envoi'} className="font-bold text-base px-8 py-3 rounded-md font-body bg-primary text-primary-foreground disabled:opacity-60 disabled:cursor-wait">
+        <button type="submit" disabled={!pret || statut === 'envoi'} className="w-full sm:w-auto font-bold text-base px-8 py-3 rounded-md font-body bg-primary text-primary-foreground disabled:opacity-60 disabled:cursor-wait">
           {labels.submit}
         </button>
       </div>

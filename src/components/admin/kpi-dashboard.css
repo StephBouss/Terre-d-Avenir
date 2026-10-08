@@ -247,6 +247,42 @@ html[data-theme='dark'] .kpi-chiffre-nombre {
   color: var(--ta-ok);
 }
 
+/* Smartphone : deux grands chiffres par ligne, plus compacts, pour garder l'essentiel sur le premier écran. */
+@media (max-width: 600px) {
+  .kpi-banniere {
+    padding: 1.25rem 1.1rem;
+  }
+  .kpi-banniere h2 {
+    font-size: 1.5rem;
+  }
+  .kpi-bouton--sortie {
+    margin-left: 0;
+  }
+  .kpi-chiffres {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+  .kpi-chiffre {
+    padding: 0.9rem 0.9rem 0.85rem;
+    column-gap: 0.5rem;
+  }
+  .kpi-chiffre-icone {
+    width: 34px;
+    height: 34px;
+  }
+  .kpi-chiffre-nombre {
+    font-size: 1.9rem;
+  }
+  .kpi-chiffre-label {
+    margin-top: 0.6rem;
+    font-size: 0.9rem;
+    line-height: 1.25;
+  }
+  .kpi-chiffre-aide {
+    display: none;
+  }
+}
+
 /* Cartes de détail */
 .kpi-grid {
   display: grid;

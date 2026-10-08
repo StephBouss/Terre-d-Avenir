@@ -13,7 +13,8 @@ import { texteErreur } from './texte-erreur'
 import { useEnvoiFormulaire } from './useEnvoiFormulaire'
 
 const LABEL = 'block text-sm font-bold text-foreground mb-2'
-const FIELD = 'border border-border rounded-md px-4 py-3 bg-input text-foreground w-full aria-[invalid=true]:border-error'
+// text-base (16 px) : en dessous, Safari sur iPhone zoome la page à chaque saisie.
+const FIELD = 'border border-border rounded-md px-4 py-3 bg-input text-base text-foreground w-full aria-[invalid=true]:border-error'
 const HELP = 'mt-1.5 text-xs text-muted-foreground'
 
 const ID: Record<ChampAdhesion, string> = {
@@ -153,10 +154,11 @@ export default function AdhesionForm({ locale, labels, commun, pays, facebookUrl
         </div>
         <fieldset className="md:col-span-2" aria-describedby={['adh-interets-aide', erreurs.interets ? 'adh-interets-erreur' : ''].filter(Boolean).join(' ')}>
           <legend className={LABEL}>{labels.interests}</legend>
-          <div className="flex flex-wrap gap-x-6 gap-y-3">
+          {/* Une case par ligne sur smartphone ; côte à côte à partir de 640 px. */}
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-x-6 gap-y-3">
             {INTERETS.map((valeur, i) => (
               <label key={valeur} htmlFor={`adh-interet-${i}`} className="inline-flex items-center gap-2 text-base text-foreground">
-                <input id={`adh-interet-${i}`} type="checkbox" name="interets" value={valeur} className="h-5 w-5 accent-[#005C38]" />
+                <input id={`adh-interet-${i}`} type="checkbox" name="interets" value={valeur} className="h-6 w-6 shrink-0 accent-[#005C38]" />
                 {labels.interestOptions[i]}
               </label>
             ))}
@@ -185,7 +187,7 @@ export default function AdhesionForm({ locale, labels, commun, pays, facebookUrl
         </div>
         <div className="md:col-span-2">
           <label htmlFor={ID.notice} className="inline-flex items-start gap-3 text-base text-foreground">
-            <input id={ID.notice} type="checkbox" name="notice" aria-required="true" className="mt-1 h-5 w-5 accent-[#005C38]" {...decrit('notice')} />
+            <input id={ID.notice} type="checkbox" name="notice" aria-required="true" className="mt-0.5 h-6 w-6 shrink-0 accent-[#005C38]" {...decrit('notice')} />
             <span>{labels.notice}</span>
           </label>
           <ChampErreur id={`${ID.notice}-erreur`} message={erreur('notice')} />
@@ -212,7 +214,7 @@ export default function AdhesionForm({ locale, labels, commun, pays, facebookUrl
       )}
       {statut === 'limite' && <p role="alert" className="text-sm font-semibold text-error">{commun.limite}</p>}
       <div>
-        <button type="submit" disabled={!pret || statut === 'envoi'} className="font-bold text-base px-8 py-3 rounded-md font-body disabled:opacity-60 disabled:cursor-wait" style={{ background: '#E6BF58', color: '#17372C' }}>
+        <button type="submit" disabled={!pret || statut === 'envoi'} className="w-full sm:w-auto font-bold text-base px-8 py-3 rounded-md font-body disabled:opacity-60 disabled:cursor-wait" style={{ background: '#E6BF58', color: '#17372C' }}>
           {labels.submit}
         </button>
       </div>

@@ -32,7 +32,10 @@ export default function MotTeaser({ locale, section, signature, portrait, newTab
             )}
           </Reveal>
           <Reveal delay={80}>
-            <blockquote style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 22, lineHeight: 1.65, color: '#17372C', textAlign: 'justify' }}>{section.body}</blockquote>
+            {/* Justifié seulement sur grand écran : sur une colonne étroite, il creuse de grands blancs entre les mots. */}
+            <blockquote className="text-left lg:text-justify" style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: 22, lineHeight: 1.65, color: '#17372C' }}>
+              {section.body}
+            </blockquote>
           </Reveal>
           <GoldDivider />
           {signature && !isPlaceholder(signature.heading) && (
