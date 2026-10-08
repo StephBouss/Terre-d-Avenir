@@ -39,7 +39,7 @@ export default async function MotPage({ params }: LocaleParams) {
                 {!isPlaceholder(signature!.body) && <p className="text-sm font-semibold text-muted-foreground font-body">{signature!.body}</p>}
               </div>
             )}
-            <CtaList locale={locale} ctas={message?.ctas} newTabLabel={dict.common.newTab} />
+            <CtaList locale={locale} ctas={message?.ctas} newTabLabel={dict.common.newTab} uneLigne />
           </Reveal>
         </div>
       </section>

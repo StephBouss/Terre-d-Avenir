@@ -12,7 +12,7 @@ export default function PortraitPresidente({ portrait }: { portrait?: Media | nu
         <MediaImage media={portrait} fill sizes="(min-width: 1024px) 360px, 90vw" className="object-cover" />
       </div>
       <div
-        className="absolute -bottom-5 -right-5 w-16 h-16 rounded-full flex items-center justify-center"
+        className="absolute -bottom-5 right-3 sm:-right-5 w-16 h-16 rounded-full flex items-center justify-center"
         style={{ background: '#003E2A', border: '3px solid #E6BF58' }}
         aria-hidden="true"
       >
