@@ -238,6 +238,8 @@ export interface Media {
    */
   droitsConfirmes?: boolean | null;
   droitsNote?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -676,6 +678,8 @@ export interface MediasSelect<T extends boolean = true> {
   datePrise?: T;
   droitsConfirmes?: T;
   droitsNote?: T;
+  prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

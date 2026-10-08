@@ -13,6 +13,7 @@ import * as migration_20261008_041655_portrait_presidente from './20261008_04165
 import * as migration_20261008_042248_comptes_roles from './20261008_042248_comptes_roles';
 import * as migration_20261008_153558_page_decouvrir_kango from './20261008_153558_page_decouvrir_kango';
 import * as migration_20261008_164558_section_image from './20261008_164558_section_image';
+import * as migration_20261008_181620_stockage_blob from './20261008_181620_stockage_blob';
 
 export const migrations = [
   {
@@ -88,6 +89,11 @@ export const migrations = [
   {
     up: migration_20261008_164558_section_image.up,
     down: migration_20261008_164558_section_image.down,
-    name: '20261008_164558_section_image'
+    name: '20261008_164558_section_image',
+  },
+  {
+    up: migration_20261008_181620_stockage_blob.up,
+    down: migration_20261008_181620_stockage_blob.down,
+    name: '20261008_181620_stockage_blob'
   },
 ];

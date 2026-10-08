@@ -5,6 +5,7 @@ import { default as default_a567eb58259f09431f3c183b6f267789 } from '../../../co
 import { default as default_f132ad695321b0ca247edf7bc8175c46 } from '../../../components/admin/KpiDashboard'
 import { default as default_36ad139a33973e31baad35498cb443ad } from '../../../components/admin/RedirectionApresEnregistrement'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
+import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 
 /** @type import('payload').ImportMap */
 export const importMap = {
@@ -14,5 +15,6 @@ export const importMap = {
   "/components/admin/ChampRole#default": default_a567eb58259f09431f3c183b6f267789,
   "/components/admin/KpiDashboard#default": default_f132ad695321b0ca247edf7bc8175c46,
   "/components/admin/RedirectionApresEnregistrement#default": default_36ad139a33973e31baad35498cb443ad,
-  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
+  "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
+  "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e
 }

@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { fr } from '@payloadcms/translations/languages/fr'
 import sharp from 'sharp'
 import { Actualites } from './collections/Actualites'
@@ -49,4 +50,14 @@ export default buildConfig({
   }),
   upload: { limits: { fileSize: 20_000_000 } }, // 20 Mo par photo (PRD BO-10)
   sharp,
+  plugins: [
+    // En ligne (Vercel), le disque n'est pas conservé : les photos vont dans Vercel Blob dès que sa clé est fournie.
+    // En local, sans clé, elles restent dans le dossier media/. Le schéma est identique partout (alwaysInsertFields).
+    vercelBlobStorage({
+      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+      alwaysInsertFields: true,
+      collections: { medias: true },
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    }),
+  ],
 })
