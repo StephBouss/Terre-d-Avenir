@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import type { Payload } from 'payload'
 import { isSeedMediaFilename } from './media-match'
-import { SEED_CONTEXT } from './upsert'
+import { seedContext } from './upsert'
 
 export type MediaSeed = {
   /** Clé du nom de fichier téléversé (« banner », « kafele-nianame-1-photo ») : sert à retrouver les variantes renommées par Payload. */
@@ -35,15 +35,15 @@ export async function upsertMedia(payload: Payload, m: MediaSeed): Promise<numbe
       data: { ...base, alt: m.altFr } as never,
       file: upload,
       locale: 'fr',
-      context: SEED_CONTEXT,
+      context: seedContext(),
     }))
-  await payload.update({ collection: 'medias', id: doc.id, data: { ...base, alt: m.altFr } as never, locale: 'fr', context: SEED_CONTEXT })
+  await payload.update({ collection: 'medias', id: doc.id, data: { ...base, alt: m.altFr } as never, locale: 'fr', context: seedContext() })
   await payload.update({
     collection: 'medias',
     id: doc.id,
     data: { alt: m.altEn, ...(m.lieu ? { lieu: m.lieu.en } : {}) } as never,
     locale: 'en',
-    context: SEED_CONTEXT,
+    context: seedContext(),
   })
   return doc.id
 }

@@ -11,7 +11,7 @@ import { seedTextesDiaporama } from './diaporama'
 import { upsertMedia } from './media'
 import { seedOrganigramme } from './organigramme'
 import { seedPortraitPresidente } from './presidente'
-import { SEED_CONTEXT, upsertLocalized } from './upsert'
+import { seedContext, upsertLocalized } from './upsert'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -102,7 +102,7 @@ async function seedAdmin(payload: Payload) {
   }
   // Le compte SEED_ADMIN_EMAIL est l’administrateur principal : tout autre administrateur (ex. compte repris
   // d’une ancienne base) redevient un compte limité sans accès, à régler ensuite depuis l’admin.
-  const context = { ...SEED_CONTEXT, designerAdministrateur: true }
+  const context = { ...seedContext(), designerAdministrateur: true }
   const autres = await payload.find({ collection: 'users', where: { and: [{ role: { equals: 'administrateur' } }, { email: { not_equals: email } }] }, depth: 0, limit: 10 })
   for (const u of autres.docs) await payload.update({ collection: 'users', id: u.id, data: { role: 'personnalise' }, context })
   const found = await payload.find({ collection: 'users', where: { email: { equals: email } }, limit: 1, depth: 0 })
@@ -150,16 +150,16 @@ async function seed() {
   await seedOrganigramme(payload, dirname)
 
   const heroImages = HERO_ORDER.map((k) => media[k] as number)
-  await payload.updateGlobal({ slug: 'diaporama', data: { images: heroImages }, context: SEED_CONTEXT })
+  await payload.updateGlobal({ slug: 'diaporama', data: { images: heroImages }, context: seedContext() })
   await seedTextesDiaporama(payload)
   const portraitPresidente = await seedPortraitPresidente(payload, dirname)
   await payload.updateGlobal({
     slug: 'reglages',
     data: { facebookUrl: FACEBOOK_URL, ...fr.reglages, portraitPresidente: portraitPresidente as number },
     locale: 'fr',
-    context: SEED_CONTEXT,
+    context: seedContext(),
   })
-  await payload.updateGlobal({ slug: 'reglages', data: { ...en.reglages }, locale: 'en', context: SEED_CONTEXT })
+  await payload.updateGlobal({ slug: 'reglages', data: { ...en.reglages }, locale: 'en', context: seedContext() })
 
   await seedAdmin(payload)
 

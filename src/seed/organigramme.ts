@@ -2,7 +2,7 @@ import path from 'node:path'
 import type { Payload } from 'payload'
 import { PORTRAITS, POSTES } from './data/organigramme'
 import { upsertMedia } from './media'
-import { SEED_CONTEXT } from './upsert'
+import { seedContext } from './upsert'
 
 /**
  * Crée les postes de départ publiés (affichés sur le site depuis le 2026-10-08), parents d’abord. Un poste déjà présent (même `cle`) n’est jamais réécrit :
@@ -35,7 +35,7 @@ export async function seedOrganigramme(payload: Payload, dossierSeed: string): P
     const doc = await payload.create({
       collection: 'postes',
       locale: 'fr',
-      context: SEED_CONTEXT,
+      context: seedContext(),
       data: {
         cle: poste.cle,
         intitule: poste.intitule.fr,
@@ -51,7 +51,7 @@ export async function seedOrganigramme(payload: Payload, dossierSeed: string): P
       collection: 'postes',
       id: doc.id,
       locale: 'en',
-      context: SEED_CONTEXT,
+      context: seedContext(),
       data: { intitule: poste.intitule.en, mission: poste.mission.en },
     })
     ids.set(poste.cle, doc.id)
