@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { s3Storage } from '@payloadcms/storage-s3'
 import { fr } from '@payloadcms/translations/languages/fr'
 import sharp from 'sharp'
 import { Actualites } from './collections/Actualites'
@@ -18,6 +18,7 @@ import { Diaporama } from './globals/Diaporama'
 import { Reglages } from './globals/Reglages'
 import { urlBaseDeDonnees } from './lib/base-de-donnees'
 import { emailAdapter } from './lib/email/adaptateur'
+import { configS3, stockageS3Actif } from './lib/stockage'
 import { DEFAULT_LOCALE, LOCALES, NATIVE_NAMES } from './lib/i18n/config'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -52,13 +53,14 @@ export default buildConfig({
   upload: { limits: { fileSize: 20_000_000 } }, // 20 Mo par photo (PRD BO-10)
   sharp,
   plugins: [
-    // En ligne (Vercel), le disque n'est pas conservé : les photos vont dans Vercel Blob dès que sa clé est fournie.
-    // En local, sans clé, elles restent dans le dossier media/. Le schéma est identique partout (alwaysInsertFields).
-    vercelBlobStorage({
-      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+    // En ligne, le disque n'est pas conservé : les photos vont dans le stockage S3 (Neon Object Storage) dès qu'il est
+    // configuré. En local, sans S3_*, elles restent dans le dossier media/. Le schéma est identique partout (alwaysInsertFields).
+    // Les photos restent servies par /api/medias/file/… : le bucket peut rester privé.
+    s3Storage({
+      enabled: stockageS3Actif(),
       alwaysInsertFields: true,
       collections: { medias: true },
-      token: process.env.BLOB_READ_WRITE_TOKEN,
+      ...configS3(),
     }),
   ],
 })
