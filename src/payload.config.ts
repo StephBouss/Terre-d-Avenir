@@ -16,6 +16,7 @@ import { Postes } from './collections/Postes'
 import { Users } from './collections/Users'
 import { Diaporama } from './globals/Diaporama'
 import { Reglages } from './globals/Reglages'
+import { urlBaseDeDonnees } from './lib/base-de-donnees'
 import { emailAdapter } from './lib/email/adaptateur'
 import { DEFAULT_LOCALE, LOCALES, NATIVE_NAMES } from './lib/i18n/config'
 
@@ -44,7 +45,7 @@ export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: postgresAdapter({
-    pool: { connectionString: process.env.DATABASE_URI || '' },
+    pool: { connectionString: urlBaseDeDonnees() },
     push: false,
     migrationDir: path.resolve(dirname, 'migrations'),
   }),

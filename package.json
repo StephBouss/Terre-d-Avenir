@@ -4,18 +4,19 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=20.9.0"
+    "node": "24.x"
   },
   "scripts": {
     "db": "tsx scripts/db.ts",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
-    "vercel-build": "npm run migrate && npm run build",
+    "vercel-build": "node scripts/verifier-env.mjs && npm run migrate && npm run seed:si-vide && npm run build",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "migrate": "npm run payload -- migrate",
     "migrate:create": "npm run payload -- migrate:create",
     "seed": "npm run payload -- run src/seed/index.ts",
+    "seed:si-vide": "cross-env SEED_SI_VIDE=1 npm run seed",
     "generate:types": "npm run payload -- generate:types",
     "generate:importmap": "npm run payload -- generate:importmap",
     "lint": "eslint .",

@@ -167,5 +167,21 @@ async function seed() {
   console.log(`Seed terminé : pages=${await count('pages')} albums=${await count('albums')} actualites=${await count('actualites')} projets=${await count('projets')} postes=${await count('postes')} medias=${await count('medias')}`)
 }
 
-await seed()
+// « npm run seed:si-vide » (déploiement Vercel) : le seed ne remplit qu’une base vide, pour ne jamais écraser ce qui a
+// été saisi dans l’admin. « npm run seed » reste le seed complet, à lancer à la main.
+async function baseDejaRemplie() {
+  const payload = await getPayload({ config })
+  return (await payload.count({ collection: 'pages' })).totalDocs > 0
+}
+
+if (process.env.SEED_SI_VIDE && (await baseDejaRemplie())) {
+  console.log('Base déjà remplie : seed ignoré (les contenus de l’admin sont conservés).')
+} else {
+  // Base vide sans compte admin = page « créer le premier utilisateur » ouverte à tous sur le site en ligne.
+  if (process.env.SEED_SI_VIDE && (!process.env.SEED_ADMIN_EMAIL || (process.env.SEED_ADMIN_PASSWORD ?? '').length < 12)) {
+    console.error('Base vide : définir SEED_ADMIN_EMAIL et SEED_ADMIN_PASSWORD (12 caractères au moins) pour créer le compte administrateur.')
+    process.exit(1)
+  }
+  await seed()
+}
 process.exit(0)
