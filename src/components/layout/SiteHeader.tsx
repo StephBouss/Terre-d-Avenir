@@ -50,7 +50,7 @@ export default function SiteHeader({ locale, labels }: Props) {
                 key={item.key}
                 href={localizedHref(locale, item.href)}
                 aria-current={active ? 'page' : undefined}
-                className={`px-3 py-2 text-sm font-body font-medium transition-colors ${
+                className={`px-3 py-2 text-sm font-body font-medium whitespace-nowrap transition-colors ${
                   active ? 'text-primary font-bold border-b-2 border-primary' : 'text-foreground hover:text-primary'
                 }`}
               >

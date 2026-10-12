@@ -17,7 +17,7 @@ export default function ActionThemeCard({ locale, projet, linkLabel }: { locale:
         </h3>
         {!isPlaceholder(projet.summary) && <p className="text-sm text-muted-foreground leading-relaxed font-body">{projet.summary}</p>}
       </div>
-      <Link href={localizedHref(locale, `/projets/${projet.slug}`)} className="btn-arrow text-sm font-bold text-primary flex items-center gap-1 mt-auto">
+      <Link href={localizedHref(locale, `/projets/${projet.slug}`)} className="btn-arrow text-sm font-bold text-primary flex items-center gap-1 py-1.5 mt-auto">
         {linkLabel} <Icon i="arrow-right" size={13} />
       </Link>
     </div>

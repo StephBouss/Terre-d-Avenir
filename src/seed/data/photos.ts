@@ -5,7 +5,7 @@ export type AlbumPhotoSet = {
   albumSlug: string
   /** Dossier sous src/seed/images/albums/. */
   dir: string
-  common: { credit: string; source: string; datePrise: string; droitsConfirmes: boolean; droitsNote: string; provisoire: boolean; galerie: boolean }
+  common: { credit: string; source: string; datePrise?: string; droitsConfirmes: boolean; droitsNote: string; provisoire: boolean; galerie: boolean }
   lieu: { fr: string; en: string }
   photos: { key: SeedAlbumPhotoKey; file: string; altFr: string; altEn: string }[]
 }
@@ -74,6 +74,54 @@ export const ALBUM_PHOTO_SETS: AlbumPhotoSet[] = [
       { key: "rencontre-3", file: "photo-3.jpg", altFr: "Une discussion animée avec des participants attentifs", altEn: "A lively discussion with attentive participants" },
       { key: "rencontre-4", file: "photo-4.jpg", altFr: "Moment d’écoute au sein d’un groupe de participants", altEn: "A moment of listening within a group of participants" },
       { key: "rencontre-5", file: "photo-5.jpg", altFr: "Une accolade chaleureuse entre deux participantes", altEn: "A warm embrace between two participants" },
+    ],
+  },
+  {
+    albumSlug: "hommage-bacheliers-2026-08",
+    dir: "hommage-bacheliers-2026-08",
+    common: {
+      credit: "Terre d’Avenir KOMO-KANGO",
+      source: "Page Facebook de l’association (publication du 15 août 2026)",
+      datePrise: "2026-08-15",
+      droitsConfirmes: true,
+      droitsNote: "Photos publiées par l’association sur sa page Facebook ; droits de diffusion confirmés par l’association le 8 octobre 2026.",
+      provisoire: false,
+      galerie: false,
+    },
+    lieu: { fr: "Komo-Kango", en: "Komo-Kango" },
+    photos: [
+      { key: "bacheliers-1", file: "photo-1.jpg", altFr: "Deux danseuses posent aux côtés d’une invitée souriante", altEn: "Two dancers pose beside a smiling guest" },
+      { key: "bacheliers-2", file: "photo-2.jpg", altFr: "Deux danseuses se produisent devant les invités", altEn: "Two dancers perform in front of the guests" },
+      { key: "bacheliers-3", file: "photo-3.jpg", altFr: "Les bacheliers en tee-shirt « BAC 2026 » rassemblés autour du gâteau de félicitations", altEn: "Graduates in “BAC 2026” T-shirts gathered around the congratulations cake" },
+      { key: "bacheliers-4", file: "photo-4.jpg", altFr: "Une bachelière et une invitée posent avec un bouquet", altEn: "A graduate and a guest pose with a bouquet" },
+      { key: "bacheliers-5", file: "photo-5.jpg", altFr: "Préparation du gâteau et de ses bougies", altEn: "Preparing the cake and its candles" },
+      { key: "bacheliers-6", file: "photo-6.jpg", altFr: "Prise de parole au micro pendant la cérémonie", altEn: "Speaking at the microphone during the ceremony" },
+      { key: "bacheliers-7", file: "photo-7.jpg", altFr: "Des bacheliers en tee-shirt « BAC 2026 » réunis sous la tente", altEn: "Graduates in “BAC 2026” T-shirts gathered under the tent" },
+      { key: "bacheliers-8", file: "photo-8.jpg", altFr: "Un bachelier danse sous les rires de ses camarades", altEn: "A graduate dances as friends laugh" },
+      { key: "bacheliers-9", file: "photo-9.jpg", altFr: "Arrivée devant le gâteau, entourée des bacheliers", altEn: "Arriving at the cake, surrounded by the graduates" },
+      { key: "bacheliers-10", file: "photo-10.jpg", altFr: "Quatre bacheliers distingués posent avec leur ordinateur portable", altEn: "Four award-winning graduates pose with their laptops" },
+      { key: "bacheliers-11", file: "photo-11.jpg", altFr: "Remise d’un cadeau à un bachelier", altEn: "A graduate receives a gift" },
+    ],
+  },
+  {
+    // Photos publiques d’illustration (docs/superpowers/plans/2026-10-08-contenu-kango.md) : provisoires, à remplacer.
+    albumSlug: "kango",
+    dir: "kango",
+    common: {
+      credit: "Photo publique d’illustration (à remplacer)",
+      source: "Photos publiques transmises par l’association le 8 octobre 2026 ; logo « Gabon Développement » retiré par recadrage",
+      droitsConfirmes: false,
+      droitsNote: "Photos publiques utilisées pour illustrer la page Découvrir Kango ; droits non confirmés, à remplacer par des photos de l’association.",
+      provisoire: true,
+      galerie: false,
+    },
+    lieu: { fr: "Kango, Komo-Kango", en: "Kango, Komo-Kango" },
+    photos: [
+      { key: "kango-1", file: "photo-1.jpg", altFr: "Vue sur Kango, la forêt et le fleuve Komo", altEn: "View over Kango, the forest and the Komo River" },
+      { key: "kango-2", file: "photo-2.jpg", altFr: "Maisons neuves au toit rouge, à Kango", altEn: "New red-roofed houses in Kango" },
+      { key: "kango-3", file: "photo-3.jpg", altFr: "Vue aérienne d’un quartier de Kango, entre route et forêt", altEn: "Aerial view of a Kango neighbourhood, between road and forest" },
+      { key: "kango-4", file: "photo-4.jpg", altFr: "Église aux murs jaunes sur les hauteurs de Kango", altEn: "Yellow-walled church on the heights of Kango" },
+      { key: "kango-5", file: "photo-5.jpg", altFr: "Pont sur le fleuve Komo, vu depuis une embarcation", altEn: "Bridge over the Komo River, seen from a boat" },
     ],
   },
 ]

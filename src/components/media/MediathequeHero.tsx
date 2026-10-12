@@ -1,22 +1,28 @@
-import { Reveal } from '@/components/motion/Reveal'
 import { EmphasisText } from '@/components/ui/EmphasisText'
+import HeroBack, { type HeroBackLink } from '@/components/ui/HeroBack'
 import { MediaImage } from '@/components/ui/MediaImage'
+import type { Locale } from '@/lib/i18n/config'
 import { isPlaceholder } from '@/lib/text'
 import type { Media } from '@/payload-types'
 
-type Props = { eyebrow: string; title: string; intro?: string | null; image?: Media | number | null }
+type Props = { eyebrow: string; title: string; intro?: string | null; image?: Media | number | null; locale?: Locale; back?: HeroBackLink }
 
-export default function MediathequeHero({ eyebrow, title, intro, image }: Props) {
+export default function MediathequeHero({ eyebrow, title, intro, image, locale, back }: Props) {
   return (
     <section className="relative py-24 overflow-hidden" style={{ background: '#003E2A', minHeight: 400 }}>
-      <div className="absolute inset-0 z-0" style={{ opacity: 0.45 }}>
+      <div className="absolute inset-0 z-0 hero-entree-fond" style={{ opacity: 0.45 }}>
         <MediaImage media={image} fill decorative eager sizes="100vw" className="w-full h-full object-cover" />
       </div>
       <div className="absolute inset-0 z-[1]" style={{ background: 'linear-gradient(105deg, #003E2Ae8 30%, #003E2Acc 55%, #003E2A99 100%)' }} />
-      <Reveal className="relative z-10 max-w-[1280px] mx-auto px-6">
+      <div className="relative z-10 max-w-[1280px] mx-auto px-6 text-center hero-entree-texte">
+        {back && locale && (
+          <div>
+            <HeroBack locale={locale} {...back} />
+          </div>
+        )}
         {!isPlaceholder(eyebrow) && (
           <span
-            className="text-xs font-bold font-body uppercase"
+            className="text-xs font-bold font-body uppercase badge-anime"
             style={{ letterSpacing: '0.14em', color: '#E6BF58', background: 'rgba(230,191,88,0.14)', border: '1px solid rgba(230,191,88,0.4)', borderRadius: 4, padding: '4px 12px', display: 'inline-block', marginBottom: 16 }}
           >
             {eyebrow}
@@ -26,11 +32,11 @@ export default function MediathequeHero({ eyebrow, title, intro, image }: Props)
           <EmphasisText text={title} />
         </h1>
         {!isPlaceholder(intro) && (
-          <p className="text-lg text-primary-foreground" style={{ opacity: 0.88, maxWidth: 560 }}>
+          <p className="text-lg text-primary-foreground mx-auto" style={{ opacity: 0.88, maxWidth: 560 }}>
             {intro}
           </p>
         )}
-      </Reveal>
+      </div>
     </section>
   )
 }

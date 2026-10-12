@@ -2,12 +2,14 @@ import { cache } from 'react'
 import { draftMode, headers } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import type { Actualite, Album, Diaporama, Media, Page, Projet, Reglage } from '@/payload-types'
+import type { Actualite, Album, Diaporama, Media, Page, Poste, Projet, Reglage } from '@/payload-types'
 import type { PageSlug } from '@/collections/Pages'
 import type { Locale } from './i18n/config'
 import { VISIBLE_ACTUALITE } from './actualites'
+import type { Diapositive } from './diaporama'
 import { PUBLISHED_ALBUM } from './albums'
 import { TITLED } from './filtres'
+import { INTITULE_RENSEIGNE, PUBLISHED_POSTE, avecIntituleAffichable } from './organigramme'
 
 const client = cache(() => getPayload({ config }))
 
@@ -83,8 +85,26 @@ export const getReglages = cache(async (locale: Locale): Promise<Reglage> => {
   return payload.findGlobal({ slug: 'reglages', locale, depth: 1 })
 })
 
-export const getDiaporama = cache(async (locale: Locale): Promise<Media[]> => {
+export const getDiaporama = cache(async (locale: Locale): Promise<{ images: Media[]; textes: Diapositive[] }> => {
   const payload = await client()
   const global: Diaporama = await payload.findGlobal({ slug: 'diaporama', locale, depth: 1 })
-  return (global.images ?? []).filter((m): m is Media => typeof m === 'object' && m !== null)
+  return {
+    images: (global.images ?? []).filter((m): m is Media => typeof m === 'object' && m !== null),
+    textes: (global.textes ?? []).map((t) => ({ titre: t.titre, texte: t.texte })),
+  }
+})
+
+/** Postes de l’organigramme : publiés seulement, sauf en aperçu (`draft` : dernières versions, brouillons compris). */
+export const getPostes = cache(async (locale: Locale, draft = false): Promise<Poste[]> => {
+  const payload = await client()
+  const res = await payload.find({
+    collection: 'postes',
+    where: draft ? INTITULE_RENSEIGNE : { and: [PUBLISHED_POSTE, INTITULE_RENSEIGNE] },
+    draft,
+    locale,
+    depth: 1,
+    sort: 'ordre',
+    limit: 200,
+  })
+  return avecIntituleAffichable(res.docs)
 })

@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { accesCollection, masquerSansAcces } from '../access/modules'
 import { revalidateCollection, revalidateCollectionDelete } from '../hooks/revalidate'
 
 export const PAGE_SLUGS = [
@@ -10,6 +11,7 @@ export const PAGE_SLUGS = [
   'actualites',
   'adhesion',
   'mediatheque',
+  'decouvrir-kango',
   'partenariats',
   'transparence',
   'contact',
@@ -24,8 +26,8 @@ export const Pages: CollectionConfig = {
   slug: 'pages',
   typescript: { interface: 'Page' },
   labels: { singular: 'Page', plural: 'Pages' },
-  admin: { useAsTitle: 'slug', group: 'Contenus', defaultColumns: ['slug', 'h1', 'updatedAt'] },
-  access: { read: ({ req }) => Boolean(req.user) },
+  admin: { hidden: masquerSansAcces('pages'), useAsTitle: 'slug', group: 'Contenus', defaultColumns: ['slug', 'h1', 'updatedAt'] },
+  access: accesCollection('pages'),
   hooks: { afterChange: [revalidateCollection], afterDelete: [revalidateCollectionDelete] },
   fields: [
     {
@@ -62,6 +64,13 @@ export const Pages: CollectionConfig = {
         { name: 'eyebrow', label: 'Surtitre', type: 'text' },
         { name: 'heading', label: 'Titre', type: 'text' },
         { name: 'body', label: 'Texte', type: 'textarea', admin: { description: `Paragraphes séparés par une ligne vide. ${EMPTY_HINT}` } },
+        {
+          name: 'image',
+          label: 'Photo à côté du texte',
+          type: 'upload',
+          relationTo: 'medias',
+          admin: { description: 'Facultative : affichée à droite du texte (au-dessous sur mobile) dans les sections de texte des pages intérieures.' },
+        },
         {
           name: 'items',
           label: 'Éléments',

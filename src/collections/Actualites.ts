@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { accesCollection, masquerSansAcces } from '../access/modules'
 import { VISIBLE_ACTUALITE } from '../lib/actualites'
 import { previewUrl } from '../lib/preview'
 import { siteUrl } from '../lib/seo'
@@ -9,6 +10,7 @@ export const Actualites: CollectionConfig = {
   typescript: { interface: 'Actualite' },
   labels: { singular: 'Actualité', plural: 'Actualités' },
   admin: {
+    hidden: masquerSansAcces('actualites'),
     useAsTitle: 'title',
     group: 'Contenus',
     defaultColumns: ['title', '_status', 'archivee', 'dateLabel', 'updatedAt'],
@@ -19,7 +21,7 @@ export const Actualites: CollectionConfig = {
         : null,
   },
   versions: { drafts: true, maxPerDoc: 50 },
-  access: { read: ({ req }) => (req.user ? true : VISIBLE_ACTUALITE) },
+  access: accesCollection('actualites', VISIBLE_ACTUALITE),
   hooks: { afterChange: [revalidateCollection], afterDelete: [revalidateCollectionDelete] },
   defaultSort: 'order',
   fields: [

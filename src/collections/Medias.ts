@@ -1,4 +1,6 @@
 import type { CollectionConfig } from 'payload'
+import { envoiMedia, masquerSansAcces, modifierModule } from '../access/modules'
+import { type Compte, peutEnvoyerMedia } from '../lib/permissions'
 import { revalidateCollection, revalidateCollectionDelete } from '../hooks/revalidate'
 
 export const Medias: CollectionConfig = {
@@ -6,12 +8,14 @@ export const Medias: CollectionConfig = {
   typescript: { interface: 'Media' },
   labels: { singular: 'Photo', plural: 'Médiathèque' },
   admin: {
+    // Visible pour qui gère la médiathèque ou peut y envoyer des images (le sélecteur d’images de Payload exclut les collections masquées).
+    hidden: ({ user }) => masquerSansAcces('mediatheque')({ user }) && !peutEnvoyerMedia(user as Compte | null),
     useAsTitle: 'filename',
     group: 'Images',
     defaultColumns: ['filename', 'galerie', 'provisoire', 'droitsConfirmes', 'ordre'],
     listSearchableFields: ['filename', 'alt', 'caption', 'credit'],
   },
-  access: { read: () => true },
+  access: { read: () => true, create: envoiMedia, update: modifierModule('mediatheque'), delete: modifierModule('mediatheque') },
   hooks: { afterChange: [revalidateCollection], afterDelete: [revalidateCollectionDelete] },
   upload: {
     staticDir: 'media',

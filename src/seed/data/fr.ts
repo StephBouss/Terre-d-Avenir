@@ -36,7 +36,23 @@ const INTRO_ACCUEIL =
 
 const DEMARCHE_TEXTE = 'Retrouvez le mot de la présidente, les informations de transparence et les possibilités de participation.'
 
+// Découvrir Kango (docs/superpowers/plans/2026-10-08-contenu-kango.md), texte validé le 2026-10-08.
+const KANGO_TITRE = 'Découvrir Kango, cœur du Komo-Kango'
+const KANGO_TEXTE =
+  'Chef-lieu du département du Komo-Kango, dans la province de l’Estuaire, Kango s’étend au bord du fleuve Komo, entre forêt et eau. Au fil du fleuve, de ses quartiers et de ses lieux de rassemblement, la ville invite à la découverte et à la rencontre.'
+
 export const fr: LocaleContent = {
+  diaporama: [
+    { titre: 'Du Komo-Kango au monde, *faisons grandir* la solidarité.', texte: INTRO_ACCUEIL },
+    {
+      titre: 'La jeunesse, *force vive* du Komo-Kango.',
+      texte: 'Tournois sportifs, rencontres et projets éducatifs : Terre d’Avenir soutient les initiatives qui rassemblent les jeunes et leur ouvrent des perspectives.',
+    },
+    {
+      titre: 'Ensemble, *agissons* au plus près des populations.',
+      texte: 'Écoute, rencontres et actions de terrain : avec les habitants, les ressortissants et nos partenaires, nous construisons des réponses concrètes aux besoins locaux.',
+    },
+  ],
   reglages: {
     location: 'Komo-Kango, Gabon',
     footerTagline: 'Terre d’Avenir KOMO-KANGO — Une ONG ancrée au Gabon, ouverte aux échanges et aux coopérations.',
@@ -61,6 +77,13 @@ export const fr: LocaleContent = {
           ],
         },
         ANCRAGE,
+        {
+          key: 'kango',
+          eyebrow: 'Tourisme',
+          heading: KANGO_TITRE,
+          body: KANGO_TEXTE,
+          ctas: [{ label: 'Découvrir Kango', href: '/decouvrir-kango' }],
+        },
         {
           key: 'mot',
           heading: 'Le mot de la présidente',
@@ -96,7 +119,7 @@ export const fr: LocaleContent = {
       intro: INTRO_ACCUEIL,
       sections: [
         { key: 'reperes', items: REPERES },
-        ANCRAGE,
+        { ...ANCRAGE, image: 'rencontre-3' },
         {
           key: 'engagements',
           heading: 'Des engagements à découvrir',
@@ -143,6 +166,8 @@ export const fr: LocaleContent = {
             { label: 'Découvrir notre organisation', href: '/organisation' },
           ],
         },
+        // Signature demandée par l’utilisateur le 2026-10-08.
+        { key: 'signature', heading: 'Laurence Ndong', body: 'Présidente de Terre d’Avenir KOMO-KANGO' },
       ],
     },
 
@@ -241,14 +266,6 @@ export const fr: LocaleContent = {
         'Vous souhaitez vous engager à nos côtés ? Présentez-vous et exprimez votre souhait de rejoindre l’ONG. Votre demande sera examinée selon les modalités d’adhésion définies par Terre d’Avenir KOMO-KANGO.',
       sections: [
         {
-          key: 'indisponible',
-          body: 'Les demandes d’adhésion en ligne ne sont pas encore ouvertes. Vous pouvez contacter l’ONG via sa page Facebook pour vous renseigner sur la démarche.',
-          ctas: [
-            { label: 'Ouvrir la page Facebook', href: FACEBOOK_URL },
-            { label: 'Contacter l’ONG', href: '/contact' },
-          ],
-        },
-        {
           key: 'etapes',
           heading: 'Une démarche en trois étapes',
           items: [
@@ -303,6 +320,25 @@ export const fr: LocaleContent = {
           key: 'facebook',
           heading: 'Suivre la vie de l’association',
           ctas: [{ label: 'Voir les publications sur Facebook', href: FACEBOOK_URL }],
+        },
+      ],
+    },
+
+    {
+      slug: 'decouvrir-kango',
+      seoTitle: 'Découvrir Kango — Terre d’Avenir KOMO-KANGO',
+      metaDescription: 'Kango, chef-lieu du Komo-Kango au bord du fleuve Komo : découvrez la ville en images avec Terre d’Avenir KOMO-KANGO.',
+      h1: 'Découvrir *Kango*, cœur du Komo-Kango',
+      intro: KANGO_TEXTE,
+      sections: [
+        { key: 'galerie', heading: 'Kango en images' },
+        {
+          key: 'fin',
+          heading: 'Prolonger la découverte',
+          ctas: [
+            { label: 'Voir l’album photo', href: '/mediatheque/albums/kango' },
+            { label: 'Adhérer', href: '/adhesion' },
+          ],
         },
       ],
     },
@@ -394,11 +430,8 @@ export const fr: LocaleContent = {
           ctas: [{ label: 'Ouvrir la page Facebook', href: FACEBOOK_URL }],
         },
         {
-          // NOUVEAU — à valider par l'ONG
           key: 'formulaire',
           heading: 'Envoyer un message',
-          body: 'L’envoi de messages depuis le site n’est pas encore ouvert. Vous pouvez joindre l’ONG via sa page Facebook.',
-          ctas: [{ label: 'Ouvrir la page Facebook', href: FACEBOOK_URL }],
         },
         {
           // NOUVEAU — à valider par l'ONG
@@ -514,6 +547,26 @@ export const fr: LocaleContent = {
       dateLabel: "19 août 2026",
       description: "Rencontre de Madame Laurence Ndong avec les populations du Komo-Kango, publiée le 19 août 2026.",
     },
+    {
+      slug: "hommage-bacheliers-2026-08",
+      order: 3,
+      date: "2026-08-15",
+      cover: "bacheliers-3",
+      photos: ["bacheliers-1", "bacheliers-2", "bacheliers-3", "bacheliers-4", "bacheliers-5", "bacheliers-6", "bacheliers-7", "bacheliers-8", "bacheliers-9", "bacheliers-10", "bacheliers-11"],
+      title: "Hommage aux nouveaux bacheliers du Komo-Kango",
+      dateLabel: "15 août 2026",
+      description: "Cérémonie d’hommage aux nouveaux bacheliers du département du Komo-Kango, le 15 août 2026.",
+    },
+    {
+      // Album de présentation (tourisme), après les événements ; photos d’illustration à remplacer.
+      slug: "kango",
+      order: 4,
+      cover: "kango-1",
+      photos: ["kango-1", "kango-2", "kango-3", "kango-4", "kango-5"],
+      title: "Kango, cœur du Komo-Kango",
+      dateLabel: "Komo-Kango, Gabon",
+      description: KANGO_TEXTE,
+    },
   ],
 
   actualites: [
@@ -557,10 +610,23 @@ export const fr: LocaleContent = {
       source: { label: "Sur Facebook", url: FACEBOOK_URL },
     },
     {
-      slug: 'tournoi-komo-kango-terre-davenir',
+      slug: "hommage-bacheliers-komo-kango-2026",
       order: 3,
+      date: "2026-08-15",
+      image: "bacheliers-3",
+      album: "hommage-bacheliers-2026-08",
+      title: "Hommage aux nouveaux bacheliers du Komo-Kango",
+      category: "Jeunesse",
+      dateLabel: "15 août 2026",
+      excerpt: "Les nouveaux bacheliers du département du Komo-Kango ont été célébrés lors d’une cérémonie d’hommage ; les quatre meilleurs ont reçu une distinction des mains de Madame Laurence Ndong.",
+      body: "Les nouveaux bacheliers du département du Komo-Kango ont été célébrés comme il se doit. Un gâteau leur a été spécialement dédié et les quatre meilleurs bacheliers ont reçu une distinction des mains de Madame Laurence Ndong, en reconnaissance de leurs excellents résultats.\n\nDans le prolongement de cet accompagnement en faveur de la jeunesse, une trentaine de nouveaux bacheliers bénéficieront également d’une formation gratuite à la conduite, dans le cadre de l’initiative « Komo-Kango : Un jeune, un permis », initiée par Madame Laurence Ndong.\n\nUne manière de célébrer la réussite, mais aussi d’accompagner ces jeunes vers la prochaine étape de leur parcours.",
+      source: { label: "Sur Facebook", url: FACEBOOK_URL },
+    },
+    {
+      slug: 'tournoi-komo-kango-terre-davenir',
+      order: 4,
       date: '2026-08-08',
-      image: 'sport',
+      image: 'tournoi-1',
       title: 'Le tournoi Komo-Kango Terre d’Avenir',
       category: 'Sport',
       dateLabel: '8 août 2026',
@@ -569,8 +635,8 @@ export const fr: LocaleContent = {
     },
     {
       slug: 'un-jeune-un-permis',
-      order: 4,
-      image: 'youth',
+      order: 5,
+      image: 'bacheliers-7',
       title: '« Un jeune, un permis »',
       category: 'Jeunesse',
       dateLabel: 'Initiative publiée',
@@ -580,9 +646,9 @@ export const fr: LocaleContent = {
     },
     {
       slug: 'assemblee-generale-decembre-2025',
-      order: 5,
+      order: 6,
       date: '2025-12-21',
-      image: 'community',
+      image: 'kafele-2',
       title: 'Une assemblée pour penser la suite',
       category: 'Vie associative',
       dateLabel: '21 décembre 2025',
@@ -596,7 +662,7 @@ export const fr: LocaleContent = {
       slug: 'jeunesse-opportunites',
       order: 1,
       icon: 'graduation-cap',
-      image: 'education',
+      image: 'bacheliers-10',
       theme: 'Jeunesse & opportunités',
       title: 'Mettre la jeunesse à l’honneur.',
       summary: 'Mettre la jeunesse à l’honneur et faire connaître les initiatives qui lui sont destinées.',
@@ -607,7 +673,7 @@ export const fr: LocaleContent = {
       slug: 'sante-sensibilisation',
       order: 2,
       icon: 'heart-pulse',
-      image: 'health',
+      image: 'kafele-3',
       theme: 'Santé & sensibilisation',
       title: 'Faire circuler l’information utile.',
       summary: 'Relayer les mobilisations et les informations utiles aux communautés.',
@@ -618,7 +684,7 @@ export const fr: LocaleContent = {
       slug: 'sport-cohesion',
       order: 3,
       icon: 'trophy',
-      image: 'sport',
+      image: 'tournoi-5',
       theme: 'Sport & cohésion',
       title: 'Se rassembler autour du football.',
       summary: 'Se retrouver autour du football et entretenir les liens.',
@@ -629,7 +695,7 @@ export const fr: LocaleContent = {
       slug: 'solidarite-vie-locale',
       order: 4,
       icon: 'handshake',
-      image: 'solidarity',
+      image: 'rencontre-5',
       theme: 'Solidarité & vie locale',
       title: 'Donner une place au dialogue.',
       summary: 'Créer des occasions de dialogue et de rassemblement.',

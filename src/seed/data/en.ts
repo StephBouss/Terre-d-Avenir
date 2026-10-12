@@ -29,7 +29,23 @@ const INTRO_ACCUEIL =
 
 const DEMARCHE_TEXTE = 'Read the President’s message, our transparency information and the ways you can take part.'
 
+// Découvrir Kango (docs/superpowers/plans/2026-10-08-contenu-kango.md), texte validé le 2026-10-08.
+const KANGO_TITRE = 'Discover Kango, heart of Komo-Kango'
+const KANGO_TEXTE =
+  'The main town of the Komo-Kango department, in Gabon’s Estuaire province, Kango stretches along the Komo River, between forest and water. Along the river, through its neighbourhoods and gathering places, the town invites you to discover it and meet its people.'
+
 export const en: LocaleContent = {
+  diaporama: [
+    { titre: 'From Komo-Kango to the world, *let’s grow* solidarity.', texte: INTRO_ACCUEIL },
+    {
+      titre: 'Young people, the *driving force* of Komo-Kango.',
+      texte: 'Sports tournaments, gatherings and educational projects: Terre d’Avenir supports initiatives that bring young people together and open up new prospects for them.',
+    },
+    {
+      titre: 'Together, let’s *take action* close to communities.',
+      texte: 'Listening, meetings and action on the ground: with residents, people from the region living elsewhere and our partners, we build concrete responses to local needs.',
+    },
+  ],
   reglages: {
     location: 'Komo-Kango, Gabon',
     footerTagline: 'Terre d’Avenir KOMO-KANGO — An NGO rooted in Gabon, open to exchanges and cooperation.',
@@ -54,6 +70,13 @@ export const en: LocaleContent = {
           ],
         },
         ANCRAGE,
+        {
+          key: 'kango',
+          eyebrow: 'Tourism',
+          heading: KANGO_TITRE,
+          body: KANGO_TEXTE,
+          ctas: [{ label: 'Discover Kango', href: '/decouvrir-kango' }],
+        },
         {
           key: 'mot',
           heading: 'A message from the President',
@@ -89,7 +112,7 @@ export const en: LocaleContent = {
       intro: INTRO_ACCUEIL,
       sections: [
         { key: 'reperes', items: REPERES },
-        ANCRAGE,
+        { ...ANCRAGE, image: 'rencontre-3' },
         {
           key: 'engagements',
           heading: 'Commitments to discover',
@@ -136,6 +159,7 @@ export const en: LocaleContent = {
             { label: 'Discover our organization', href: '/organisation' },
           ],
         },
+        { key: 'signature', heading: 'Laurence Ndong', body: 'President of Terre d’Avenir KOMO-KANGO' },
       ],
     },
 
@@ -234,14 +258,6 @@ export const en: LocaleContent = {
         'Would you like to get involved alongside us? Introduce yourself and tell us you wish to join the NGO. Your application will be reviewed according to the membership terms set by Terre d’Avenir KOMO-KANGO.',
       sections: [
         {
-          key: 'indisponible',
-          body: 'Online membership applications are not open yet. You can contact the NGO through its Facebook page to learn more about the process.',
-          ctas: [
-            { label: 'Open the Facebook page', href: FACEBOOK_URL },
-            { label: 'Contact the NGO', href: '/contact' },
-          ],
-        },
-        {
           key: 'etapes',
           heading: 'A three-step process',
           items: [
@@ -295,6 +311,25 @@ export const en: LocaleContent = {
           key: 'facebook',
           heading: 'Follow the life of the association',
           ctas: [{ label: 'See the posts on Facebook', href: FACEBOOK_URL }],
+        },
+      ],
+    },
+
+    {
+      slug: 'decouvrir-kango',
+      seoTitle: 'Discover Kango — Terre d’Avenir KOMO-KANGO',
+      metaDescription: 'Kango, the main town of Komo-Kango on the Komo River: discover the town in pictures with Terre d’Avenir KOMO-KANGO.',
+      h1: 'Discover *Kango*, heart of Komo-Kango',
+      intro: KANGO_TEXTE,
+      sections: [
+        { key: 'galerie', heading: 'Kango in pictures' },
+        {
+          key: 'fin',
+          heading: 'Keep exploring',
+          ctas: [
+            { label: 'See the photo album', href: '/mediatheque/albums/kango' },
+            { label: 'Join us', href: '/adhesion' },
+          ],
         },
       ],
     },
@@ -388,8 +423,6 @@ export const en: LocaleContent = {
         {
           key: 'formulaire',
           heading: 'Send a message',
-          body: 'Sending messages from the website is not available yet. You can reach the NGO through its Facebook page.',
-          ctas: [{ label: 'Open the Facebook page', href: FACEBOOK_URL }],
         },
         {
           key: 'localisation',
@@ -503,6 +536,25 @@ export const en: LocaleContent = {
       dateLabel: "19 August 2026",
       description: "Mrs Laurence Ndong meeting the people of Komo-Kango, published on 19 August 2026.",
     },
+    {
+      slug: "hommage-bacheliers-2026-08",
+      order: 3,
+      date: "2026-08-15",
+      cover: "bacheliers-3",
+      photos: ["bacheliers-1", "bacheliers-2", "bacheliers-3", "bacheliers-4", "bacheliers-5", "bacheliers-6", "bacheliers-7", "bacheliers-8", "bacheliers-9", "bacheliers-10", "bacheliers-11"],
+      title: "Honouring Komo-Kango’s new baccalaureate graduates",
+      dateLabel: "15 August 2026",
+      description: "Tribute ceremony for the new baccalaureate graduates of the Komo-Kango department, on 15 August 2026.",
+    },
+    {
+      slug: "kango",
+      order: 4,
+      cover: "kango-1",
+      photos: ["kango-1", "kango-2", "kango-3", "kango-4", "kango-5"],
+      title: "Kango, heart of Komo-Kango",
+      dateLabel: "Komo-Kango, Gabon",
+      description: KANGO_TEXTE,
+    },
   ],
 
   actualites: [
@@ -546,10 +598,23 @@ export const en: LocaleContent = {
       source: { label: "On Facebook", url: FACEBOOK_URL },
     },
     {
-      slug: 'tournoi-komo-kango-terre-davenir',
+      slug: "hommage-bacheliers-komo-kango-2026",
       order: 3,
+      date: "2026-08-15",
+      image: "bacheliers-3",
+      album: "hommage-bacheliers-2026-08",
+      title: "Honouring Komo-Kango’s new baccalaureate graduates",
+      category: "Youth",
+      dateLabel: "15 August 2026",
+      excerpt: "Komo-Kango’s new baccalaureate graduates were celebrated at a tribute ceremony, where the four best received an award from Mrs Laurence Ndong.",
+      body: "Komo-Kango’s new baccalaureate graduates were celebrated in style. A cake was made especially for them, and the four best graduates received an award from Mrs Laurence Ndong in recognition of their excellent results.\n\nContinuing this support for young people, around thirty new graduates will also receive free driving lessons under the “Komo-Kango: One young person, one licence” initiative launched by Mrs Laurence Ndong.\n\nA way to celebrate success, and to support these young people as they take the next step in their journey.",
+      source: { label: "On Facebook", url: FACEBOOK_URL },
+    },
+    {
+      slug: 'tournoi-komo-kango-terre-davenir',
+      order: 4,
       date: '2026-08-08',
-      image: 'sport',
+      image: 'tournoi-1',
       title: 'The Komo-Kango Terre d’Avenir tournament',
       category: 'Sport',
       dateLabel: '8 August 2026',
@@ -558,8 +623,8 @@ export const en: LocaleContent = {
     },
     {
       slug: 'un-jeune-un-permis',
-      order: 4,
-      image: 'youth',
+      order: 5,
+      image: 'bacheliers-7',
       title: '“One young person, one licence”',
       category: 'Youth',
       dateLabel: 'Published initiative',
@@ -569,9 +634,9 @@ export const en: LocaleContent = {
     },
     {
       slug: 'assemblee-generale-decembre-2025',
-      order: 5,
+      order: 6,
       date: '2025-12-21',
-      image: 'community',
+      image: 'kafele-2',
       title: 'A general assembly to plan what comes next',
       category: 'Association life',
       dateLabel: '21 December 2025',
@@ -585,7 +650,7 @@ export const en: LocaleContent = {
       slug: 'jeunesse-opportunites',
       order: 1,
       icon: 'graduation-cap',
-      image: 'education',
+      image: 'bacheliers-10',
       theme: 'Youth & opportunities',
       title: 'Putting young people in the spotlight.',
       summary: 'Putting young people in the spotlight and raising awareness of the initiatives designed for them.',
@@ -596,7 +661,7 @@ export const en: LocaleContent = {
       slug: 'sante-sensibilisation',
       order: 2,
       icon: 'heart-pulse',
-      image: 'health',
+      image: 'kafele-3',
       theme: 'Health & awareness',
       title: 'Sharing useful information.',
       summary: 'Relaying mobilizations and information that is useful to communities.',
@@ -607,7 +672,7 @@ export const en: LocaleContent = {
       slug: 'sport-cohesion',
       order: 3,
       icon: 'trophy',
-      image: 'sport',
+      image: 'tournoi-5',
       theme: 'Sport & cohesion',
       title: 'Coming together around football.',
       summary: 'Getting together around football and strengthening ties.',
@@ -618,7 +683,7 @@ export const en: LocaleContent = {
       slug: 'solidarite-vie-locale',
       order: 4,
       icon: 'handshake',
-      image: 'solidarity',
+      image: 'rencontre-5',
       theme: 'Solidarity & local life',
       title: 'Making room for dialogue.',
       summary: 'Creating opportunities for dialogue and gathering.',

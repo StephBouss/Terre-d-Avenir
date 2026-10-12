@@ -28,7 +28,7 @@ export default function Gallery({ items, labels }: { items: GalleryItem[]; label
 
   return (
     <>
-      <RevealGroup as="ul" className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <RevealGroup as="ul" className="galerie-grille grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
         {items.map((item, i) => (
           <li key={item.id}>
             <a

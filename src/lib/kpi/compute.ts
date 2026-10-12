@@ -31,13 +31,6 @@ export function mediaCounts(rows: MediaRow[]) {
   }
 }
 
-export const NO_SOURCE = [
-  { id: 'adhesions', title: 'Adhésions (KPI-01 à KPI-10)', note: 'Aucune source configurée — disponible au lot 2' },
-  { id: 'transactions', title: 'Transactions (KPI-11 à KPI-17)', note: 'Aucune source configurée — disponible au lot 4' },
-  { id: 'chargements', title: 'Chargements en erreur (KPI-19)', note: 'Aucune source configurée' },
-  { id: 'sauvegardes', title: 'Sauvegardes (KPI-20)', note: 'Aucune sauvegarde configurée' },
-]
-
 const SITUATION = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Africa/Libreville' })
 
 export function formatSituation(date: Date): string {

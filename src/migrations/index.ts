@@ -5,6 +5,15 @@ import * as migration_20261007_002738_diaporama from './20261007_002738_diaporam
 import * as migration_20261007_003528_pages_image_entete from './20261007_003528_pages_image_entete';
 import * as migration_20261007_004542_medias_champs from './20261007_004542_medias_champs';
 import * as migration_20261007_013109_albums from './20261007_013109_albums';
+import * as migration_20261007_201535_messages from './20261007_201535_messages';
+import * as migration_20261007_201633_reglages_emails from './20261007_201633_reglages_emails';
+import * as migration_20261007_211837_postes from './20261007_211837_postes';
+import * as migration_20261008_035701_diaporama_textes from './20261008_035701_diaporama_textes';
+import * as migration_20261008_041655_portrait_presidente from './20261008_041655_portrait_presidente';
+import * as migration_20261008_042248_comptes_roles from './20261008_042248_comptes_roles';
+import * as migration_20261008_153558_page_decouvrir_kango from './20261008_153558_page_decouvrir_kango';
+import * as migration_20261008_164558_section_image from './20261008_164558_section_image';
+import * as migration_20261008_181620_stockage_blob from './20261008_181620_stockage_blob';
 
 export const migrations = [
   {
@@ -40,6 +49,51 @@ export const migrations = [
   {
     up: migration_20261007_013109_albums.up,
     down: migration_20261007_013109_albums.down,
-    name: '20261007_013109_albums'
+    name: '20261007_013109_albums',
+  },
+  {
+    up: migration_20261007_201535_messages.up,
+    down: migration_20261007_201535_messages.down,
+    name: '20261007_201535_messages',
+  },
+  {
+    up: migration_20261007_201633_reglages_emails.up,
+    down: migration_20261007_201633_reglages_emails.down,
+    name: '20261007_201633_reglages_emails',
+  },
+  {
+    up: migration_20261007_211837_postes.up,
+    down: migration_20261007_211837_postes.down,
+    name: '20261007_211837_postes',
+  },
+  {
+    up: migration_20261008_035701_diaporama_textes.up,
+    down: migration_20261008_035701_diaporama_textes.down,
+    name: '20261008_035701_diaporama_textes',
+  },
+  {
+    up: migration_20261008_041655_portrait_presidente.up,
+    down: migration_20261008_041655_portrait_presidente.down,
+    name: '20261008_041655_portrait_presidente',
+  },
+  {
+    up: migration_20261008_042248_comptes_roles.up,
+    down: migration_20261008_042248_comptes_roles.down,
+    name: '20261008_042248_comptes_roles',
+  },
+  {
+    up: migration_20261008_153558_page_decouvrir_kango.up,
+    down: migration_20261008_153558_page_decouvrir_kango.down,
+    name: '20261008_153558_page_decouvrir_kango',
+  },
+  {
+    up: migration_20261008_164558_section_image.up,
+    down: migration_20261008_164558_section_image.down,
+    name: '20261008_164558_section_image',
+  },
+  {
+    up: migration_20261008_181620_stockage_blob.up,
+    down: migration_20261008_181620_stockage_blob.down,
+    name: '20261008_181620_stockage_blob'
   },
 ];

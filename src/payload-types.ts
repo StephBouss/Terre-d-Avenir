@@ -70,8 +70,10 @@ export interface Config {
     pages: Page;
     actualites: Actualite;
     projets: Projet;
+    postes: Poste;
     medias: Media;
     albums: Album;
+    messages: Message;
     users: User;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -83,8 +85,10 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     actualites: ActualitesSelect<false> | ActualitesSelect<true>;
     projets: ProjetsSelect<false> | ProjetsSelect<true>;
+    postes: PostesSelect<false> | PostesSelect<true>;
     medias: MediasSelect<false> | MediasSelect<true>;
     albums: AlbumsSelect<false> | AlbumsSelect<true>;
+    messages: MessagesSelect<false> | MessagesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -146,6 +150,7 @@ export interface Page {
     | 'actualites'
     | 'adhesion'
     | 'mediatheque'
+    | 'decouvrir-kango'
     | 'partenariats'
     | 'transparence'
     | 'contact'
@@ -177,6 +182,10 @@ export interface Page {
          * Paragraphes séparés par une ligne vide. Laisser vide tant que le texte n’est pas validé : un champ vide est masqué sur le site.
          */
         body?: string | null;
+        /**
+         * Facultative : affichée à droite du texte (au-dessous sur mobile) dans les sections de texte des pages intérieures.
+         */
+        image?: (number | null) | Media;
         items?:
           | {
               title?: string | null;
@@ -229,6 +238,8 @@ export interface Media {
    */
   droitsConfirmes?: boolean | null;
   droitsNote?: string | null;
+  prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -339,11 +350,97 @@ export interface Projet {
   createdAt: string;
 }
 /**
+ * Postes de l’organigramme, leurs titulaires et leurs rattachements. « Aperçu » montre la page Organisation avec les brouillons.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "postes".
+ */
+export interface Poste {
+  id: number;
+  intitule: string;
+  /**
+   * Une phrase courte.
+   */
+  mission?: string | null;
+  /**
+   * Laisser vide pour le poste au sommet (une seule racine conseillée).
+   */
+  parent?: (number | null) | Poste;
+  /**
+   * Ordre parmi les postes rattachés au même parent : les plus petits d’abord.
+   */
+  ordre?: number | null;
+  /**
+   * Nom public, avec l’accord de la personne.
+   */
+  personneNom?: string | null;
+  personnePhoto?: (number | null) | Media;
+  personneBio?: string | null;
+  cle?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Demandes d’adhésion et messages de contact envoyés depuis le site. Accès réservé à l’administrateur et aux comptes autorisés.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "messages".
+ */
+export interface Message {
+  id: number;
+  reference: string;
+  type: 'adhesion' | 'contact';
+  nom?: string | null;
+  donnees:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  locale?: ('fr' | 'en') | null;
+  noticeVersion?: string | null;
+  cleIdempotence: string;
+  emailEtat: 'envoye' | 'echec' | 'non_configure';
+  emailErreur?: string | null;
+  emailEnvoyeLe?: string | null;
+  traite?: boolean | null;
+  /**
+   * Visibles uniquement dans l’admin.
+   */
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * L’administrateur principal peut créer jusqu’à 2 comptes supplémentaires et choisir, module par module, ce que chacun peut voir ou modifier.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
   id: number;
+  nom?: string | null;
+  /**
+   * Choisir un rôle type pré-remplit les accès ci-dessous, qui restent modifiables. « Administrateur principal » est réservé au premier compte.
+   */
+  role: 'administrateur' | 'redaction' | 'mediatheque' | 'secretariat' | 'personnalise';
+  /**
+   * Aucun accès : le module n’apparaît pas. Lecture seule : consultation sans modification. Modification : création, modification, publication et suppression.
+   */
+  acces?: {
+    actualites: 'aucun' | 'lecture' | 'modification';
+    mediatheque: 'aucun' | 'lecture' | 'modification';
+    diaporama: 'aucun' | 'lecture' | 'modification';
+    pages: 'aucun' | 'lecture' | 'modification';
+    projets: 'aucun' | 'lecture' | 'modification';
+    organigramme: 'aucun' | 'lecture' | 'modification';
+    messages: 'aucun' | 'lecture' | 'modification';
+    reglages: 'aucun' | 'lecture' | 'modification';
+  };
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -401,12 +498,20 @@ export interface PayloadLockedDocument {
         value: number | Projet;
       } | null)
     | ({
+        relationTo: 'postes';
+        value: number | Poste;
+      } | null)
+    | ({
         relationTo: 'medias';
         value: number | Media;
       } | null)
     | ({
         relationTo: 'albums';
         value: number | Album;
+      } | null)
+    | ({
+        relationTo: 'messages';
+        value: number | Message;
       } | null)
     | ({
         relationTo: 'users';
@@ -472,6 +577,7 @@ export interface PagesSelect<T extends boolean = true> {
         eyebrow?: T;
         heading?: T;
         body?: T;
+        image?: T;
         items?:
           | T
           | {
@@ -541,6 +647,23 @@ export interface ProjetsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "postes_select".
+ */
+export interface PostesSelect<T extends boolean = true> {
+  intitule?: T;
+  mission?: T;
+  parent?: T;
+  ordre?: T;
+  personneNom?: T;
+  personnePhoto?: T;
+  personneBio?: T;
+  cle?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "medias_select".
  */
 export interface MediasSelect<T extends boolean = true> {
@@ -555,6 +678,8 @@ export interface MediasSelect<T extends boolean = true> {
   datePrise?: T;
   droitsConfirmes?: T;
   droitsNote?: T;
+  prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -610,9 +735,43 @@ export interface AlbumsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "messages_select".
+ */
+export interface MessagesSelect<T extends boolean = true> {
+  reference?: T;
+  type?: T;
+  nom?: T;
+  donnees?: T;
+  locale?: T;
+  noticeVersion?: T;
+  cleIdempotence?: T;
+  emailEtat?: T;
+  emailErreur?: T;
+  emailEnvoyeLe?: T;
+  traite?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  nom?: T;
+  role?: T;
+  acces?:
+    | T
+    | {
+        actualites?: T;
+        mediatheque?: T;
+        diaporama?: T;
+        pages?: T;
+        projets?: T;
+        organigramme?: T;
+        messages?: T;
+        reglages?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -680,6 +839,18 @@ export interface Reglage {
   facebookUrl: string;
   location?: string | null;
   footerTagline?: string | null;
+  /**
+   * Affiché avec le mot de la présidente (page dédiée et accueil). Sans portrait, un guillemet décoratif le remplace. Le portrait de l’organigramme se règle dans la fiche du poste.
+   */
+  portraitPresidente?: (number | null) | Media;
+  /**
+   * Laisser vide pour ne pas envoyer d’e-mail : les demandes restent dans « Messages reçus ». L’envoi exige aussi le SMTP (voir README).
+   */
+  emailAdhesions?: string | null;
+  /**
+   * Laisser vide pour ne pas envoyer d’e-mail : les messages restent dans « Messages reçus ». L’envoi exige aussi le SMTP (voir README).
+   */
+  emailContact?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -693,6 +864,16 @@ export interface Diaporama {
    * Les 3 premières images défilent en fond du Hero (la 3e sert aussi à la section Ancrage) ; les suivantes alimentent le collage de droite. Glisser pour réordonner.
    */
   images: (number | Media)[];
+  /**
+   * Le 1er texte s’affiche avec la 1re image, le 2e avec la 2e, le 3e avec la 3e. Entourer un mot d’astérisques (*mot*) le met en couleur. Diapositive sans texte : le titre et l’introduction de la page Accueil sont utilisés.
+   */
+  textes?:
+    | {
+        titre: string;
+        texte?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -704,6 +885,9 @@ export interface ReglagesSelect<T extends boolean = true> {
   facebookUrl?: T;
   location?: T;
   footerTagline?: T;
+  portraitPresidente?: T;
+  emailAdhesions?: T;
+  emailContact?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -714,6 +898,13 @@ export interface ReglagesSelect<T extends boolean = true> {
  */
 export interface DiaporamaSelect<T extends boolean = true> {
   images?: T;
+  textes?:
+    | T
+    | {
+        titre?: T;
+        texte?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

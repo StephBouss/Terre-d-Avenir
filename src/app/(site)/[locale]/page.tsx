@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import AncrageSection from '@/components/home/AncrageSection'
+import KangoSection from '@/components/home/KangoSection'
 import HeroSlider from '@/components/home/HeroSlider'
 import MissionStrip from '@/components/home/MissionStrip'
 import MotTeaser from '@/components/home/MotTeaser'
@@ -7,21 +8,27 @@ import NewsSection from '@/components/home/NewsSection'
 import ParticiperSection from '@/components/home/ParticiperSection'
 import ThemesSection from '@/components/home/ThemesSection'
 import CtaBand from '@/components/ui/CtaBand'
-import { getActualites, getDiaporama, getPage, getProjets } from '@/lib/content'
+import { getActualites, getAlbum, getDiaporama, getPage, getProjets, getReglages } from '@/lib/content'
+import { diapositives } from '@/lib/diaporama'
+import { KANGO_ALBUM } from '@/lib/kango'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { metadataFor, resolveLocale, type LocaleParams } from '@/lib/page'
 import { getSection } from '@/lib/sections'
+import type { Media } from '@/payload-types'
 
 export const generateMetadata = metadataFor('accueil', '/')
 
 export default async function HomePage({ params }: LocaleParams) {
   const locale = await resolveLocale(params)
   const dict = getDictionary(locale)
-  const [page, projets, actualites, images] = await Promise.all([
+  const [page, projets, actualites, { images, textes }, reglages, kango, pageMot] = await Promise.all([
     getPage('accueil', locale),
     getProjets(locale),
     getActualites(locale),
     getDiaporama(locale),
+    getReglages(locale).catch(() => null),
+    getAlbum(KANGO_ALBUM, locale),
+    getPage('mot-de-la-presidente', locale),
   ])
   if (!page) notFound()
   const section = (key: string) => getSection(page, key)
@@ -30,10 +37,19 @@ export default async function HomePage({ params }: LocaleParams) {
 
   return (
     <>
-      <HeroSlider locale={locale} title={page.h1 ?? ''} intro={page.intro} section={section('hero')} images={images} newTabLabel={newTab} pauseLabel={dict.hero.pause} playLabel={dict.hero.play} />
+      <HeroSlider
+        locale={locale}
+        slides={diapositives(textes, { titre: page.h1 ?? '', texte: page.intro })}
+        section={section('hero')}
+        images={images}
+        newTabLabel={newTab}
+        pauseLabel={dict.hero.pause}
+        playLabel={dict.hero.play}
+      />
       <MissionStrip items={section('hero')?.items ?? []} />
       <AncrageSection locale={locale} section={section('ancrage')} image={images[2]} linkLabel={dict.nav.ong} newTabLabel={newTab} />
-      <MotTeaser locale={locale} section={section('mot')} newTabLabel={newTab} />
+      <MotTeaser locale={locale} section={section('mot')} signature={getSection(pageMot, 'signature')} portrait={reglages?.portraitPresidente} newTabLabel={newTab} />
+      <KangoSection locale={locale} section={section('kango')} photos={(kango?.photos ?? []).filter((m): m is Media => typeof m === 'object' && m !== null)} newTabLabel={newTab} pauseLabel={dict.galerie.pause} playLabel={dict.galerie.play} galerieLabel={dict.galerie.label} />
       <ThemesSection locale={locale} section={section('engagements')} projets={projets} overline={dict.nav.projets} linkLabel={dict.common.learnMore} newTabLabel={newTab} />
       <NewsSection
         locale={locale}

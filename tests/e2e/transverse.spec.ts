@@ -4,6 +4,8 @@ import { ALL_PATHS } from './helpers'
 test.describe('toutes les pages', () => {
   for (const locale of ['fr', 'en'] as const) {
     test(`répondent en 200 avec lang, canonique et hreflang (${locale})`, async ({ page }) => {
+      // 14 pages chargées à la suite : le délai par défaut (30 s) est trop court sur un poste chargé.
+      test.setTimeout(90_000)
       for (const path of ALL_PATHS(locale)) {
         const res = await page.goto(path)
         expect(res?.status(), path).toBe(200)

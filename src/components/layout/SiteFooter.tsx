@@ -32,10 +32,11 @@ export default function SiteFooter({ locale, dict, reglages }: Props) {
           {columns.map((column) => (
             <div key={column.title}>
               <h2 className="text-sm font-bold text-secondary mb-4 uppercase tracking-wide">{column.title}</h2>
-              <ul className="flex flex-col gap-2">
+              <ul className="flex flex-col gap-0.5">
                 {column.links.map((link) => (
                   <li key={link.key}>
-                    <Link href={localizedHref(locale, link.href)} className="text-sm opacity-80 hover:opacity-100 transition-opacity">
+                    {/* py-1.5 : zone tactile d’au moins 30 px de haut (WCAG 2.5.8), confortable au doigt. */}
+                    <Link href={localizedHref(locale, link.href)} className="inline-block py-1.5 text-sm opacity-80 hover:opacity-100 transition-opacity">
                       {dict.nav[link.key]}
                     </Link>
                   </li>

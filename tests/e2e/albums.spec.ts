@@ -41,6 +41,8 @@ test.describe('albums', { tag: '@desktop' }, () => {
     await expect(page).toHaveURL(/\/fr\/mediatheque\/albums\/e2e-album$/)
     await expect(page.getByRole('heading', { level: 1, name: 'E2E album' })).toBeVisible()
     await expect(page.locator('main a[href*="/medias/file/"]')).toHaveCount(2)
+    await page.locator('[data-retour]').click()
+    await expect(page).toHaveURL(/\/fr\/mediatheque$/)
   })
 
   test('l’actualité liée mène à l’album', async ({ page }) => {

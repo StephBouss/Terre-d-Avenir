@@ -23,11 +23,11 @@ export default function NewsCard({ locale, actualite, labels }: Props) {
         </h3>
         {!isPlaceholder(actualite.dateLabel) && <p className="text-sm text-muted-foreground font-body">{actualite.dateLabel}</p>}
         <div className="flex items-center justify-between gap-3 mt-auto pt-3">
-          <Link href={localizedHref(locale, `/actualites/${actualite.slug}`)} className="btn-arrow text-sm font-bold text-primary flex items-center gap-1">
+          <Link href={localizedHref(locale, `/actualites/${actualite.slug}`)} className="btn-arrow text-sm font-bold text-primary flex items-center gap-1 py-1.5">
             {labels.readArticle} <Icon i="arrow-right" size={13} />
           </Link>
           {source && !isPlaceholder(source.url) && !isPlaceholder(source.label) && (
-            <a href={source.url!} {...(opensInNewTab(source.url!) ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className="flex items-center gap-1.5 text-xs font-body font-medium" style={{ color: '#1670E0' }}>
+            <a href={source.url!} {...(opensInNewTab(source.url!) ? { target: '_blank', rel: 'noopener noreferrer' } : {})} className="flex items-center gap-1.5 py-1.5 text-xs font-body font-medium" style={{ color: '#1670E0' }}>
               {isFacebookUrl(source.url!) && <FacebookIcon size={18} />}
               {source.label}
               {opensInNewTab(source.url!) && <span className="sr-only">{` ${labels.newTab}`}</span>}

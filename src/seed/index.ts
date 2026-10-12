@@ -1,4 +1,3 @@
-import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { getPayload, type Payload } from 'payload'
@@ -7,26 +6,30 @@ import type { PageSlug } from '../collections/Pages'
 import { en } from './data/en'
 import { FACEBOOK_URL, fr } from './data/fr'
 import { ALBUM_PHOTO_SETS } from './data/photos'
-import type { SeedAlbumPhotoKey, SeedImageKey } from './data/types'
-import { isSeedMediaFilename } from './media-match'
-import { SEED_CONTEXT, upsertLocalized } from './upsert'
+import type { SeedAlbumPhotoKey, SeedImageKey, SeedSection } from './data/types'
+import { seedTextesDiaporama } from './diaporama'
+import { upsertMedia } from './media'
+import { seedOrganigramme } from './organigramme'
+import { seedPortraitPresidente } from './presidente'
+import { seedContext, upsertLocalized } from './upsert'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// Image d'en-tête de chaque page (correspondance du lot 1 conservée ; l'accueil utilise le diaporama).
-const PAGE_HERO: Partial<Record<PageSlug, SeedImageKey>> = {
-  ong: 'community',
-  'mot-de-la-presidente': 'forest',
-  organisation: 'solidarity',
-  projets: 'education',
-  actualites: 'forest',
-  adhesion: 'youth',
-  mediatheque: 'sport',
-  partenariats: 'solidarity',
-  transparence: 'community',
-  contact: 'forest',
-  confidentialite: 'forest',
-  'mentions-legales': 'forest',
+// Image d'en-tête de chaque page : photos réelles des albums (2026-10-08) ; l'accueil utilise le diaporama.
+const PAGE_HERO: Partial<Record<PageSlug, SeedImageKey | SeedAlbumPhotoKey>> = {
+  ong: 'kafele-4',
+  'mot-de-la-presidente': 'bacheliers-9',
+  organisation: 'rencontre-1',
+  projets: 'kafele-6',
+  actualites: 'bacheliers-3',
+  adhesion: 'bacheliers-7',
+  mediatheque: 'tournoi-3',
+  'decouvrir-kango': 'kango-1',
+  partenariats: 'kafele-3',
+  transparence: 'kafele-2',
+  contact: 'rencontre-2',
+  confidentialite: 'tournoi-6',
+  'mentions-legales': 'kafele-5',
 }
 
 const IMAGES: Record<SeedImageKey, { altFr: string; altEn: string; provisoire: boolean; galerie: boolean; credit: string }> = {
@@ -46,51 +49,22 @@ const IMAGES: Record<SeedImageKey, { altFr: string; altEn: string; provisoire: b
   solidarity: { altFr: '', altEn: '', provisoire: true, galerie: false, credit: 'Unsplash (image provisoire)' },
 }
 
-const HERO_ORDER: SeedImageKey[] = ['forest', 'youth', 'community', 'education', 'sport', 'health', 'solidarity', 'banner']
-
-type MediaSeed = {
-  /** Clé du nom de fichier téléversé (« banner », « kafele-nianame-1-photo ») : sert à retrouver les variantes renommées par Payload. */
-  key: string
-  filePath: string
-  data: Record<string, unknown>
-  altFr: string
-  altEn: string
-  lieu?: { fr: string; en: string }
-}
-
-async function upsertMedia(payload: Payload, m: MediaSeed): Promise<number | string> {
-  const ext = path.extname(m.filePath)
-  // Le fichier est téléversé sous « <clé><ext> » : une clé terminée par « -N » serait renumérotée par Payload (photo-1 → photo-7).
-  const upload = { data: fs.readFileSync(m.filePath), name: `${m.key}${ext}`, mimetype: 'image/jpeg', size: fs.statSync(m.filePath).size }
-  // Payload renomme en « banner-1.jpg » si le fichier existe déjà dans media/ : on retrouve ces variantes, et elles seules.
-  const candidates = await payload.find({
-    collection: 'medias',
-    where: { filename: { like: m.key } },
-    sort: 'id',
-    limit: 50,
-    depth: 0,
-  })
-  const found = candidates.docs.filter((d) => isSeedMediaFilename(d.filename, m.key, ext))
-  const base = { ...m.data, ...(m.lieu ? { lieu: m.lieu.fr } : {}) }
-  const doc =
-    found[0] ??
-    (await payload.create({
-      collection: 'medias',
-      data: { ...base, alt: m.altFr } as never,
-      file: upload,
-      locale: 'fr',
-      context: SEED_CONTEXT,
-    }))
-  await payload.update({ collection: 'medias', id: doc.id, data: { ...base, alt: m.altFr } as never, locale: 'fr', context: SEED_CONTEXT })
-  await payload.update({
-    collection: 'medias',
-    id: doc.id,
-    data: { alt: m.altEn, ...(m.lieu ? { lieu: m.lieu.en } : {}) } as never,
-    locale: 'en',
-    context: SEED_CONTEXT,
-  })
-  return doc.id
-}
+// Diaporama : 3 fonds (un par texte de diapositive ; le 3e illustre aussi la section Ancrage), puis le collage.
+// Photos réelles des albums de l’association (demande du 2026-10-08), à la place des images provisoires.
+const HERO_ORDER: (SeedImageKey | SeedAlbumPhotoKey)[] = [
+  'kafele-4',
+  'bacheliers-3',
+  'rencontre-2',
+  'tournoi-3',
+  'bacheliers-10',
+  'rencontre-5',
+  'kafele-3',
+  'tournoi-5',
+  'bacheliers-9',
+  'rencontre-4',
+  'kafele-6',
+  'tournoi-2',
+]
 
 async function seedMedia(payload: Payload): Promise<Record<SeedImageKey | SeedAlbumPhotoKey, number | string>> {
   const ids = {} as Record<SeedImageKey | SeedAlbumPhotoKey, number | string>
@@ -126,18 +100,26 @@ async function seedAdmin(payload: Payload) {
     console.warn('SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD absents : aucun compte admin créé.')
     return
   }
-  const found = await payload.find({ collection: 'users', where: { email: { equals: email } }, limit: 1 })
-  if (!found.docs[0]) await payload.create({ collection: 'users', data: { email, password } })
+  // Le compte SEED_ADMIN_EMAIL est l’administrateur principal : tout autre administrateur (ex. compte repris
+  // d’une ancienne base) redevient un compte limité sans accès, à régler ensuite depuis l’admin.
+  const context = { ...seedContext(), designerAdministrateur: true }
+  const autres = await payload.find({ collection: 'users', where: { and: [{ role: { equals: 'administrateur' } }, { email: { not_equals: email } }] }, depth: 0, limit: 10 })
+  for (const u of autres.docs) await payload.update({ collection: 'users', id: u.id, data: { role: 'personnalise' }, context })
+  const found = await payload.find({ collection: 'users', where: { email: { equals: email } }, limit: 1, depth: 0 })
+  if (!found.docs[0]) await payload.create({ collection: 'users', data: { email, password, nom: 'Administrateur', role: 'administrateur' }, context })
+  else if (found.docs[0].role !== 'administrateur') await payload.update({ collection: 'users', id: found.docs[0].id, data: { role: 'administrateur' }, context })
 }
 
 async function seed() {
   const payload = await getPayload({ config })
   const media = await seedMedia(payload)
 
+  // Photo de section : la clé du seed devient l’identifiant du média.
+  const sectionsAvecImages = (sections: SeedSection[]) => sections.map((sec) => ({ ...sec, image: sec.image ? media[sec.image] : null }))
   for (const page of fr.pages) {
     const enPage = en.pages.find((p) => p.slug === page.slug)!
-    const { slug, ...frData } = page
-    const enData: Record<string, unknown> = { ...enPage }
+    const { slug, ...frData } = { ...page, sections: sectionsAvecImages(page.sections) }
+    const enData: Record<string, unknown> = { ...enPage, sections: sectionsAvecImages(enPage.sections) }
     delete enData.slug
     await upsertLocalized(payload, 'pages', { slug: { equals: slug } }, { slug, ...frData, heroImage: PAGE_HERO[slug as PageSlug] ? media[PAGE_HERO[slug as PageSlug]!] : null }, enData)
   }
@@ -165,16 +147,41 @@ async function seed() {
     await upsertLocalized(payload, 'projets', { slug: { equals: item.slug } }, { ...shared, ...local(item) }, local(enItem))
   }
 
+  await seedOrganigramme(payload, dirname)
+
   const heroImages = HERO_ORDER.map((k) => media[k] as number)
-  await payload.updateGlobal({ slug: 'diaporama', data: { images: heroImages }, context: SEED_CONTEXT })
-  await payload.updateGlobal({ slug: 'reglages', data: { facebookUrl: FACEBOOK_URL, ...fr.reglages }, locale: 'fr', context: SEED_CONTEXT })
-  await payload.updateGlobal({ slug: 'reglages', data: { ...en.reglages }, locale: 'en', context: SEED_CONTEXT })
+  await payload.updateGlobal({ slug: 'diaporama', data: { images: heroImages }, context: seedContext() })
+  await seedTextesDiaporama(payload)
+  const portraitPresidente = await seedPortraitPresidente(payload, dirname)
+  await payload.updateGlobal({
+    slug: 'reglages',
+    data: { facebookUrl: FACEBOOK_URL, ...fr.reglages, portraitPresidente: portraitPresidente as number },
+    locale: 'fr',
+    context: seedContext(),
+  })
+  await payload.updateGlobal({ slug: 'reglages', data: { ...en.reglages }, locale: 'en', context: seedContext() })
 
   await seedAdmin(payload)
 
-  const count = async (collection: 'pages' | 'albums' | 'actualites' | 'projets' | 'medias') => (await payload.count({ collection })).totalDocs
-  console.log(`Seed terminé : pages=${await count('pages')} albums=${await count('albums')} actualites=${await count('actualites')} projets=${await count('projets')} medias=${await count('medias')}`)
+  const count = async (collection: 'pages' | 'albums' | 'actualites' | 'projets' | 'medias' | 'postes') => (await payload.count({ collection })).totalDocs
+  console.log(`Seed terminé : pages=${await count('pages')} albums=${await count('albums')} actualites=${await count('actualites')} projets=${await count('projets')} postes=${await count('postes')} medias=${await count('medias')}`)
 }
 
-await seed()
+// « npm run seed:si-vide » (déploiement Vercel) : le seed ne remplit qu’une base vide, pour ne jamais écraser ce qui a
+// été saisi dans l’admin. « npm run seed » reste le seed complet, à lancer à la main.
+async function baseDejaRemplie() {
+  const payload = await getPayload({ config })
+  return (await payload.count({ collection: 'pages' })).totalDocs > 0
+}
+
+if (process.env.SEED_SI_VIDE && (await baseDejaRemplie())) {
+  console.log('Base déjà remplie : seed ignoré (les contenus de l’admin sont conservés).')
+} else {
+  // Base vide sans compte admin = page « créer le premier utilisateur » ouverte à tous sur le site en ligne.
+  if (process.env.SEED_SI_VIDE && (!process.env.SEED_ADMIN_EMAIL || (process.env.SEED_ADMIN_PASSWORD ?? '').length < 12)) {
+    console.error('Base vide : définir SEED_ADMIN_EMAIL et SEED_ADMIN_PASSWORD (12 caractères au moins) pour créer le compte administrateur.')
+    process.exit(1)
+  }
+  await seed()
+}
 process.exit(0)

@@ -6,8 +6,12 @@ import { stripEmphasis } from './text'
 const OG_LOCALES: Record<Locale, string> = { fr: 'fr_FR', en: 'en_GB' }
 export const SITE_NAME = 'Terre d’Avenir KOMO-KANGO'
 
+// Sur Vercel sans NEXT_PUBLIC_SITE_URL : l'adresse de production du projet (fournie par Vercel), plutôt que localhost
+// dans le sitemap, les balises canoniques et les liens des e-mails.
 export function siteUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  return 'http://localhost:3000'
 }
 
 type Args = { locale: Locale; path: string; title?: string | null; description?: string | null; image?: string | null }

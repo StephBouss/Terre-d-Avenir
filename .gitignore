@@ -12,3 +12,7 @@ next-env.d.ts
 *.tsbuildinfo
 playwright-report/
 test-results/
+.superpowers/
+# Fichiers de secrets locaux (dont .env.production.local pour le seed vers la base en ligne) : jamais commités, dépôt public.
+.env*.local
+.vercel

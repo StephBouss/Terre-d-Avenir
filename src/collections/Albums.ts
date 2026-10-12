@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { accesCollection, masquerSansAcces } from '../access/modules'
 import { PUBLISHED_ALBUM } from '../lib/albums'
 import { revalidateCollection, revalidateCollectionDelete } from '../hooks/revalidate'
 
@@ -6,9 +7,9 @@ export const Albums: CollectionConfig = {
   slug: 'albums',
   typescript: { interface: 'Album' },
   labels: { singular: 'Album', plural: 'Albums' },
-  admin: { useAsTitle: 'title', group: 'Images', defaultColumns: ['title', '_status', 'dateLabel', 'order'] },
+  admin: { hidden: masquerSansAcces('mediatheque'), useAsTitle: 'title', group: 'Images', defaultColumns: ['title', '_status', 'dateLabel', 'order'] },
   versions: { drafts: true, maxPerDoc: 20 },
-  access: { read: ({ req }) => (req.user ? true : PUBLISHED_ALBUM) },
+  access: accesCollection('mediatheque', PUBLISHED_ALBUM),
   hooks: { afterChange: [revalidateCollection], afterDelete: [revalidateCollectionDelete] },
   defaultSort: 'order',
   fields: [
